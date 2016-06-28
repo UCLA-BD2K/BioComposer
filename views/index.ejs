@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='stylesheets/style.css'/>
+    <link rel='stylesheet' href='stylesheets/fonts.css'/>
+    <link rel='stylesheet' href='stylesheets/index.css'/>
+  </head>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+  <script type="text/javascript" src='javascripts/login_front.js'></script>
+  <script type="text/javascript">
+      function showRegistration(){
+        if ($("#register").length == 0){
+        $("#description").animate({height: "550px"}, 1000);  
+        var regFormDOM = "<h2>Register</h2><hr><div id='registration_container'><form id='register' name='register' method='POST' action='/register'>Username<input type='text' name='username'></input><br>E-mail<input type='text' name='email'></input><br>Password<input type='password' name='password'></input><br>Confirm Password<input type='password' name='password_confirm'></input><input style='margin: auto; margin-top: 40px; width: 85px; height: 40px; font-size: 14px; display: block' type='submit' class='button' value='Register'/><br></form></div>"; 
+        $("#description").html($("#description").html() + regFormDOM);
+        $("#joinus").remove();
+        }
+      }
+  
+  </script>
+  </script>
+  <body>
+    <div id="navbar">
+    	<p id="nav_title">HeartBD2K @ UCLA</p>
+        <form action='/login' method="post" id="login" name="login">
+        <input type="text" class="input_blur" onfocus="selectInput(this, 'username')" onblur="deselectInput(this, 'username')" name="username" value="username">
+        </input>
+        <input type="text" class="input_blur" onfocus="selectInput(this, 'password')" onblur="deselectInput(this, 'password')" name="password" value="password">
+        </input>
+        <button>Log-in</button>
+        </form>
+    </div>
+    <div id="main_content">
+	<h1 id="main_title">B<span class="smaller">IO</span>C<span class="smaller">URATOR</span></h1>
+    <hr id="under_title_line">
+    <h2 id="createdBy">Created by the HeartBD2k Center @ UCLA</h2>
+    <br>
+    <br>
+    <h2 id="description_header">Curating Biological Knowledge in Wikipedia</h2>
+    <div class="rounded" id="description"><p>Researching and writing scientific articles can be tedious and time consuming. BioCurator provides intuitive features to streamline the process for those who wish to contribute to scientific knowledge on Wikipedia.</p><div id="joinus" class="button" onclick="showRegistration()">Join Us!</div></div>
+    <div class="rounded side-box" style="float:left";>
+    	<h3>Top Viewed</h3>
+        <div class="list_div">
+          <p>Renal outer medulla</p>
+          <p>Potassium Channels</p>
+          <p>Nephron</p>
+          <p>Cortical collecting duct</p>
+        </div>
+    </div>
+    <div id="articles_curated">
+    <span id="no_articles_curated">3,852</span>
+    <p>Articles Curated & Counting</p>
+    </div>
+    <div class="rounded side-box" style="float:right";>
+    	<h3>Recent</h3>
+        <div class="list_div">
+          <p>Thick ascending limb</p>
+          <p>Inward rectifier</p>
+          <p>Nephron</p>
+          <p>Cortical collecting duct</p>
+       	</div>
+    </div>
+    </div>
+  </body>
+</html>

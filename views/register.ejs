@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Register</title>
+    <link rel='stylesheet' href='stylesheets/style.css'/>
+    <link rel='stylesheet' href='stylesheets/fonts.css'/>
+    <link rel='stylesheet' href='stylesheets/index.css'/>
+  </head>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+  <script type="text/javascript" src='javascripts/login_front.js'>
+  </script>
+  <body>
+    <div id="navbar">
+    	<p id="nav_title">HeartBD2K @ UCLA</p>
+        <form action='/login' method="post" id="login" name="login">
+        <input type="text" class="input_blur" onfocus="selectInput(this, 'username')" onblur="deselectInput(this, 'username')" name="username" value="username">
+        </input>
+        <input type="text" class="input_blur" onfocus="selectInput(this, 'password')" onblur="deselectInput(this, 'password')" name="password" value="password">
+        </input>
+        <button>Log-in</button>
+        </form>
+    </div>
+    <div id="main_content">
+    <h1 id="main_title">Thanks for registering <%= username %>!</h1>
+    </div>
+</body>
+    

@@ -1,0 +1,49 @@
+/* FONTS */
+@font-face {
+	font-family: AvenirNext;
+	src:url(../fonts/AvenirNext-Regular.ttf);
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: AvenirNext;
+	src:url(../fonts/AvenirNext-Bold.ttf);
+	font-weight:bold;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: AvenirNext;
+	src:url(../fonts/AvenirNext-Italic.ttf);
+	font-weight:bold;
+	font-style:italic;
+}
+
+@font-face {
+	font-family: Cambria;
+	src:url(../fonts/Cambria%20Bold.ttf);
+	font-weight:bold;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: Cambria;
+	src:url(../fonts/Cambria%20Bold%20Italic.ttf);
+	font-weight:bold;
+	font-style: italic;
+}
+
+@font-face {
+	font-family: Cambria;
+	src:url(../fonts/Cambria.ttf);
+	font-weight:normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: Cambria;
+	src:url(../fonts/Cambria%20Italic.ttf);
+	font-weight:normal;
+	font-style: italic;
+}

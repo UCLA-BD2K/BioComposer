@@ -1,0 +1,190 @@
+#main_title
+{
+	font-family:Cambria;
+	font-size: 120px;
+	color: #4E63A1;
+	text-align: center;
+	margin: 0;
+	padding-top: 40px;
+}
+
+#main_title .smaller
+{
+	font-size: 80px;
+}
+
+#under_title_line
+{
+	width: 50%;
+	color: #4E63A1;
+	border: 0;
+	background-color: #4E63A1;
+	height: 2px;
+}
+
+#createdBy
+{
+	color: #4E63A1;
+	font-size: 16px;
+	text-align: center;
+	font-family: AvenirNext;
+	font-style:normal;
+	font-weight:normal;
+}
+
+#description_header
+{
+	color: #4E63A1;
+	font-size: 34px;
+	text-align: center;
+	font-family: AvenirNext;
+	font-style:italic;
+	font-weight:normal;
+}
+
+#description
+{
+	display: block;
+	background-color: white;
+	height: 200px;
+	width: 700px;	
+	margin: auto;
+}
+
+#description p
+{
+	padding-left: 25px;
+	padding-top: 20px;
+	color: #474747;
+	font-size: 20px;
+	font-family: AvenirNext;
+}
+
+#description .button
+{
+	margin: auto;
+	display: block;
+	width: 65px;
+}
+
+
+.rounded
+{
+	border-radius: 10px;
+}
+
+.side-box
+{
+	height: 240px;
+	width: 240px;
+	display: inline-block;
+	position: relative; 
+	top: 25px;
+	background-color: white;
+    margin-bottom: 100px;
+}
+
+.side-box h3
+{
+	font-family: Cambria;
+	font-size: 36px;
+	font-style: italic;
+	font-weight: normal;
+	margin-top: 20px;
+	color: #4E63A1;
+	text-align: center;
+}
+
+
+.side-box p
+{
+	font-family: AvenirNext;
+	font-size: 14px;
+	color: #4E63A1;
+	text-align: center;
+	padding-top: 5px;
+}
+
+.list_div
+{
+	position: relative;
+	top: -15px;
+}
+
+#articles_curated
+{
+	height: 135px;
+	width: 130px;
+	display: inline-block;
+	float:left;
+	text-align: center;
+	position: relative;
+	left: 40px;	left: 40px;
+
+	top: 30px;
+}
+
+#no_articles_curated
+{
+	font-size: 48px;
+	font-family:AvenirNext;
+	color: #383838;
+}
+
+#articles_curated p
+{
+	font-size: 18px;
+	font-family:Cambria;
+	font-style: italic;
+	color: #383838;
+}
+
+#main_content
+{
+	display: block;
+	margin: auto;
+	position: relative;
+	height: 1000px;
+	width: 700px;
+	background-repeat:repeat;
+}
+
+a {
+  color: #00B7FF;
+}
+
+#registration_container
+{
+    height: 250px;
+    width: 400px;
+    display: block;
+    margin: auto;
+    margin-top: 30px;
+}
+
+#registration_container form
+{
+    font-size: 16px;
+    font-family: AvenirNext;
+    color: indianred;
+}
+
+#registration_container input
+{
+    margin-top: 20px;
+    right: 0px;
+    font-size: 16px;
+}
+
+#description hr
+{
+    width: 400px;
+}
+
+#description h2
+{
+    color: indianred;
+	font-size: 34px;
+	text-align: center;
+	font-family: AvenirNext; 
+}
