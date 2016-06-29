@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= title %></title>
+    <title>GeneWiki</title>
     <link rel='stylesheet' href='stylesheets/style.css'/>
     <link rel='stylesheet' href='stylesheets/fonts.css'/>
     <link rel='stylesheet' href='stylesheets/index.css'/>
@@ -9,10 +9,52 @@
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
   <script type="text/javascript" src='javascripts/login_front.js'></script>
   <script type="text/javascript">
+    <% if (typeof errors != 'undefined') { %>
+        $(document).ready(function(){
+            showRegistration();
+            var error = "";
+            <% for (var x=0; x<errors.length;x++) { %>
+            error += '<%= errors[x].msg %>';
+            <% if (x != errors.length-1) { %>
+                error += ", ";
+            <% } %>
+            <% console.log(errors[x].msg) } %>
+            $("#reg_err").html('*' + error);
+        }
+    );
+    <% } %>
+      
+    //User succesfully registered
+    <% if (reg_status == "success") { %>
+    $(document).ready(function(){
+        $("#joinus").remove();
+        var DOM = "<p style='color:green; text-align: center; position: relative; bottom: 30px'>You are successfully registered!</p>";
+        $("#description").html($("#description").html() + DOM);
+        });
+    <% } %>
+    
+    //Usename already exists
+    <% if (reg_status == "user_exists") { %>
+    $(document).ready(function(){
+        $("#joinus").remove();
+        var DOM = "<p style='color:green; text-align: center; position: relative; bottom: 30px'>This user name is taken.</p>";
+        $("#description").html($("#description").html() + DOM);
+        });
+    <% } %>
+    
+    //Email already registered
+    <% if (reg_status == "email_exists") { %>
+    $(document).ready(function(){
+        $("#joinus").remove();
+        var DOM = "<p style='color:green; text-align: center; position: relative; bottom: 30px'>The e-mail you entered has already been registered.</p>";
+        $("#description").html($("#description").html() + DOM);
+        });
+    <% } %>
+      
       function showRegistration(){
         if ($("#register").length == 0){
         $("#description").animate({height: "550px"}, 1000);  
-        var regFormDOM = "<h2>Register</h2><hr><div id='registration_container'><form id='register' name='register' method='POST' action='/register'>Username<input type='text' name='username'></input><br>E-mail<input type='text' name='email'></input><br>Password<input type='password' name='password'></input><br>Confirm Password<input type='password' name='password_confirm'></input><input style='margin: auto; margin-top: 40px; width: 85px; height: 40px; font-size: 14px; display: block' type='submit' class='button' value='Register'/><br></form></div>"; 
+        var regFormDOM = "<h2>Register</h2><hr><p id='reg_err' class='error'></p><div id='registration_container'><form id='register' name='register' method='POST' action='/register'>Username: <input type='text' name='username'></input><br>E-mail: <input type='text' name='email'></input><br>Password: <input type='password' name='password'></input><br>Confirm Password: <input type='password' name='password_confirm'></input><input style='margin-top: 30px; width: 90px; padding-bottom: 30px; position: relative; left: 60px;' type='submit' class='button' value='Register'/><br></form></div>"; 
         $("#description").html($("#description").html() + regFormDOM);
         $("#joinus").remove();
         }

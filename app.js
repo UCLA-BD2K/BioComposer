@@ -15,7 +15,7 @@ var passport = require('passport');
 var localStrategy = require('passport-local');
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/geneWiki');
+mongoose.connect('mongodb://localhost/genewiki');
 var db = mongoose.connection;
 
 var app = express();
