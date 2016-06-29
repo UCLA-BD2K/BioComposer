@@ -28,7 +28,7 @@
     <% if (reg_status == "success") { %>
     $(document).ready(function(){
         $("#joinus").remove();
-        var DOM = "<p style='color:green; text-align: center; position: relative; bottom: 30px'>You are successfully registered!</p>";
+        var DOM = "<p style='color:lightgreen; text-align: center; position: relative; bottom: 30px'><b>You are successfully registered!</b></p>";
         $("#description").html($("#description").html() + DOM);
         });
     <% } %>
@@ -37,7 +37,7 @@
     <% if (reg_status == "user_exists") { %>
     $(document).ready(function(){
         $("#joinus").remove();
-        var DOM = "<p style='color:green; text-align: center; position: relative; bottom: 30px'>This user name is taken.</p>";
+        var DOM = "<p style='color:#ffb2b2; text-align: center; position: relative; bottom: 30px'><b>This username is taken.</b></p>";
         $("#description").html($("#description").html() + DOM);
         });
     <% } %>
@@ -46,7 +46,7 @@
     <% if (reg_status == "email_exists") { %>
     $(document).ready(function(){
         $("#joinus").remove();
-        var DOM = "<p style='color:green; text-align: center; position: relative; bottom: 30px'>The e-mail you entered has already been registered.</p>";
+        var DOM = "<p style='color:#ffb2b2; text-align: center; position: relative; bottom: 30px'><b>The e-mail you entered has already been registered.</b></p>";
         $("#description").html($("#description").html() + DOM);
         });
     <% } %>

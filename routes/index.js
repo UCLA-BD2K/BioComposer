@@ -1,7 +1,9 @@
 var express = require('express');
 var router = express.Router();
+var passport = require('passport');
+var localStrategy = require('passport-local').Strategy;
 
-var user = require('../models/user.js');
+var User = require('../models/user.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -12,9 +14,38 @@ router.get('/index', function(req, res, next) {
   res.render('index', { title: 'GeneWiki', reg_status: "none" });
 });
 
+//Authenticating user
+passport.use(new localStrategy(
+    function(username, password, done){
+        User.getUserbyUsername(username, function(err, user){
+            if (err) throw err;
+            if (!user)
+                return done(null, false, {message: "User not found."});
+            User.comparePassword(password, user.password, function(err, isMatch){
+                if (err) throw err;
+                if (isMatch){
+                    return done (null,user);
+                }
+                else {
+                    return done(null, false, {message: "Incorrect password."});
+                }
+            });
+        });
+    }));
+        
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  User.getUserById(id, function(err, user) {
+    done(err, user);
+  });
+});
+
 // Process Log-In POST
-router.post('/login', function(req, res){
-    var msg = '<h1>Here are your login credentials</h1> <p>Username: ' + req.body.username + '</p> <p>Password: ' + req.body.password + '</p>';
+router.post('/login', passport.authenticate('local'), function(req, res){
     res.render('register', { username: req.body.username });
 });
 
@@ -40,22 +71,41 @@ router.post('/register', function(req, res){
     }
     else
     {
-        
-        //If username is not taken and e-mail doesn't exist
-        var newUser = new user({
-            username: username,
-            email: email,
-            password: password
-        });
-        
-        user.createUser(newUser, function(err, user)
-        {
+        User.find({username: username}, function(err, user){
             if (err) throw err;
+            
+            //Username not taken
             console.log(user);
+            if (user.length==0)
+            {
+                User.find({email: email}, function(err, user){
+                    //If username is not taken and e-mail doesn't exist
+                    if (user.length==0)
+                    {
+                        var newUser = new User({
+                        username: username,
+                        email: email,
+                        password: password
+                        });
+
+                        User.createUser(newUser, function(err, user)
+                        {
+                        if (err) throw err;
+                        console.log(user);
+                        });
+
+                        console.log('sucess_msg', 'You are registered and can now log in.');
+                        res.render('index', {reg_status: "success"});
+                    }
+                    else
+                        res.render('index', {reg_status: "email_exists"});
+                });
+            }
+            else
+                res.render('index', {reg_status: "user_exists"});
+            
         });
         
-        console.log('sucess_msg', 'You are registered and can now log in.');
-        res.render('index', {reg_status: "success"});
     }
 });
 

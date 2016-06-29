@@ -86,7 +86,7 @@
 	display: inline-block;
 	position: relative; 
 	top: 25px;
-    background-color: rgba(255,255,255,0.5);
+    background-color: rgba(255,255,255,0.4);
     border: 2px white;
     border-style: solid;
     margin-bottom: 100px;
@@ -180,13 +180,18 @@ a {
     text-align: right;
 }
 
-#registration_container input
+#registration_container input:not(.button)
 {
     margin-top: 20px;
     right: 0px;
     font-size: 16px;
     background-color: rgba(255,255,255,0.5);
     color: white;
+}
+
+#registration_container .button
+{
+    font-size: 16px;
 }
 
 #description hr
