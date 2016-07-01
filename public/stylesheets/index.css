@@ -170,6 +170,11 @@ a {
     right: 60px;
 }
 
+#registration_container h2
+{
+    font-size: 36px;
+}
+
 
 #registration_container form
 {
@@ -201,7 +206,7 @@ a {
 #description h2
 {
     color: white;
-	font-size: 10px;
+	font-size: 34px;
 	text-align: center;
 	font-family: AvenirNext; 
 }

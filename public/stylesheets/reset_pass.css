@@ -1,7 +1,7 @@
 #reset_container
 {
     width: 650px;
-    height: 200px;
+    height: 230px;
     display: block;
     margin: auto;
     margin-top: 300px;
@@ -11,7 +11,7 @@
 
 #email_input
 {
-    background-color: #4C4C4C;
+    background-color: #3B3B3B;
     width: 80%;
     height: 60px;
     border-radius: 20px;
@@ -19,4 +19,29 @@
     font-family: AvenirNext;
     padding-left: 30px;
     color: white;
+}
+
+#reset
+{
+    width: 80px;
+    font-size: 16px;
+    height: 40px;
+    position: relative;
+    top: 20px;
+    border: none;
+    border-radius: 20px;
+    left: 235px;
+}
+
+#reset_container h1
+{
+    color: #3B3B3B;
+}
+
+#email_err
+{
+    color: red;
+    font-size: 18px;
+    bottom: 70px;
+    position: relative;
 }

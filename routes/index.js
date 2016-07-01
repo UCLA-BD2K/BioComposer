@@ -127,9 +127,31 @@ function ensureAuthenticated(req, res, next){
     }
 }
 
+//Send user to password_reset view
 router.get('/password_reset', function(req, res)
 {
-    res.render('password_reset'); 
+    res.render('password_reset', {errors: null}); 
+});
+
+//Process password reset form
+router.post('/reset_pass', function(req, res)
+{
+    //Implement check to validate e-mail
+    req.checkBody('email', 'Please enter a valid e-mail').isEmail();
+    var errors = req.validationErrors();
+    
+    //Error handling
+    if (errors)
+    {
+        console.log(errors);
+        res.render('password_reset', {errors: errors});
+    }
+    
+    
+    //Code to process password reset
+    User.find({email: req.body.email}, function(err, user){
+    });
+    
 });
 
 //---------- RESTRICTED USER ONLY ACCESS AREA -------------//
