@@ -17,7 +17,7 @@ router.get('/index', function(req, res, next) {
 //Authenticating user
 passport.use(new localStrategy(
     function(username, password, done){
-        User.getUserbyUsername(username, function(err, user){
+        User.getUserByUsername(username, function(err, user){
             if (err) throw err;
             if (!user)
                 return done(null, false, {message: "User not found."});
@@ -45,18 +45,24 @@ passport.deserializeUser(function(id, done) {
 });
 
 // Process Log-In POST
-router.post('/login', passport.authenticate('local'), function(req, res){
-    res.render('register', { username: req.body.username });
+router.post('/auth', passport.authenticate('local', {failureRedirect: '/', failureFlash: true}), function(req, res){
+    res.redirect('/main');
 });
 
+
+
 router.post('/register', function(req, res){
+    var firstname = req.body.firstname;
+    var lastname = req.body.lastname;
     var username = req.body.username;
     var email = req.body.email;
     var password = req.body.password;
     var password_confirm = req.body.password_confirm;
     
     //Validation
-    req.checkBody('username', 'Username is required').notEmpty();
+    req.checkBody('username', 'First name is required').notEmpty();
+    req.checkBody('firstname', 'Last name is required').notEmpty();
+    req.checkBody('lastname', 'Username is required').notEmpty();
     req.checkBody('email', 'E-mail is required').notEmpty();
     req.checkBody('email', 'E-mail is not valid').isEmail();
     req.checkBody('password', 'Password is required').notEmpty();
@@ -83,6 +89,8 @@ router.post('/register', function(req, res){
                     if (user.length==0)
                     {
                         var newUser = new User({
+                        lastname: lastname,
+                        firstname: firstname,
                         username: username,
                         email: email,
                         password: password
@@ -108,5 +116,39 @@ router.post('/register', function(req, res){
         
     }
 });
+
+//Verify user is authenticated HERE:
+function ensureAuthenticated(req, res, next){
+    if (req.isAuthenticated()){
+        return next();
+    }
+    else {
+        res.redirect('/');
+    }
+}
+
+router.get('/password_reset', function(req, res)
+{
+    res.render('password_reset'); 
+});
+
+//---------- RESTRICTED USER ONLY ACCESS AREA -------------//
+
+router.get('/main', ensureAuthenticated, function(req, res)
+{
+    res.render('main');
+});
+
+router.get('/logout', ensureAuthenticated, function(req, res)
+{
+    req.logout();
+    res.redirect('/'); 
+});
+
+router.get('/account', ensureAuthenticated, function(req, res)
+{
+    res.render('account_settings'); 
+});
+
 
 module.exports = router;

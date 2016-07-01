@@ -73,7 +73,6 @@
     padding-top:7px;
 }
 
-
 .rounded
 {
 	border-radius: 10px;
@@ -202,7 +201,7 @@ a {
 #description h2
 {
     color: white;
-	font-size: 34px;
+	font-size: 10px;
 	text-align: center;
 	font-family: AvenirNext; 
 }

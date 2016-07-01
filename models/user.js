@@ -2,6 +2,14 @@ var mongoose = require('mongoose');
 var bcrypt = require('bcryptjs');
 
 var UserSchema = mongoose.Schema ({
+    lastname: {
+        type: String,
+        index: true
+    },
+    firstname: {
+        type: String,
+        index: true
+    },
     username: {
         type: String,
         index: true
@@ -42,6 +50,6 @@ module.exports.comparePassword = function(candidatePassword, hash, callback)
     bcrypt.compare(candidatePassword, hash, function(err, isMatch){
         if (err) throw err;
         callback(null, isMatch);
-    }
+    });
 }
 

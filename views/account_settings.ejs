@@ -4,7 +4,7 @@
     <title>GeneWiki</title>
     <link rel='stylesheet' href='stylesheets/style.css'/>
     <link rel='stylesheet' href='stylesheets/fonts.css'/>
-    <link rel='stylesheet' href='stylesheets/index.css'/>
+    <link rel='stylesheet' href='stylesheets/account_settings.css'/>
   </head>
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
     <body>
@@ -12,13 +12,14 @@
     	<p id="nav_title">HeartBD2K @ UCLA</p>
         <div style="width: 450px; float: right;" id="login_forms_or_greeting">
         <% if (!user){ %>
-        <p style="position: absolute; text-align: right; float: right; top: 40px; right: 340px;" class="error"><% if (error.length != 0) { %>*<%= error %> <% } %></p>
+        <p style="position: absolute; text-align: right; float: right; top: 32px; right: 340px; font-size: 10px" class="error"><% if (error.length != 0) { %>*<%= error %> <% } %></p>
         <form action='/auth' method="post" id="login" name="login">
         <input type="text" class="input_blur" onfocus="selectInput(this, 'username')" onblur="deselectInput(this, 'username')" name="username" value="username">
         </input>
         <input type="text" class="input_blur" onfocus="selectInput(this, 'password')" onblur="deselectInput(this, 'password')" name="password" value="password">
         </input>
         <button>Log-in</button>
+        <p><a href='/forgot_password' id='password_forgot'>Forgot password?</a></p>
         <% } %>
         <% if (user) { %>
         <p id="greeting">Welcome, <%= user.firstname %> <a href='/logout'>(logout)</a></p>
@@ -27,6 +28,9 @@
         </form>
     </div>
     <div id="main_content">
-        <h1 style="color: white; font-family:AvenirNext"><%= message %> <br> Error: <%= error.status %></h1>
+        <div class='style_a' id="account_container">
+        <h1>Account Settings</h1>
+        
+        </div>
     </div>
     </body>

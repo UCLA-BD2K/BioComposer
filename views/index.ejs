@@ -20,6 +20,7 @@
             <% } %>
             <% console.log(errors[x].msg) } %>
             $("#reg_err").html('*' + error);
+            $("#reg_err").addClass('error_margin')
         }
     );
     <% } %>
@@ -53,8 +54,8 @@
       
       function showRegistration(){
         if ($("#register").length == 0){
-        $("#description").animate({height: "550px"}, 1000);  
-        var regFormDOM = "<h2>Register</h2><hr><p id='reg_err' class='error'></p><div id='registration_container'><form id='register' name='register' method='POST' action='/register'>Username: <input type='text' name='username'></input><br>E-mail: <input type='text' name='email'></input><br>Password: <input type='password' name='password'></input><br>Confirm Password: <input type='password' name='password_confirm'></input><input style='margin-top: 30px; width: 90px; padding-bottom: 30px; position: relative; left: 60px;' type='submit' class='button' value='Register'/><br></form></div>"; 
+        $("#description").animate({height: "650px"}, 1000);  
+        var regFormDOM = "<h2>Register</h2><hr><p class='error' id='reg_err'></p><div id='registration_container'><form id='register' name='register' method='POST' action='/register'>First: <input type='text' name='firstname'></input><br>Last: <input type='text' name='lastname'></input><br>Username: <input type='text' name='username'></input><br>E-mail: <input type='text' name='email'></input><br>Password: <input type='password' name='password'></input><br>Confirm Password: <input type='password' name='password_confirm'></input><input style='margin-top: 30px; width: 90px; padding-bottom: 30px; position: relative; left: 60px;' type='submit' class='button' value='Register'/><br></form></div>"; 
         $("#description").html($("#description").html() + regFormDOM);
         $("#joinus").remove();
         }
@@ -65,12 +66,21 @@
   <body>
     <div id="navbar">
     	<p id="nav_title">HeartBD2K @ UCLA</p>
-        <form action='/login' method="post" id="login" name="login">
+        <div style="width: 450px; float: right;" id="login_forms_or_greeting">
+        <% if (!user){ %>
+        <p style="position: absolute; text-align: right; float: right; top: 32px; right: 340px; font-size: 10px" class="error"><% if (error.length != 0) { %>*<%= error %> <% } %></p>
+        <form action='/auth' method="post" id="login" name="login">
         <input type="text" class="input_blur" onfocus="selectInput(this, 'username')" onblur="deselectInput(this, 'username')" name="username" value="username">
         </input>
         <input type="text" class="input_blur" onfocus="selectInput(this, 'password')" onblur="deselectInput(this, 'password')" name="password" value="password">
         </input>
         <button>Log-in</button>
+        <p><a href='/forgot_password' id='password_forgot'>Forgot password?</a></p>
+        <% } %>
+        <% if (user) { %>
+        <p id="greeting">Welcome, <%= user.firstname %> <a href='/logout'>(logout)</a></p>
+        <% }%>
+        </div>
         </form>
     </div>
     <div id="main_content">
