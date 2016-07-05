@@ -4,6 +4,8 @@ h1, h3, h3, p
     color: white;
 }
 
+
+
 body {
 	padding: 0;
 	margin: 0;
@@ -20,6 +22,12 @@ body {
     display: block;
 	margin: 0;
     background-color:white;
+}
+
+#nav_title a
+{
+    text-decoration: none;
+    color: black;
 }
 
 #login

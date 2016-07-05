@@ -9,7 +9,7 @@
 		$(obj).removeClass('input_blur');
 	
 	if (obj.value == txt){
-	if (obj.value == 'password')
+	if (obj.value == 'password' || obj.value == 'Enter a password' || obj.value == 'Confirm password')
 		obj.type = "password";
 	obj.value = "";  
 	}

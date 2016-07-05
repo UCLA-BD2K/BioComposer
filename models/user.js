@@ -19,6 +19,9 @@ var UserSchema = mongoose.Schema ({
     },
     email: {
         type: String
+    },
+    reset_hash: {
+        type: String
     }
 })
 
