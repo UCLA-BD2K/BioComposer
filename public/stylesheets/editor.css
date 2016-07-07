@@ -1,0 +1,150 @@
+#editor_window, #content_panel
+{
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+}
+
+#editor_window
+{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    background-color: white;
+    z-index: 10;
+}
+
+#content_panel
+{
+    background-image:url(../images/frosted_pattern.png);
+    width: 440px;
+    height: 100%;
+    position: absolute;
+    box-shadow: 2px 2px 4px #777;
+    z-index: 20;
+}
+
+#search
+{
+    height: 62px;
+    border: 1px solid rgb(150,150,150);
+    
+    /*GRADIENT*/
+    background: #d1d1d1; /* Old browsers */
+    background: -moz-linear-gradient(top, #d1d1d1 0%, #959595 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, #d1d1d1 0%,#959595 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, #d1d1d1 0%,#959595 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d1d1d1', endColorstr='#959595',GradientType=0 ); /* IE6-9 */
+}
+
+#search_bar
+{
+    width: 265px;
+    height: 32px;
+    display: block;
+    margin: auto;
+    position: relative;
+    top: 12px;
+    border-radius: 12px;
+    background-color: #3B3B3B;
+    font-size: 14px;
+    font-family: AvenirNext;
+    color: white;
+    border: 1px solid rgb(200, 200, 200);
+    padding-left: 60px;
+}
+
+#mag_glass
+{
+    position: relative;
+    left: -140px;
+    bottom: 26px;
+    display: block;
+    margin: auto;
+}
+
+#tabs_container
+{
+    height: 35px;
+    width: 235px;
+    margin: auto;
+    display: block; 
+    border-radius: 12px;
+    border: 1px solid white;
+    background-color: #2A2A2A;
+    margin-top: 22px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.tabs
+{
+    width: 50%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border-right: 1px solid white;
+    margin-right: -1px;
+    display: inline-block;
+}
+
+.tabs p
+{
+    color: white;
+    text-align: center;
+    font-family: AvenirNext;
+    font-size: 13px;
+    position: relative;
+    top: -4px;
+}
+
+.tabs-click
+{
+    background-color: #5C81D2;
+    /*INNER SHADOW*/
+    -webkit-box-shadow: inset 0px 0px 6px 0px rgba(80,80,80,0.6);
+	-moz-box-shadow: inset 0px 0px 6px 0px rgba(80,80,80,0.6);
+	box-shadow: inset 0px 0px 6px 0px rgba(80,80,80,0.6);
+}
+
+.pubmed-click
+{
+    border-left: 1px solid white;
+    margin-left: -1px;
+}
+
+#toolbar
+{
+    height: 35px;
+    width: 100%;
+    border: 1px solid rgb(150,150,150);
+    
+    /*GRADIENT*/
+    background: #eaeaea; /* Old browsers */
+    background: -moz-linear-gradient(top, #eaeaea 0%, #d2d2d2 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, #eaeaea 0%,#d2d2d2 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, #eaeaea 0%,#d2d2d2 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eaeaea', endColorstr='#d2d2d2',GradientType=0 ); /* IE6-9 */
+}
+
+#toolbar img
+{
+    display: inline-block;
+    position: relative;
+    float: right;
+    height: 19px;
+    width: 19px;
+    top: 8px;
+}
+
+#extend_div
+{
+    position: relative;
+    height: 100%;
+    float: right;
+    width: 10px;
+    opacity: 0;
+    cursor: ew-resize;
+}

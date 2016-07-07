@@ -11,6 +11,11 @@ router.get('/index', function(req, res, next) {
   res.render('index', { title: 'GeneWiki', reg_status: "none" });
 });
 
+router.get('/test', function(req, res, next) {
+  res.render('editor');
+});
+
+
 //Verify user is authenticated HERE:
 function ensureAuthenticated(req, res, next){
     if (req.isAuthenticated()){
@@ -33,6 +38,8 @@ router.get('/logout', ensureAuthenticated, function(req, res)
     req.logout();
     res.redirect('/'); 
 });
+
+
 
 router.get('/account', ensureAuthenticated, function(req, res)
 {

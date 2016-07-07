@@ -153,17 +153,19 @@ form
 #greeting
 {
     font-family: AvenirNext;
-    font-size: 20px;
+    font-size: 14px;
     position: relative;
     bottom: 25px;
-    color: black;
+    text-align: right; 
+    right: 70px;
+    color: #969393;
 }
 
 #greeting a 
 {
-    font-size: 12px;
+    font-size: 10px;
     text-decoration: underline;
-    color: black;
+    color: #969393;
 }
 
 .style_a
@@ -186,6 +188,22 @@ form
 }
 
 #password_forgot:hover
+{
+    text-decoration: underline;
+}
+
+nav
+{
+    text-align: right;
+    position: relative;
+    right: 50px;
+    bottom: 35px;
+    color: black;
+    font-family: AvenirNext;
+    font-size: 20px;
+}
+
+nav a:hover
 {
     text-decoration: underline;
 }

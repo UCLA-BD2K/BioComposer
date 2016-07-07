@@ -21,7 +21,7 @@
         <input type="text" class="input_blur" onfocus="selectInput(this, 'password')" onblur="deselectInput(this, 'password')" name="password" value="password">
         </input>
         <button>Log-in</button>
-        <p><a href='/forgot_password' id='password_forgot'>Forgot password?</a></p>
+        <p><a href='/password_reset' id='password_forgot'>Forgot password?</a></p>
         <% } %>
         <% if (user) { %>
         <p id="greeting">Welcome, <%= user.firstname %> <a href='/logout'>(logout)</a></p>
