@@ -147,4 +147,66 @@
     width: 10px;
     opacity: 0;
     cursor: ew-resize;
+    z-index: 100;
+}
+
+.results_container
+{
+    top: 150px;
+    display: block;
+    margin: auto;
+    position: absolute;
+}
+
+#pubmed_results, #google_results
+{
+    overflow: scroll;
+    height: 100%;
+    width: 100%;
+}
+
+.results_header
+{
+    font-size: 18px;
+    text-align: center;
+    font-family: AvenirNext;
+    font-weight: normal;
+}
+
+.single_result_a
+{
+    background-color: rgba(90,90,90,0.5);
+}
+
+.single_result_b
+{
+    background-color: rgba(255,255,255,0);
+}
+
+.single_result
+{
+    color: white;
+    font-family: AvenirNext;
+    padding-top: 15px;
+    padding-bottom: 20px;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.single_result h1
+{
+    color: white;
+    font-family: AvenirNext;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
+}
+
+.single_result .authors
+{
+    font-size: 10px;
+    position: relative;
+    top: -10px;
 }

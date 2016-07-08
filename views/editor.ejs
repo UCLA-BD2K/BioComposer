@@ -9,13 +9,25 @@
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
     <script type="text/javascript" src='javascripts/login_front.js'>
     </script>
+    <script type="text/javascript" src='javascripts/pubmed.js'>
+    </script>
     <script type="text/javascript">
+        function adjustResultDimensions(x, y)
+        {
+            $(".results_container").width($("#content_panel").width()*x);
+            $(".results_container").height($("#content_panel").height()*y)
+        }
         
         //Functions for extending side panel
         var mouse_pos_x; 
         var width;
         
+        //MAIN document ready function
+        $(window).resize(function(){
+            adjustResultDimensions(1, 0.75);
+        })
         $(document).ready(function(){
+            adjustResultDimensions(1, 0.75);
             $("#extend_div").mousedown(function (e) {
                 e.preventDefault();
                 $(document).css('cursor', 'ew-resize');
@@ -28,6 +40,8 @@
                         $("#content_panel").width(width + e.pageX - mouse_pos_x);
                     else
                         $("#content_panel").width(360);
+                    
+                    adjustResultDimensions(1, 0.75);
 
                 });
             }).mouseup(function () {
@@ -37,14 +51,7 @@
         
         
         
-        
-        function extend(e, obj)
-        {
-            $(obj).width(width + e.pageX - mouse_pos_x);
-            console.log(e.pageX - mouse_pos_x);
-        }
-        //-----------------------
-        
+        // ---- Animations -----
         function tabClick(obj){
             $(obj).addClass('tabs-click');
             if (obj.id == 'pubmed')
@@ -92,7 +99,7 @@
             </div>
             <div id="search">
                 <form method='post' id='search_form' name='search'>
-                    <input type='text' value='Search Publications' id='search_bar' class="input_blur" onfocus="selectInput(this, 'Search Publications')" onblur="deselectInput(this, 'Search Publications')"></input>
+                    <input type='text' value='Search Publications' id='search_bar' class="input_blur" onfocus="selectInput(this, 'Search Publications')" onblur="deselectInput(this, 'Search Publications')" onchange="simpleAndSearch(this)"></input>
                 <img id="mag_glass" src="../images/search_glass.png"/>
                 </form>
             </div>
@@ -103,6 +110,15 @@
                     </div>
                     <div class='tabs' id='pubmed' onclick='tabClick(this)' style="float: right;">
                         <p>PubMed</p>
+                    </div>
+                </div>
+                
+                <div class="results_container" style="visibility: hidden;">
+                    <div id="google_results">
+                    </div>
+                </div>
+                <div class="results_container">
+                    <div id="pubmed_results">
                     </div>
                 </div>
             </div>
