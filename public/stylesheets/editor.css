@@ -210,3 +210,17 @@
     position: relative;
     top: -10px;
 }
+
+.dateSource
+{
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+}
+
+.abstract
+{
+    font-size: 12px;
+    margin-bottom: 20px;
+    display: none;
+}
