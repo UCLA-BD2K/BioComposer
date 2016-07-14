@@ -39,6 +39,14 @@
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d1d1d1', endColorstr='#959595',GradientType=0 ); /* IE6-9 */
 }
 
+#search_wrap
+{
+    height: 40px;
+    width: 400px;
+    margin: auto;
+    display: block;
+}
+
 #search_bar
 {
     width: 265px;
@@ -60,7 +68,7 @@
 {
     position: relative;
     left: -140px;
-    bottom: 26px;
+    bottom: 28px;
     display: block;
     margin: auto;
 }
@@ -152,16 +160,20 @@
 
 .results_container
 {
-    top: 150px;
+    top: 70px;
     display: block;
     margin: auto;
     position: absolute;
 }
 
+.results_container > * {
+    color: white;
+}
+
 #pubmed_results, #google_results
 {
-    overflow: scroll;
-    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
     width: 100%;
 }
 
@@ -211,6 +223,10 @@
     top: -10px;
 }
 
+.single_result > * {
+    color: white;
+}
+
 .dateSource
 {
     font-size: 14px;
@@ -223,4 +239,127 @@
     font-size: 12px;
     margin-bottom: 20px;
     display: none;
+}
+
+.articleNum
+{
+    position: relative;
+    top: 15px;
+    left: 15px;
+    font-size: 16px;
+}
+
+.article_title
+{
+    color: white;
+    text-decoration: none;
+}
+
+.single_result b
+{
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/*Literally displays the word "abstract"*/
+.single_result h2
+{
+    font-size: 16px;
+    display: inline;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+}
+
+#search_form
+{
+    margin: auto;
+    display: block;
+}
+
+.loader
+{
+    height: 20px;
+    position: relative;
+    bottom: 18px;
+    left: 330px;
+}
+
+/* --- Page controller ----- */
+#pageNum
+{
+    display: block;
+    margin: auto;
+    margin-bottom: 0;
+    font-size: 12px;
+    position: relative;
+    padding: 0;
+    background-color: blue;
+    text-align: center;
+    height: 0;
+    top: 10px;
+    
+}
+
+#pageNext
+{
+    display: block;
+    text-align: right;
+    float: right;
+    margin-right: 20px;
+    padding: 0;
+    font-size: 12px;
+}
+
+#pagePrev
+{
+    display: block;
+    text-align: left;
+    float: left;
+    margin-left: 30px;
+    padding: 0;
+    font-size: 12px;
+}
+
+#pagePrev:hover, #pageNext:hover
+{
+    text-decoration: underline;
+}
+
+/* Edit Area */
+#edit_area
+{
+    position: relative;
+    resize: none;
+    border: none;
+    color: black;
+}
+
+h1, h2, h3, p
+{
+    color: black;
+}
+
+#editor
+{
+    padding: 20px;
+    left: 440px;
+    position: relative;
+    color: black;
+    overflow: scroll;
+}
+
+#document_title
+{
+    display: inline-block;
+    position: relative;
+    left: 920px;
+    top: 6px;
+    font-size: 16px;
+    border: none;
+    background-color: rgba(255,255,255,0);
+    resize: none;
+    outline: none;
+    height: 16px;
+    width: 60px;
 }
