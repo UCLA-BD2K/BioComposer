@@ -335,9 +335,10 @@
     color: black;
 }
 
-h1, h2, h3, p
+h1, h2, h3, p, li
 {
     color: black;
+    font-family: AvenirNext;
 }
 
 #editor
@@ -362,4 +363,22 @@ h1, h2, h3, p
     outline: none;
     height: 16px;
     width: 60px;
+}
+
+#wiki_markup
+{
+    height: 500px;
+    width: 500px;
+    background-color: yellow;
+    display: none;
+}
+
+.refButton
+{
+    position: relative;
+    display: block;
+    bottom: 25px;
+    font-size: 12px;
+    width: 40px;
+    float: right;
 }

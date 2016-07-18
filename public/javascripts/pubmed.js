@@ -5,6 +5,9 @@ var itemsPerPage = 20;
 var pageNum = 1;
 var currentSearch = "";
 
+//Count references
+var refCount = 1;
+
 //Lock to prevent too many reuqests
 var ajaxLock = 0;
 
@@ -33,6 +36,36 @@ function unescapeHtml(safe) {
 }
 //------------------------
 
+//citation button
+function generateCitation(obj)
+{
+    //Configure access date
+    var accessDate = new Date();
+    var day = accessDate.getDate();
+    var month = accessDate.getMonth() + 1;
+    var year = accessDate.getFullYear();
+    var dateAccessString = year + "-" + (month < 10 ? "0" + month : month) + "-" + (day < 10 ? "0" + day : day);
+
+    //Re-format published date
+    var d = decodeURIComponent($(obj).data("date"));
+    d = d.substr(5) + " " + d.substr(0, 4);
+    var pubDate = new Date(d);
+    day = pubDate.getDate();
+    month = pubDate.getMonth() + 1;
+    year = pubDate.getFullYear();
+    var pubDateString = year + "-" + (month < 10 ? "0" + month : month) + "-" + (day < 10 ? "0" + day : day);
+    
+    
+    //Generate the citation text
+    var ref = "{{cite web |url=" + decodeURIComponent($(obj).data("url")) + " |title=" + decodeURIComponent($(obj).data("title")) + " |author=" + decodeURIComponent($(obj).data("authors")) + " |publisher=" + decodeURIComponent($(obj).data("publisher")) + " |date=" + pubDateString + " |accessdate=" + dateAccessString + "}}";    
+    
+    var refHTML = "<a href='" + encodeURIComponent(ref) +"'><sup>[" + refCount + "]</sup></a>";
+    refCount++;
+    
+    alert(refHTML);
+    
+    editor.insertHtml(refHTML);
+}
 
 function seeMore(obj)
 {
@@ -223,7 +256,7 @@ function displayResults(articles) {
     }).attr("id", "pageNum").prependTo(wrapper);
     
     $('<h1/>',{
-        text: numberWithCommas(search_count) + " results for " + "'" + currentSearch + "'..."
+        text: numberWithCommas(search_count) + " Results for " + '"' + currentSearch + '"...'
       }).addClass('results_header').prependTo(wrapper);
 
     //Create each DIV for each article 
@@ -247,6 +280,13 @@ function displayResults(articles) {
                     authors += " et al."
             }
         
+        //Add data to container
+        $(container).data('url', encodeURIComponent(article.url));
+        $(container).data('title', encodeURIComponent(article.title));
+        $(container).data('date', encodeURIComponent(article.date));
+        $(container).data('authors', encodeURIComponent(authors));
+        $(container).data('publisher', encodeURIComponent(article.source));
+        
 	    $('<a/>', {
 		    href: article.url,
             target: "_blank"
@@ -262,6 +302,10 @@ function displayResults(articles) {
 	    $('<p/>', {
 		    text: "Circ Res. " + article.date + ' · ' + article.source
 			}).addClass('dateSource').appendTo(container);
+        
+        $('<button/>', {
+		    text: "Ref"
+			}).click(function(e){e.stopPropagation(); generateCitation($(this).parent())}).addClass('button').addClass('refButton').appendTo(container);
         
         
         

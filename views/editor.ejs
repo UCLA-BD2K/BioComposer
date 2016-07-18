@@ -76,7 +76,7 @@
         
         <div id="editor_window">
             <div id="toolbar">
-                <textarea id="document_title">Untitled</textarea>
+                <textarea id="document_title" onchange="titleHandler(this)">Untitled</textarea>
                 <img id='save' src="../images/save.png" style="right: 100px;" />
                 <img id='download' src="../images/download.png" style="right: 50px" />
             </div>
@@ -84,6 +84,7 @@
                <textarea id="edit_area" contenteditable="true"></textarea>
                 <script type="text/javascript">
                 </script>
+                <textarea id="wiki_markup"></textarea>
             </div>
         </div>
         
