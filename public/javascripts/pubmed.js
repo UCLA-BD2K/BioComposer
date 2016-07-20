@@ -5,9 +5,6 @@ var itemsPerPage = 20;
 var pageNum = 1;
 var currentSearch = "";
 
-//Count references
-var refCount = 1;
-
 //Lock to prevent too many reuqests
 var ajaxLock = 0;
 
@@ -35,37 +32,6 @@ function unescapeHtml(safe) {
         .replace(/&#039;/g, "'");
 }
 //------------------------
-
-//citation button
-function generateCitation(obj)
-{
-    //Configure access date
-    var accessDate = new Date();
-    var day = accessDate.getDate();
-    var month = accessDate.getMonth() + 1;
-    var year = accessDate.getFullYear();
-    var dateAccessString = year + "-" + (month < 10 ? "0" + month : month) + "-" + (day < 10 ? "0" + day : day);
-
-    //Re-format published date
-    var d = decodeURIComponent($(obj).data("date"));
-    d = d.substr(5) + " " + d.substr(0, 4);
-    var pubDate = new Date(d);
-    day = pubDate.getDate();
-    month = pubDate.getMonth() + 1;
-    year = pubDate.getFullYear();
-    var pubDateString = year + "-" + (month < 10 ? "0" + month : month) + "-" + (day < 10 ? "0" + day : day);
-    
-    
-    //Generate the citation text
-    var ref = "{{cite web |url=" + decodeURIComponent($(obj).data("url")) + " |title=" + decodeURIComponent($(obj).data("title")) + " |author=" + decodeURIComponent($(obj).data("authors")) + " |publisher=" + decodeURIComponent($(obj).data("publisher")) + " |date=" + pubDateString + " |accessdate=" + dateAccessString + "}}";    
-    
-    var refHTML = "<a href='" + encodeURIComponent(ref) +"'><sup>[" + refCount + "]</sup></a>";
-    refCount++;
-    
-    alert(refHTML);
-    
-    editor.insertHtml(refHTML);
-}
 
 function seeMore(obj)
 {
@@ -109,7 +75,9 @@ function display_abstract(response, obj)
     var text = "";
     if (abstract_text.length > 1)
         $.each(abstract_text, function (i, abstract) {
-             text += "<b>" + $(abstract_text[i]).attr("Label") + ": </b>" + $(abstract_text[0]).text() + "<br><br>";
+            if ($(abstract_text[i]).attr("Label"))
+                text += "<b>" + $(abstract_text[i]).attr("Label") + ": </b>";
+            text += $(abstract_text[i]).text() + "<br><br>";
         });
     else
         text = abstract_text.text();
@@ -281,6 +249,7 @@ function displayResults(articles) {
             }
         
         //Add data to container
+        $(container).data('id', article.id);
         $(container).data('url', encodeURIComponent(article.url));
         $(container).data('title', encodeURIComponent(article.title));
         $(container).data('date', encodeURIComponent(article.date));
@@ -311,3 +280,4 @@ function displayResults(articles) {
         
 	});
 }
+
