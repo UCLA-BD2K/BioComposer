@@ -1,3 +1,8 @@
+//Features to implement still: 
+//* Adjust copy and paste so that correct citation generated
+//* Update view when all of given reference is deleted
+
+
 //Citation Handler Singleton Class Definition
 var citationClass = function()
 {
@@ -10,6 +15,7 @@ var citationClass = function()
     this.removeCitationByID = function(id){
         this.citationNum--;
         var citeNumOfRemoved = this.citations[id].citeNum;
+        this.citations[id].citeNum = 0;
         
         //Remove element from array
         delete this.citations[id];
@@ -19,6 +25,19 @@ var citationClass = function()
         for (var key in this.citations)
             if (this.citations[key].citeNum > citeNumOfRemoved)
                 this.citations[key].decrementCiteNum(); //Decrement citeNums and adjust views
+        
+        //Adjust views
+        console.log("Cite Number of Removed: " + citeNumOfRemoved + "\nID: " + id);
+        
+        //Capture cursor location before changing html
+        editor.insertHtml("<div>?</div>");
+        console.log(editor.getData());
+        
+        //set html data to editor
+        editor.setData(updateCiteNumViews(editor.getData(), true, citeNumOfRemoved));
+        
+        //set cursor
+        editor.createRange(); 
         
     }
 }; 
@@ -35,26 +54,22 @@ var citationObj = function(id, parent)
     this.citeNum = ++parent.citationNum;
     
     this.updateCitationCount = function(){
+        //console.log(editor.getData());
         var htmlContents = processRefTags(editor.getData());
-        console.log(htmlContents);
+        //console.log(htmlContents);
         var dom_div = $('<div />', {html:htmlContents});
         var count = $(dom_div).find('[name="a' + this.id + '"]').size();
         this.count = count;
-        console.log("Count: " + count);
+        console.log("Count: " + count + ", ID: " + this.id);
         
         //readjust all citNums
         if (this.count == 0)
-        {
-            this.citeNum = 0;
             parent.removeCitationByID(this.id);
-        }
             
     }
     
     this.decrementCiteNum = function(){
         this.citeNum--;
-        
-        //Code to update views
         
     }
     
@@ -93,10 +108,11 @@ var citationObj = function(id, parent)
         else
             ref = "|ref name=a" + this.id.toString() + " /|";
         
-        var refHTML = "<a href='" + encodeURIComponent(ref) +"'><sup>[" + this.citeNum + "]</sup></a>";
+        var refHTML = " <a class='test' href='" + encodeURIComponent(ref) +"'><sup>[" + this.citeNum + "]</sup></a>";
         editor.insertHtml(refHTML);
 
         this.count++;
+        console.log("Cite number: " + this.citeNum + ", ID: " + this.id);
     }
     
 };
@@ -132,8 +148,6 @@ function getMonthNum(month)
     
 }
 
-
-
 //Event Handler for Button
 function generateCitation(obj)
 {
@@ -150,5 +164,100 @@ function generateCitation(obj)
     
     citationSingleton.citations[id.toString()].count++;
         
+}
+
+//Helper Functions to Process HTML Tags
+//This function is so we can process <ref> tags before sending to server for full conversion
+function processRefTags(data)
+{
+    //Process references
+    //create temp div to use DOM manipulation
+    var dom_div = $('<div />', {html:data});
+    var isReference = /^\[[0-9]+\]$/;
+    var possible_anchors = dom_div.find("a");
+    $.each(possible_anchors, function (i, anchor) {
+        var matches = $(anchor).has("sup");
+        //sometimes <sup> is embedded in <a>
+        if (matches.length != 0)   
+        {
+            //get sup tag
+            var sup = $(anchor).find("sup"); 
+            var txt = $(sup[0]).html();
+            
+            //check against reg-ex and see if reference is of form [[0-9]+]
+            if (isReference.test(txt))
+            {
+                //Replace anchor with the contents of 'href'
+                $(anchor).replaceWith(decodeURIComponent($(anchor).attr('href')));
+            }
+        }
+        else //other times <a> is embedded in <sup>
+        {
+            var txt = $(anchor).html();
+            
+            //check against reg-ex and see if reference is of form [[0-9]+]
+            if (isReference.test(txt))
+            {
+                //eliminate <sup> tags
+                //console.log($(anchor).parent());
+                if ($(anchor).parent().is("sup"))
+                    $(anchor).unwrap();
+                
+                //Replace anchor with the contents of 'href'
+                $(anchor).replaceWith(decodeURIComponent($(anchor).attr('href')));
+            }
+        }     
+    });
+
+    var processedData = $(dom_div).html();
+    processedData = processedData.replace(/\|ref name\=a([0-9]+)\|/g, "<ref name=\'a$1\'>");
+    processedData = processedData.replace(/\|ref name\=a([0-9]+) \/\|/g, "<ref name=\'a$1\' />");
+    processedData = processedData.replace(/\|eref\|/g, "</ref>");
+    return processedData;
+}
+
+function updateCiteNumViews(data, updateCiteNums, deletedNum)
+{
+    //Process references
+    //create temp div to use DOM manipulation
+    var dom_div = $('<div />', {html:data});
+    var possible_anchors = dom_div.find("a");
+    $.each(possible_anchors, function (i, anchor) {
+        var matches = $(anchor).has("sup");
+        //sometimes <sup> is embedded in <a>
+        if (matches.length != 0)   
+        {
+            //get sup tag
+            var sup = $(anchor).find("sup"); 
+            var txt = $(sup[0]).html();
+            var num = txt.replace(/\[([0-9]+)\]/, "$1");
+            
+            //Update views if specified
+            if (updateCiteNums && deletedNum < num)
+            {
+                var tmp = parseInt(num);
+                txt = "[" + --tmp + "]";
+                $(sup[0]).html(txt);
+            }
+            
+        }
+        else //other times <a> is embedded in <sup>
+        {
+            var txt = $(anchor).html();
+            var num = txt.replace(/\[([0-9]+)\]/, "$1");
+            
+            //Update views if specified
+            if (updateCiteNums && deletedNum < num)
+            {
+                var tmp = parseInt(num);
+                txt = "[" + --tmp + "]";
+                $(anchor).html(txt);
+            }
+        }
+    });
+    
+
+    var processedData = $(dom_div).html();
+    return processedData;
 }
 

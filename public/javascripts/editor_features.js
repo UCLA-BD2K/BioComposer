@@ -91,55 +91,6 @@ function sendHTMLtoServer()
     })
 }
 
-//This function is so we can process <ref> tags before sending to server for full conversion
-function processRefTags(data)
-{
-    var data = editor.getData()
-    //Process references
-    //create temp div to use DOM manipulation
-    var dom_div = $('<div />', {html:data});
-    var isReference = /^\[[0-9]+\]$/;
-    var possible_anchors = dom_div.find("a");
-    $.each(possible_anchors, function (i, anchor) {
-        var matches = $(anchor).has("sup");
-        //sometimes <sup> is embedded in <a>
-        if (matches.length != 0)   
-        {
-            //get sup tag
-            var sup = $(anchor).find("sup"); 
-            var txt = $(sup[0]).html();
-            
-            //check against reg-ex and see if reference is of form [[0-9]+]
-            if (isReference.test(txt))
-            {
-                //Replace anchor with the contents of 'href'
-                $(anchor).replaceWith(decodeURIComponent($(anchor).attr('href')));
-            }
-        }
-        else //other times <a> is embedded in <sup>
-        {
-            var txt = $(anchor).html();
-            
-            //check against reg-ex and see if reference is of form [[0-9]+]
-            if (isReference.test(txt))
-            {
-                //eliminate <sup> tags
-                console.log($(anchor).parent());
-                if ($(anchor).parent().is("sup"))
-                    $(anchor).unwrap();
-                
-                //Replace anchor with the contents of 'href'
-                $(anchor).replaceWith(decodeURIComponent($(anchor).attr('href')));
-            }
-        }     
-    });
-
-    var processedData = $(dom_div).html();
-    processedData = processedData.replace(/\|ref name\=a([0-9]+)\|/g, "<ref name=\'a$1\'>");
-    processedData = processedData.replace(/\|ref name\=a([0-9]+) \/\|/g, "<ref name=\'a$1\' />");
-    processedData = processedData.replace(/\|eref\|/g, "</ref>");
-    return processedData;
-}
 
 function downloadWikiMarkUp(data)
 {
