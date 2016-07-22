@@ -5,8 +5,10 @@ var editor;
 function initEditor()
 {   
     CKEDITOR.disableAutoInline = true;
+    CKEDITOR.config.allowedContent = true;
     editor = CKEDITOR.inline( 'edit_area' );
     editor.config.extraPlugins = 'button,panelbutton';
+    
     
     //set autogrow for title
     $("#document_title").autogrow({ vertical : false, horizontal : true });

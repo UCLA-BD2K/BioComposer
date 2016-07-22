@@ -1,6 +1,6 @@
 //Features to implement still: 
 //* Adjust copy and paste so that correct citation generated
-//* Update view when all of given reference is deleted
+//* Adjust references so at least one is the original reference format
 
 
 //Citation Handler Singleton Class Definition
@@ -30,15 +30,26 @@ var citationClass = function()
         console.log("Cite Number of Removed: " + citeNumOfRemoved + "\nID: " + id);
         
         //Capture cursor location before changing html
-        editor.insertHtml("<div>?</div>");
+        editor.insertHtml("<a id='placeHolder'></a>");
+        
         console.log(editor.getData());
         
         //set html data to editor
         editor.setData(updateCiteNumViews(editor.getData(), true, citeNumOfRemoved));
         
-        //set cursor
-        editor.createRange(); 
-        
+        //set cursor to original location
+        var element = editor.document.getById('placeHolder');
+        var range;
+        if(element) {
+            element.scrollIntoView();
+
+            // Thank you S/O
+            // http://stackoverflow.com/questions/16835365/set-cursor-to-specific-position-in-ckeditor
+            range = editor.createRange();
+            range.moveToPosition(element, CKEDITOR.POSITION_AFTER_START);
+            editor.getSelection().selectRanges([range]);
+            element.remove(false);
+        }  
     }
 }; 
 
