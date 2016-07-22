@@ -32,8 +32,28 @@ function initEditor()
     });
     
     editor.on('change', function(e) {
-        citationSingleton.updateCitationCounts();
-    })
+        if (!callBackLock)
+            citationSingleton.updateCitationCounts();
+    });
+    
+    //Make sure copy and paste works appropriately
+//    editor.on( 'paste', function( evt ) {
+//        var html = editor.getData(); 
+//        var dom_div = $('<div />', {html:html});
+//        var longRefs = $(dom_div).find('[class="long' + this.id + '"]');
+//        
+//        //get paste html
+//        var paste_html = evt.data.dataValue;
+//        dom_div = $('<div />', {html:paste_html});
+//        var longRefInPaste = $(dom_div).find('[class="long' + this.id + '"]');
+//        
+//        //Convert longrefs to short refs if one is in paste
+//        if (longRefs.size() > 0 && longRefInPaste.size() > 0)
+//        {
+//            var toChange = longRefInPaste[0];
+//        }
+//        
+//    });
     
     setDimensionsTextArea();
 }
@@ -125,7 +145,7 @@ function setDimensionsTextArea()
     //set position of document title to center
     var offset = Math.ceil(($("#editor_window").width() - $("#content_panel").width())/2 + $("#content_panel").width()) - $("#document_title").width()/2 - 50; 
     $("#document_title").css({"left" : offset.toString() + "px"}); 
-    console.log("offset " + offset);
+    //console.log("offset " + offset);
 }
 
 //----------------------
@@ -150,6 +170,9 @@ $(document).ready(function(){
     
     //Bind send HTML/download function to download icon
     $("#download").click(function(){sendHTMLtoServer().then(downloadWikiMarkUp)});
+    
+    //On Change title window size
+    $("#document_title").on('change', function(){setDimensionsTextArea();});
     
     adjustResultDimensions();
     $("#extend_div").mousedown(function (e) {
