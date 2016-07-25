@@ -39,7 +39,9 @@ function initEditor()
     //Make sure copy and paste works appropriately
     editor.on( 'paste', function( evt ) {
         //get paste html
+        callBackLock = true;
         evt.data.dataValue = processPaste(evt.data.dataValue);
+        callBackLock = false;
     });
     
     setDimensionsTextArea();
@@ -50,7 +52,7 @@ function processPaste(html)
 {
     var div = $('<div />', {html:html});
     var anchors =  $(div).find("a");
-    console.log($(div).html());
+    //console.log($(div).html());
     
     $.each(anchors, function (i, anchor) {
         var className = anchor.className;
@@ -58,19 +60,27 @@ function processPaste(html)
         //short or long
         var type; 
         var id;
-        console.log(className);
         
         if (pattern.test(className))
         {
             type = className.replace(/^(long|short)([0-9]+)$/, "$1");
             id = className.replace(/^(long|short)([0-9]+)$/, "$2"); 
-            if (citationSingleton.citations[id].count > 0 && type=='long')
-                $(anchor).replaceWith(citationSingleton.citations[id].shortRef);
-            citationSingleton.citations[id].count++;
+            if (citationSingleton.citations[id].count > 0)
+                $(anchor).replaceWith(citationSingleton.citations[id].generateShortRef());
+            if (citationSingleton.citations[id].count == 0)
+            {
+                citationSingleton.citations[id].citeNum = ++citationSingleton.citationNum;
+                $(anchor).replaceWith(citationSingleton.citations[id].longRef.replace(/\[([0-9]+)\]/, "[" + citationSingleton.citations[id].citeNum + "]"));
+            }
+            citationSingleton.citations[id].count++;                
+            citationSingleton.citations[id].paste_lock = true;
         }
     });
     
-    console.log($(div).html());
+    if (debugCite)
+        citationSingleton.displayCitations();
+    
+    //console.log($(div).html());
     return $(div).html();
 }
 
@@ -123,6 +133,7 @@ function sendHTMLtoServer()
     return $.ajax({
         type: "POST",
         url: "http://54.186.246.214:3000/convert",
+        //url: "http://localhost:3000/convert",
         data: {"text": encodedData},
         dataType: "text"
     })

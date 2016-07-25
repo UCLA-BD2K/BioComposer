@@ -17,6 +17,15 @@ var citationClass = function()
         for (var key in this.citations)
             this.citations[key].updateCitationCount();
     }
+    
+    this.displayCitations = function(){
+        console.log("");
+        console.log("//------ CITATIONS -------//");
+        for (var key in this.citations)
+            console.log("Citation ID: " + key + ", CITENUM: " + this.citations[key].citeNum + ", COUNT: " + this.citations[key].count);
+        console.log("//------ END -------//");
+    }
+    
     this.removeCitationByID = function(id){
         this.citationNum--;
         var citeNumOfRemoved = this.citations[id].citeNum;
@@ -28,7 +37,11 @@ var citationClass = function()
         //Decrement the citation numbers of citations above
         for (var key in this.citations)
             if (this.citations[key].citeNum > citeNumOfRemoved)
+            {
                 this.citations[key].decrementCiteNum(); //Decrement citeNums and adjust views
+                if (debugCite)
+                    console.log("Citation: " + key + " decremented");
+            }
         
         //Adjust views
         if (debugCite)
@@ -61,17 +74,40 @@ var citationObj = function(id, parent)
     this.citeNum = ++parent.citationNum;
     this.shortRef = "";
     this.longRef = "";
+    this.obg = "";
+    this.paste_lock = false;
+    
+    //reinit when count is 0
+    this.reinit = function(obj){
+        this.citeNum = ++parent.citationNum;
+        this.generateCitation(obj);
+    }
     
     //On CKEDITOR change check if any citations were deleted
     this.updateCitationCount = function(){
+        //Prevents from updating before paste action is registered
+        if (this.paste_lock)
+        {
+            this.paste_lock = false;
+            return;
+        }
+        
         var html = editor.getData();
         dom_div = $('<div />', {html:html});
         var shortRefs = $(dom_div).find('[class="short' + this.id + '"]');
         var longRefs = $(dom_div).find('[class="long' + this.id + '"]');
-        this.count = shortRefs.size() + longRefs.size();
-        
-        if (debugCite)
-            console.log("Count: " + this.count + ", ID: " + this.id);
+        var newCount = shortRefs.size() + longRefs.size();
+        if (this.count > (newCount))
+        {
+            if (debugCite)
+                console.log("COUNT: " + this.count + ", NEWCOUNT: " + newCount + ", SHORT: " + shortRefs.size() + ", LONG: " + longRefs.size());
+            this.count = newCount;
+            
+            if (debugCite)
+            {
+                citationSingleton.displayCitations();
+            }
+        }
         
         //Convert short ref to long ref if no long refs
         if (longRefs.size() == 0 && shortRefs.size() > 0)
@@ -105,7 +141,7 @@ var citationObj = function(id, parent)
         }
         
         //readjust all citNums
-        if (this.count == 0)
+        if (this.count == 0 && this.citeNum != 0)
             parent.removeCitationByID(this.id);
             
     }
@@ -118,22 +154,16 @@ var citationObj = function(id, parent)
     this.generateCitation = function(obj){
         var refHTML;
         
-        if (this.shortRef == "")
-            this.generateShortRef();
         
         if (this.count == 0){
             refHTML = this.generateLongRef(obj);
         }
         else
-            refHTML = this.shortRef;
+            refHTML = this.generateShortRef();
 
         editor.insertHtml(refHTML);
 
         this.count++;
-        if (debugCite){
-        console.log("Cite number: " + this.citeNum + ", ID: " + this.id);
-        console.log(editor.getData());
-        }
     }
     
     this.generateShortRef = function()
@@ -217,18 +247,24 @@ function generateCitation(obj)
 {
     var id = $(obj).data("id");
     //check if already made citation
-    if (citationSingleton.citations[id.toString()])
-        citationSingleton.citations[id.toString()].generateCitation(obj);
+    if (citationSingleton.citations[id])
+    {
+        //Upon reinititialization
+        if (citationSingleton.citations[id].citeNum == 0)
+            citationSingleton.citations[id].reinit(obj);
+        else
+            citationSingleton.citations[id].generateCitation(obj);
+    }
     else
     { 
         //Citation generated for the first time
         var citation = new citationObj(id, citationSingleton);
         citation.generateCitation(obj);
         citationSingleton.citations[id.toString()] = citation;
-    }
+    }   
     
-    citationSingleton.citations[id.toString()].count++;
-        
+    if (debugCite)
+        citationSingleton.displayCitations();
 }
 
 //Helper Functions to Process HTML Tags
@@ -238,7 +274,8 @@ function cleanUp()
     //Process references
     //create temp div to use DOM manipulation
     var data = editor.getData();
-    var isReference = /^\[[0-9]+\]$/;
+    var isBrokenReference1 = /^\[[0-9]+$/;
+    var isBrokenReference2 = /^[0-9]+\]$/;
     var dom_div = $('<div />', {html:data});
     var possible_anchors = dom_div.find("a");
     $.each(possible_anchors, function (i, anchor) {
@@ -251,16 +288,16 @@ function cleanUp()
             var sup = $(anchor).find("sup"); 
             var txt = $(sup[0]).html();
             
-            //check against reg-ex and see if reference is of form [[0-9]+]
-            if (!isReference.test(txt))
+            //check against reg-ex and see if reference is not of form [[0-9]+]
+            if (isBrokenReference1.test(txt) || isBrokenReference2.test(txt))
                 $(anchor).replaceWith("<a id='placeHolder2'></a>");
         }
         else //other times <a> is embedded in <sup>
         {
             var txt = $(anchor).html();
             
-            //check against reg-ex and see if reference is of form [[0-9]+]
-            if (!isReference.test(txt))
+            //check against reg-ex and see if reference is not of form [[0-9]+]
+            if (isBrokenReference1.test(txt) || isBrokenReference2.test(txt))
             {
                 //eliminate <sup> tags
                 //console.log($(anchor).parent());
