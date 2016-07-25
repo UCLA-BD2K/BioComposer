@@ -35,7 +35,7 @@ function unescapeHtml(safe) {
 
 function seeMore(obj)
 {
-    console.log($(obj).has('.abstract').length);
+    //console.log($(obj).has('.abstract').length);
     if ($(obj).has('.abstract').length)
     {
         $((obj).children(".abstract")[0]).hide("slow", function(){
@@ -49,7 +49,8 @@ function seeMore(obj)
     
     if ($(obj).data("abstract"))
     {
-        console.log("Called from data");
+        if (debugCite)
+            console.log("Called from data");
         var text = decodeURIComponent($(obj).data("abstract"));
         $($(obj).children(".authors")[0]).after(function(){return "<p class='abstract'>" + text + "</p>"});
         $($(obj).children(".abstract")[0]).show("slow");
@@ -57,6 +58,7 @@ function seeMore(obj)
     else{
         if (ajaxLock == 0){
         fetchAbstract(obj_id).then(display_abstract).then(function(text){
+        if (debugCite)
             console.log("Called from web");
             $($(obj).children(".authors")[0]).after(function(){return "<p class='abstract'>" + text + "</p>"});
             $($(obj).children(".abstract")[0]).show("slow");
@@ -120,8 +122,8 @@ function simpleAndSearch(newSearch)
     }
     else    
         text = currentSearch;
-        
-    console.log(text);
+    if (debugCite)   
+        console.log(text);
         
     for (var x=0; x<text.length;x++)
     {
@@ -197,7 +199,8 @@ function parseResults(response) {
 }
 
 function displayResults(articles) {
-    console.log(articles);
+    if (debugCite)
+        console.log(articles);
     
     //Reset HTML elements
     $(".loader")[0].remove();

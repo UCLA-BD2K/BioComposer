@@ -3,6 +3,7 @@
 
 //This global variable prevents infinite callbacks between CKEDITOR.on('change') and cleanUp()
 var callBackLock = false;
+var debugCite = 0;
 
 //Citation Handler Singleton Class Definition
 var citationClass = function()
@@ -22,7 +23,7 @@ var citationClass = function()
         this.citations[id].citeNum = 0;
         
         //Remove element from array
-        delete this.citations[id];
+        //delete this.citations[id];
         
         //Decrement the citation numbers of citations above
         for (var key in this.citations)
@@ -30,13 +31,18 @@ var citationClass = function()
                 this.citations[key].decrementCiteNum(); //Decrement citeNums and adjust views
         
         //Adjust views
-        console.log("Cite Number of Removed: " + citeNumOfRemoved + "\nID: " + id);
+        if (debugCite)
+            console.log("Cite Number of Removed: " + citeNumOfRemoved + "\nID: " + id);
+        
+        callBackLock = true;
         
         //Capture cursor location before changing html
         editor.insertHtml("<a id='placeHolder'></a>");
         
         //set html data to editor
         editor.setData(updateCiteNumViews(editor.getData(), true, citeNumOfRemoved));
+        
+        callBackLock = false;
         
         //set cursor to original location
         restoreCursorPos("placeHolder", editor);
@@ -64,7 +70,8 @@ var citationObj = function(id, parent)
         var longRefs = $(dom_div).find('[class="long' + this.id + '"]');
         this.count = shortRefs.size() + longRefs.size();
         
-        console.log("Count: " + this.count + ", ID: " + this.id);
+        if (debugCite)
+            console.log("Count: " + this.count + ", ID: " + this.id);
         
         //Convert short ref to long ref if no long refs
         if (longRefs.size() == 0 && shortRefs.size() > 0)
@@ -111,17 +118,22 @@ var citationObj = function(id, parent)
     this.generateCitation = function(obj){
         var refHTML;
         
+        if (this.shortRef == "")
+            this.generateShortRef();
+        
         if (this.count == 0){
             refHTML = this.generateLongRef(obj);
         }
         else
-            refHTML = this.generateShortRef();
+            refHTML = this.shortRef;
 
         editor.insertHtml(refHTML);
 
         this.count++;
+        if (debugCite){
         console.log("Cite number: " + this.citeNum + ", ID: " + this.id);
         console.log(editor.getData());
+        }
     }
     
     this.generateShortRef = function()

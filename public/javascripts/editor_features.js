@@ -37,27 +37,42 @@ function initEditor()
     });
     
     //Make sure copy and paste works appropriately
-//    editor.on( 'paste', function( evt ) {
-//        var html = editor.getData(); 
-//        var dom_div = $('<div />', {html:html});
-//        var longRefs = $(dom_div).find('[class="long' + this.id + '"]');
-//        
-//        //get paste html
-//        var paste_html = evt.data.dataValue;
-//        dom_div = $('<div />', {html:paste_html});
-//        var longRefInPaste = $(dom_div).find('[class="long' + this.id + '"]');
-//        
-//        //Convert longrefs to short refs if one is in paste
-//        if (longRefs.size() > 0 && longRefInPaste.size() > 0)
-//        {
-//            var toChange = longRefInPaste[0];
-//        }
-//        
-//    });
+    editor.on( 'paste', function( evt ) {
+        //get paste html
+        evt.data.dataValue = processPaste(evt.data.dataValue);
+    });
     
     setDimensionsTextArea();
 }
 
+//Process pasted citations
+function processPaste(html)
+{
+    var div = $('<div />', {html:html});
+    var anchors =  $(div).find("a");
+    console.log($(div).html());
+    
+    $.each(anchors, function (i, anchor) {
+        var className = anchor.className;
+        var pattern = /^(long|short)([0-9]+)$/; 
+        //short or long
+        var type; 
+        var id;
+        console.log(className);
+        
+        if (pattern.test(className))
+        {
+            type = className.replace(/^(long|short)([0-9]+)$/, "$1");
+            id = className.replace(/^(long|short)([0-9]+)$/, "$2"); 
+            if (citationSingleton.citations[id].count > 0 && type=='long')
+                $(anchor).replaceWith(citationSingleton.citations[id].shortRef);
+            citationSingleton.citations[id].count++;
+        }
+    });
+    
+    console.log($(div).html());
+    return $(div).html();
+}
 
 //Convert HTML to MediaWiki Functions
 function sendHTMLtoServer()
@@ -92,7 +107,7 @@ function sendHTMLtoServer()
             if (isReference.test(txt))
             {
                 //eliminate <sup> tags
-                console.log($(anchor).parent());
+                //console.log($(anchor).parent());
                 if ($(anchor).parent().is("sup"))
                     $(anchor).unwrap();
                 
@@ -103,11 +118,11 @@ function sendHTMLtoServer()
     });
 
     var processedData = $(dom_div).html();
-    console.log("HTML: " + processedData);
+    //console.log("HTML: " + processedData);
     encodedData = encodeURIComponent(processedData); 
     return $.ajax({
         type: "POST",
-        url: "http://localhost:3000/convert",
+        url: "http://54.186.246.214:3000/convert",
         data: {"text": encodedData},
         dataType: "text"
     })
@@ -179,7 +194,7 @@ $(document).ready(function(){
         e.preventDefault();
         $(document).css('cursor', 'ew-resize');
         width = $("#content_panel").width();
-        console.log(width);
+        //console.log(width);
         mouse_pos_x = e.pageX;   
 
         $(document).mousemove(function (e) {
