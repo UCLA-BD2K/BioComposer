@@ -1,6 +1,35 @@
 //Make the editor a global variable so that is accessible throughout all functions
 var editor;
 
+function formatDate(d)
+{
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var day = d.getDay();
+    var dayNum = d.getDate();
+    var mo = d.getMonth();
+    var hour = d.getHours();
+    var tod = "PM";
+    if (hour < 12)
+        tod = "AM";
+    else if (hour > 12)
+        hour -= 12;
+    var min = d.getMinutes();
+    var mili = d.getMilliseconds();
+
+    return days[day] + " " + months[mo] + " " + dayNum + ", " + hour + ":" + min + tod;
+}
+
+//ESCAPE HTML
+function escapeHtml(unsafe) {
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+ }
+
 //initialize custom
 function initEditor()
 {   
@@ -145,7 +174,50 @@ function downloadWikiMarkUp(data)
     data = data.replace(/\|ref name\=a([0-9]+)\|/g, "<ref name=\'a$1\'>");
     data = data.replace(/\|ref name\=a([0-9]+) \/\|/g, "<ref name=\'a$1\' />");
     data = data.replace(/\|eref\|/g, "</ref>");
-    console.log("Converted: " + data);
+    
+    //render data in a new window
+    var w = window.open();
+    $(w.document.body).css({"white-space": "pre"}).text(data);
+}
+
+//Bind to folder button
+function openWikiFile(){
+    fwControllerSingleton.open();
+}
+
+//Bind to save button
+function documentSave()
+{
+    var encodedHTML = encodeURIComponent(editor.getData());
+    var title = $("#document_title").val();
+    
+    //In order to stringify, we needed to eliminate duplicate objects. 
+    //The parent will only be set to the first element. 
+    //Upon opening again, we need to set citationSingleton.citations = [this citations]
+    //As well as set citationSingleton.citationNumber = MAX(citations.citeNum)
+    seen = [];
+    var citations = JSON.stringify(citationSingleton.citations, function(key, val) {
+       if (val != null && typeof val == "object") {
+            if (seen.indexOf(val) >= 0) {
+                return;
+            }
+            seen.push(val);
+        }
+        return val;
+    });
+    
+    var data = {"contents" : encodedHTML, "title" : title, "citations" : citations};
+    $.ajax({
+        type: "POST",
+        url: "http://54.186.246.214:3000/save",
+        //url: "http://localhost:3000/save",
+        data: data,
+        success: function(msg){
+            alert(msg);
+            $("#doc_status_text").text("(Last saved: " + formatDate(new Date()) + ")");
+        },
+        dataType: "text"
+    });
 }
 
 //--------- END CKEDITOR FUNCTIONS
@@ -169,8 +241,8 @@ function setDimensionsTextArea()
     $("#editor").css({"left" : $("#content_panel").width() + "px" })
     
     //set position of document title to center
-    var offset = Math.ceil(($("#editor_window").width() - $("#content_panel").width())/2 + $("#content_panel").width()) - $("#document_title").width()/2 - 50; 
-    $("#document_title").css({"left" : offset.toString() + "px"}); 
+    var offset = Math.ceil(($("#editor_window").width() - $("#content_panel").width())/2 + $("#content_panel").width()) - $("#doc_title_div").width()/2 - 50; 
+    $("#doc_title_div").css({"left" : offset.toString() + "px"}); 
     //console.log("offset " + offset);
 }
 
@@ -192,10 +264,17 @@ $(window).resize(function(){
     adjustResultDimensions();
 })
 $(document).ready(function(){
+    //Init ckeditor
     initEditor();
+    
+    //Init folder nav window
+    fwControllerSingleton = new fileWindowController();
     
     //Bind send HTML/download function to download icon
     $("#download").click(function(){sendHTMLtoServer().then(downloadWikiMarkUp)});
+    $("#save").click(function(){documentSave()})
+    $("#open").click(function(){openWikiFile()});
+    
     
     //On Change title window size
     $("#document_title").on('change', function(){setDimensionsTextArea();});

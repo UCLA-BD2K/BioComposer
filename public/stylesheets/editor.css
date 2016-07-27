@@ -353,9 +353,6 @@ h1, h2, h3, p, li
 #document_title
 {
     display: inline-block;
-    position: relative;
-    left: 920px;
-    top: 6px;
     font-size: 16px;
     border: none;
     background-color: rgba(255,255,255,0);
@@ -381,4 +378,94 @@ h1, h2, h3, p, li
     font-size: 12px;
     width: 40px;
     float: right;
+}
+
+#doc_title_div
+{
+    position: relative;
+    top: 6px;
+    display: inline-block;
+}
+
+#doc_status
+{
+    font-family: AvenirNext;
+    color: #777;
+    display: inline;
+    font-size: 10px;
+    position: relative;
+    top: -3px;
+}
+
+/*FILE WINDOW CSS*/
+#fileWindow
+{
+    height: 500px;
+    width: 500px;
+    border: 1px solid rgb(180,180,180);
+    position: absolute;
+    z-index: 200;
+    border-radius: 6px;
+    left: 50%;
+    top: 50%;
+    margin-left: -250px;
+    margin-top: -250px;
+    -webkit-box-shadow: 18px 20px 31px -5px rgba(48,48,48,0.47);
+    -moz-box-shadow: 18px 20px 31px -5px rgba(48,48,48,0.47);
+    box-shadow: 18px 20px 31px -5px rgba(48,48,48,0.47);
+}
+
+#innerFileWindow
+{
+    height: 100%;
+    width: 100%;
+    background-color: rgba(120,120,120,0.7);
+    border-top: 1px solid white;
+    border-radius: 6px;
+}
+
+#fwToolbar
+{
+    height: 30px; 
+    background: #ededed; /* Old browsers */
+    background: -moz-linear-gradient(top, #ededed 0%, #d3d3d3 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, #ededed 0%,#d3d3d3 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, #ededed 0%,#d3d3d3 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ededed', endColorstr='#d3d3d3',GradientType=0 ); /* IE6-9 */
+}
+
+#fwToolbar p
+{
+    font-family: AvenirNext;
+    text-align: center;
+    font-size: 14px;
+    color: #333;
+    position: relative;
+    top: 5px;
+    margin: 0;
+    padding: 0;
+}
+
+#fwExit
+{
+    height: 12px;
+    width: 12px;
+    position: relative;
+    bottom: 10px;
+    left: 10px;
+    display: inline-block;
+    float: left;
+    background-image: url(../images/close.png);
+    background-size: cover;
+    background-repeat: none;
+}
+
+#fwExit:hover
+{
+    background-image: url(../images/close_hover.png);
+}
+
+#fwExit:active
+{
+    background-image: url(../images/close_click.png);
 }

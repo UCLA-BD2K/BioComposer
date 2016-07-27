@@ -3,6 +3,9 @@ var fs = require('fs'); //for filesystem
 var exec = require('child_process').exec; //for executing commands
 var router = express.Router();
 
+//Mongo for Files
+var WikiFile = require('../models/file.js');
+
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -12,11 +15,6 @@ router.get('/', function(req, res, next) {
 router.get('/index', function(req, res, next) {
   res.render('index', { title: 'GeneWiki', reg_status: "none" });
 });
-
-router.get('/test', function(req, res, next) {
-  res.render('editor');
-});
-
 
 //Verify user is authenticated HERE:
 function ensureAuthenticated(req, res, next){
@@ -46,6 +44,8 @@ function checkLock(data, req, res)
     }
     else
         convert(data, req, res);
+    
+    console.log("check lock");
 }
 
 //function to perform system calls and convert
@@ -56,30 +56,28 @@ function convert(decoded, req, res)
         if(err) {
             return console.log(err);
         }
+        
+        console.log("no err");
 
         //File saved successfully
         var cmd = "pandoc /tmp/test.html -f html -t MediaWiki -s -o /tmp/test";
         exec(cmd, function(error, stdout, stderr) {
             fs.readFile('/tmp/test', function(err, data) {
+                console.log(data);
                 res.send(data);
                 fileLock = false;
+                
             })
         });
         
     }); 
 }
 
-router.post('/convert', function(req, res){
-    var decoded = decodeURIComponent(req.body.text);
-    checkLock(decoded, req, res);
-    
-});
-
 //---------- RESTRICTED USER ONLY ACCESS AREA -------------//
 
 router.get('/main', ensureAuthenticated, function(req, res)
 {
-    res.render('main');
+    res.render('editor');
 });
 
 router.get('/logout', ensureAuthenticated, function(req, res)
@@ -88,7 +86,72 @@ router.get('/logout', ensureAuthenticated, function(req, res)
     res.redirect('/'); 
 });
 
+//Temp location
+router.post('/convert', ensureAuthenticated, function(req, res){
+    var decoded = decodeURIComponent(req.body.text);
+    console.log("posted");
+    checkLock(decoded, req, res);
+    
+});
 
+//Temp location
+router.post('/save', ensureAuthenticated, function(req, res){
+    var contents = req.body.contents;
+    var title = req.body.title;
+    var citations = req.body.citations;
+    var dateModified = Date.now();
+    var dateCreated = dateModified;
+    var authors = [req.user.id];
+    
+    //Check if file exists
+    WikiFile.find({title: title}, function(err, file){
+        //Update
+        if (!file.length == 0)
+        {
+            console.log("Exists");
+            authors = file[0].authors;
+            var addAuthor = true;
+            for (var x=0; x<file[0].authors.length; x++)
+            {
+                if (req.user.id == file[0].authors[x])
+                    addAuthor = false;
+            }
+            
+            //Current author not on the list
+            if (addAuthor)
+            {
+                authors.push(req.user.id);
+                file[0].authors = authors;
+            }
+            
+            file[0].contents = contents;
+            file[0].date_modified = dateModified;
+            file[0].citationObjects = citations;
+            file[0].save();
+            res.send("WikiFile successfully saved!");
+        }
+        
+        //Create document
+        else
+        {
+            console.log("New article");
+            var newArticle = new WikiFile({
+                title: title,
+                date_created: dateCreated,
+                date_modified: dateModified,
+                authors: authors,
+                contents: contents,
+                citationObjects: citations
+            })
+            
+            newArticle.save();
+            res.send("WikiFile successfully created!");
+        }            
+            
+    });
+    
+    
+});
 
 router.get('/account', ensureAuthenticated, function(req, res)
 {

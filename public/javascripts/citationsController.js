@@ -128,7 +128,7 @@ var citationObj = function(id, parent)
             var newLongRef = $(dom_div).find('[class="short' + this.id + '"]')[0];
             $(newLongRef).removeClass('short' + this.id);
             $(newLongRef).addClass('long' + this.id);
-            $(newLongRef).html(this.longRef);
+            $(newLongRef).html(this.longRef.replace(/\[([0-9]+)\]/, "[" + this.citeNum + "]"));
             
             //Reset data in editor
             editor.setData(dom_div.html());
@@ -262,6 +262,9 @@ function generateCitation(obj)
         citation.generateCitation(obj);
         citationSingleton.citations[id.toString()] = citation;
     }   
+    
+    //Get out of superscript mode
+    editor.execCommand('superscript');
     
     if (debugCite)
         citationSingleton.displayCitations();
