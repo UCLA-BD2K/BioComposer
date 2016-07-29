@@ -1,5 +1,6 @@
 //Make the editor a global variable so that is accessible throughout all functions
 var editor;
+var fileOpened;
 
 function formatDate(d)
 {
@@ -15,6 +16,8 @@ function formatDate(d)
     else if (hour > 12)
         hour -= 12;
     var min = d.getMinutes();
+    if (min < 10)
+        min = "0" + min;
     var mili = d.getMilliseconds();
 
     return days[day] + " " + months[mo] + " " + dayNum + ", " + hour + ":" + min + tod;
@@ -54,7 +57,8 @@ function initEditor()
 
     //Delete text on select
     editor.on('focus', function(e) {
-        editor.setData("");
+        if (!fileOpened)
+            editor.setData("");
         
         //remove event listener after first call
         e.removeListener();
@@ -161,8 +165,8 @@ function sendHTMLtoServer()
     encodedData = encodeURIComponent(processedData); 
     return $.ajax({
         type: "POST",
-        url: "http://54.186.246.214:3000/convert",
-        //url: "http://localhost:3000/convert",
+        //url: "http://54.186.246.214:3000/convert",
+        url: "http://localhost:3000/convert",
         data: {"text": encodedData},
         dataType: "text"
     })
@@ -209,8 +213,8 @@ function documentSave()
     var data = {"contents" : encodedHTML, "title" : title, "citations" : citations};
     $.ajax({
         type: "POST",
-        url: "http://54.186.246.214:3000/save",
-        //url: "http://localhost:3000/save",
+        //url: "http://54.186.246.214:3000/save",
+        url: "http://localhost:3000/save",
         data: data,
         success: function(msg){
             alert(msg);

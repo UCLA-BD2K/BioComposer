@@ -3,7 +3,7 @@
 
 //This global variable prevents infinite callbacks between CKEDITOR.on('change') and cleanUp()
 var callBackLock = false;
-var debugCite = 0;
+var debugCite = 1;
 
 //Citation Handler Singleton Class Definition
 var citationClass = function()
@@ -66,16 +66,39 @@ var citationClass = function()
 var citationSingleton = new citationClass(); 
 
 //Single Citation Object Class Definition
-var citationObj = function(id, parent)
+var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_lock)
 {
-    this.count = 0; 
     this.id = id;
     this.parent = parent; //Reference to the citation singleton
-    this.citeNum = ++parent.citationNum;
-    this.shortRef = "";
-    this.longRef = "";
-    this.obg = "";
-    this.paste_lock = false;
+    
+    if (citeNum === undefined)
+        this.citeNum = ++parent.citationNum;
+    else
+        this.citeNum = citeNum;
+    
+    //Set Count
+    if (count === undefined)
+        this.count = 0;
+    else
+        this.count = count; 
+    
+    //Set short ref
+    if (shortRef === undefined)
+        this.shortRef = "";
+    else
+        this.shortRef = shortRef;
+    
+    //Set longref
+    if (longRef === undefined)
+        this.longRef = "";
+    else
+        this.longRef = longRef;
+
+    //Set paste_lock
+    if (paste_lock === undefined)
+        this.paste_lock = false;
+    else
+        this.paste_lock = paste_lock;
     
     //reinit when count is 0
     this.reinit = function(obj){
@@ -104,9 +127,7 @@ var citationObj = function(id, parent)
             this.count = newCount;
             
             if (debugCite)
-            {
                 citationSingleton.displayCitations();
-            }
         }
         
         //Convert short ref to long ref if no long refs
@@ -153,8 +174,7 @@ var citationObj = function(id, parent)
     
     this.generateCitation = function(obj){
         var refHTML;
-        
-        
+
         if (this.count == 0){
             refHTML = this.generateLongRef(obj);
         }
@@ -267,7 +287,11 @@ function generateCitation(obj)
     editor.execCommand('superscript');
     
     if (debugCite)
+    {
         citationSingleton.displayCitations();
+        console.log(citationSingleton);
+    }
+    
 }
 
 //Helper Functions to Process HTML Tags

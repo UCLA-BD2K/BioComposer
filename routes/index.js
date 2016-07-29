@@ -148,9 +148,42 @@ router.post('/save', ensureAuthenticated, function(req, res){
             res.send("WikiFile successfully created!");
         }            
             
+    }); 
+});
+
+//Returns a JSON array of all file names
+router.post('/getFiles', ensureAuthenticated, function(req, res)
+{
+    var fileNames = [];
+    if (req.body.sendFileNames == "true")
+    {
+        WikiFile.find({}, function(err, files){
+            if (err)
+            {
+                console.log(err);
+                throw err;
+            }
+            for (var x=0; x<files.length; x++)
+            {
+                var fileInfo = {title: files[x].title, date_created: files[x].date_created, date_modified: files[x].date_modified}
+                fileNames.push(fileInfo);
+            }
+            
+            res.send(JSON.stringify(fileNames));
+        });
+    }
+});
+
+//Returns specific file
+router.post('/open', ensureAuthenticated, function(req, res)
+{
+    WikiFile.find({title: req.body.title}, function(err, file){
+        if (err)
+            throw err;
+        
+        if (file.length > 0)
+            res.send(file[0]);
     });
-    
-    
 });
 
 router.get('/account', ensureAuthenticated, function(req, res)
