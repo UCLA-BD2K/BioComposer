@@ -189,12 +189,46 @@ function openWikiFile(){
     fwControllerSingleton.open();
 }
 
+//Generate new title (appending number)
+function generateTitle(t)
+{
+    var pattern = /-[0-9]+$/; 
+    if (pattern.test(t)){
+        var num = parseInt(t.replace(/^.*-([0-9]+)$/, "$1"));
+        var title = t.replace(/^(.*)-[0-9]+$/, "$1");
+        num++;
+    
+        return title + "-" + num;
+    }
+    else
+        return t + "-1";
+}
+
 //Bind to save button
 function documentSave()
 {
     var encodedHTML = encodeURIComponent(editor.getData());
     var title = $("#document_title").val();
-    
+
+    if (!fwControllerSingleton.viewIsLoadedFromSave && fwControllerSingleton.fileExists(title))
+    {
+        var areYouSure = confirm("A file already exists by this name. Are you sure you want to overwrite it?");
+        //If cancel, change file name
+        if (!areYouSure)
+        {
+            //Keep changing title until it's new
+            var temp = title;
+            while(fwControllerSingleton.fileExists(title))
+            {
+                console.log(fwControllerSingleton.fileExists(title));
+                title = generateTitle(title);
+            }
+
+            $("#document_title").val(title);
+            $("#document_title").change();
+        }
+    }
+
     //In order to stringify, we needed to eliminate duplicate objects. 
     //The parent will only be set to the first element. 
     //Upon opening again, we need to set citationSingleton.citations = [this citations]
@@ -222,6 +256,10 @@ function documentSave()
         },
         dataType: "text"
     });
+    
+    //Make sure file lists are up to date
+    fwControllerSingleton.loadFiles();
+    fwControllerSingleton.viewIsLoadedFromSave = true;
 }
 
 //--------- END CKEDITOR FUNCTIONS
@@ -273,6 +311,7 @@ $(document).ready(function(){
     
     //Init folder nav window
     fwControllerSingleton = new fileWindowController();
+    fwControllerSingleton.loadFiles();
     
     //Bind send HTML/download function to download icon
     $("#download").click(function(){sendHTMLtoServer().then(downloadWikiMarkUp)});
@@ -305,7 +344,6 @@ $(document).ready(function(){
         $(document).unbind('mousemove');
     });
 });
-
 
 
 // ---- Animations -----

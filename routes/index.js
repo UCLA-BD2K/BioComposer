@@ -174,6 +174,15 @@ router.post('/getFiles', ensureAuthenticated, function(req, res)
     }
 });
 
+//Deletes specified file
+router.post('/delete', ensureAuthenticated, function(req, res)
+{
+    var title = req.body.title;
+    WikiFile.find({ title:title }).remove().exec();
+    res.send("true");
+    
+});
+
 //Returns specific file
 router.post('/open', ensureAuthenticated, function(req, res)
 {

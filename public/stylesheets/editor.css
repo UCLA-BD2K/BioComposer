@@ -39,7 +39,7 @@
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d1d1d1', endColorstr='#959595',GradientType=0 ); /* IE6-9 */
 }
 
-#search_wrap
+#search_wrap, #file_search_wrap
 {
     height: 40px;
     width: 400px;
@@ -47,7 +47,7 @@
     display: block;
 }
 
-#search_bar
+#search_bar 
 {
     width: 265px;
     height: 32px;
@@ -401,7 +401,7 @@ h1, h2, h3, p, li
 #fileWindow
 {
     height: 500px;
-    width: 500px;
+    width: 490px;
     border: 1px solid rgb(180,180,180);
     position: absolute;
     z-index: 200;
@@ -426,7 +426,7 @@ h1, h2, h3, p, li
 
 #fwToolbar
 {
-    height: 30px; 
+    height: 65px; 
     background: #ededed; /* Old browsers */
     background: -moz-linear-gradient(top, #ededed 0%, #d3d3d3 100%); /* FF3.6-15 */
     background: -webkit-linear-gradient(top, #ededed 0%,#d3d3d3 100%); /* Chrome10-25,Safari5.1-6 */
@@ -486,7 +486,9 @@ h1, h2, h3, p, li
 #fwTable
 {
     border-collapse: collapse;
-    width: 100%;
+    width: 500px;
+    margin: 0;
+    padding: 0;
 }
 
 #fwTable th, #fwTable td
@@ -510,6 +512,7 @@ h1, h2, h3, p, li
 {
     border-bottom: 1px solid #999;
     background-color: #333;
+    width: 100%;
 }
 
 #fwTable tr:hover
@@ -526,6 +529,45 @@ h1, h2, h3, p, li
 {
     color: #999;
 }
+
+/*For file view*/
+#fwSearchBar
+{
+    z-index: 200;
+    width: 150px;
+    height: 22px;
+    display: block;
+    margin: auto;
+    position: relative;
+    top: 10px;
+    left: 145px;
+    border-radius: 12px;
+    background-color: #3B3B3B;
+    font-size: 12px;
+    font-family: AvenirNext;
+    color: white;
+    padding-left: 15px;
+}
+
+.fwDelete
+{
+    position: absolute;
+    height: 12px;
+    width: 12px;
+    margin: 0;
+    padding: 0;
+}
+
+.fwDeleteDiv
+{
+    position: relative;
+    right: 30px;
+    top: 12px;
+    height: 0;
+    width: 0;
+    right: 30px;
+}
+
 
 #arrowimg
 {
