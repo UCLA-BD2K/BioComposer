@@ -11,6 +11,8 @@ var citationClass = function()
     this.citationNum = 0;
     this.citations = {}; 
     this.updateCitationCounts = function(){
+        //console.log("CALLED SINGLETON");
+        
         //Clean up broke citations
         cleanUp();
         
@@ -24,6 +26,7 @@ var citationClass = function()
         for (var key in this.citations)
             console.log("Citation ID: " + key + ", CITENUM: " + this.citations[key].citeNum + ", COUNT: " + this.citations[key].count);
         console.log("//------ END -------//");
+        //console.log(editor.getData());
     }
     
     this.removeCitationByID = function(id){
@@ -69,6 +72,8 @@ var citationSingleton = new citationClass();
 var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_lock)
 {
     this.id = id;
+    //Type: 'Wiki' or 'PubMed'
+    this.type = "";
     this.parent = parent; //Reference to the citation singleton
     
     if (citeNum === undefined)
@@ -123,7 +128,7 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
         if (this.count > (newCount))
         {
             if (debugCite)
-                console.log("COUNT: " + this.count + ", NEWCOUNT: " + newCount + ", SHORT: " + shortRefs.size() + ", LONG: " + longRefs.size());
+                console.log("ID: " + this.id + ", COUNT: " + this.count + ", NEWCOUNT: " + newCount + ", SHORT: " + shortRefs.size() + ", LONG: " + longRefs.size());
             this.count = newCount;
             
             if (debugCite)
@@ -174,7 +179,7 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
     
     this.generateCitation = function(obj){
         var refHTML;
-
+        this.type = "Pubmed";
         if (this.count == 0){
             refHTML = this.generateLongRef(obj);
         }
@@ -184,6 +189,14 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
         editor.insertHtml(refHTML);
 
         this.count++;
+    }
+    
+    //Create citation object for citations downloaded form Wikipedia Markup online
+    this.generateCitationFromWikiCitation = function(ref){
+        this.type = "Downloaded";
+        this.longRef = ref.long;
+        this.shortRef =  ref.short;
+        this.count = ref.count;
     }
     
     this.generateShortRef = function()

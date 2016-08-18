@@ -7,10 +7,6 @@ var bodyParser = require('body-parser');
 
 //Include controllers
 var mainController = require('./routes/index');
-var resetPasswordController = require('./routes/resetPassword');
-var registrationController = require('./routes/register');
-var loginController = require('./routes/login');
-
 
 var expressValidator = require('express-validator');
 var flash = require('connect-flash');
@@ -31,8 +27,13 @@ app.set('view engine', 'ejs');
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+
+//Allow large post requests to server
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+
+
+
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -79,9 +80,6 @@ app.use(function(req, res, next){
 
 //Apply controllers to application
 app.use('/', mainController);
-app.use('/', resetPasswordController);
-app.use('/', registrationController);
-app.use('/', loginController);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

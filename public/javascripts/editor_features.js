@@ -161,7 +161,7 @@ function sendHTMLtoServer()
     });
 
     var processedData = $(dom_div).html();
-    //console.log("HTML: " + processedData);
+    console.log("HTML: " + processedData);
     encodedData = encodeURIComponent(processedData); 
     return $.ajax({
         type: "POST",
@@ -175,9 +175,22 @@ function sendHTMLtoServer()
 
 function downloadWikiMarkUp(data)
 {
+    console.log(data);
     data = data.replace(/\|ref name\=a([0-9]+)\|/g, "<ref name=\'a$1\'>");
     data = data.replace(/\|ref name\=a([0-9]+) \/\|/g, "<ref name=\'a$1\' />");
     data = data.replace(/\|eref\|/g, "</ref>");
+    
+    //Add end of wiki markup back
+    var footnotes = ""; 
+    for (ele in footer){
+        footnotes += "== " + footer[ele].name + " ==";
+        footnotes += footer[ele].content + "\n";
+    }
+    
+    data += "\n" + footnotes;
+    
+    //Add info box
+    data = "{{Infobox_gene}}\n" + data;
     
     //render data in a new window
     var w = window.open();
@@ -187,6 +200,26 @@ function downloadWikiMarkUp(data)
 //Bind to folder button
 function openWikiFile(){
     fwControllerSingleton.open();
+}
+
+//Bind to wiki button
+function openWikiSearch(){
+    var open = $("#wikiSearchForm").data("open");
+    //If its open, then close it
+    if (open){
+        $("#wikiSearchForm").css({"z-index": "-5"});
+        $("#wikiSearchForm").animate({top: "0px"}, 300, function(){
+            $("#wikiSearchForm").data("open", false);
+            $("#wikiSearch").val("Search Wikipedia");
+        });
+    }
+    else{
+        $("#wikiSearchForm").animate({top: "36px"}, 300, function(){
+            $("#wikiSearchForm").css({"z-index": "5"});
+            $("#wikiSearchForm").data("open", true);
+        });
+    }
+    
 }
 
 //Generate new title (appending number)
@@ -317,6 +350,7 @@ $(document).ready(function(){
     $("#download").click(function(){sendHTMLtoServer().then(downloadWikiMarkUp)});
     $("#save").click(function(){documentSave()})
     $("#open").click(function(){openWikiFile()});
+    $("#wiki").click(function(){openWikiSearch()});
     
     
     //On Change title window size

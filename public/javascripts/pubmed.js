@@ -5,6 +5,9 @@ var itemsPerPage = 20;
 var pageNum = 1;
 var currentSearch = "";
 
+//When set to one, search by relevance
+var search_type = "recent";
+
 //Lock to prevent too many reuqests
 var ajaxLock = 0;
 
@@ -32,6 +35,22 @@ function unescapeHtml(safe) {
         .replace(/&#039;/g, "'");
 }
 //------------------------
+
+function toggleSearchType(obj)
+{
+    var ele = $(obj).find("p")[0];
+    console.log(ele);
+    if ($(ele).text() == "Most Recent")
+    {
+        $(ele).text("Most Relevant");
+        search_type = "relevance";
+    }
+    else
+    {
+        $(ele).text("Most Recent");
+        search_type = "recent";
+    }
+}
 
 function seeMore(obj)
 {
@@ -133,9 +152,12 @@ function simpleAndSearch(newSearch)
             ret += text[x];
     }
     
+    //Loader gif
     $("<img/>", {
         src: "../images/loader.gif"
     }).addClass("loader").appendTo($("#search_wrap")); 
+        
+    $("#search_type").hide();
     
     searchPubMed(ret)
         .then(fetchResults)
@@ -153,6 +175,7 @@ function searchPubMed(term) {
 		db: 'pubmed',
 		    usehistory: 'y',
 		    term: term,
+            sort: search_type,
 		    retmode: 'json',
 		    retmax: 0
 		    }
@@ -202,6 +225,9 @@ function displayResults(articles) {
     if (debugCite)
         console.log(articles);
     
+    //Show most recent/relevant element again
+    $("#search_type").show();
+    
     //Reset HTML elements
     $(".loader")[0].remove();
     $(".results_header").remove();
@@ -238,7 +264,13 @@ function displayResults(articles) {
         else
             alternate="single_result_b";
         
-	    var container = $('<div/>').addClass(alternate).addClass("single_result").click(function(){seeMore($(this))}).data("id", article.id).appendTo(pubmed);
+        //Basically see if user is clicking for longer that 1500ms which would indicate that it is not a click, but a highlight
+        var timeoutId; 
+        var highLightLock = false;
+	    var container = $('<div/>').addClass(alternate).addClass("single_result").click(function(){if (!highLightLock){seeMore($(this))}}).data("id", article.id).appendTo(pubmed);
+        
+        //MECHANISM HERE TO PREVENT HIGH LIGHT PROBLEM
+        container.mousedown(function(){highLightLock = false; timeoutId = setTimeout(function(){highLightLock = true}, 1000)}).mouseup(function(){clearTimeout(timeoutId)});
         
         authors = "";
         for (var x=0; x<article.authors.length && x<5; x++)
@@ -276,7 +308,7 @@ function displayResults(articles) {
 			}).addClass('dateSource').appendTo(container);
         
         $('<button/>', {
-		    text: "Ref"
+		    text: "Reference"
 			}).click(function(e){e.stopPropagation(); generateCitation($(this).parent())}).addClass('button').addClass('refButton').appendTo(container);
         
         
