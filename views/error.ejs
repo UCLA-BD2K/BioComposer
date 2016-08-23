@@ -14,18 +14,22 @@
         <% if (!user){ %>
         <p style="position: absolute; text-align: right; float: right; top: 32px; right: 340px; font-size: 10px" class="error"><% if (error.length != 0) { %>*<%= error %> <% } %></p>
         <form action='/auth' method="post" id="login" name="login">
+
         <input type="text" class="input_blur" onfocus="selectInput(this, 'username')" onblur="deselectInput(this, 'username')" name="username" value="username">
         </input>
+
         <input type="text" class="input_blur" onfocus="selectInput(this, 'password')" onblur="deselectInput(this, 'password')" name="password" value="password">
         </input>
+
         <button>Log-in</button>
+
         <p><a href='/forgot_password' id='password_forgot'>Forgot password?</a></p>
         <% } %>
         <% if (user) { %>
         <p id="greeting">Welcome, <%= user.firstname %> <a href='/logout'>(logout)</a></p>
         <% }%>
-        </div>
         </form>
+        </div>
     </div>
     <div id="main_content">
         <h1 style="color: white; font-family:AvenirNext"><%= message %> <br> Error: <%= error_msg.status %></h1>
