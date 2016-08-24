@@ -5,6 +5,8 @@ var itemsPerPage = 20;
 var pageNum = 1;
 var currentSearch = "";
 
+var pubDebug = 0;
+
 //When set to one, search by relevance
 var search_type = "recent";
 
@@ -39,7 +41,8 @@ function unescapeHtml(safe) {
 function toggleSearchType(obj)
 {
     var ele = $(obj).find("p")[0];
-    console.log(ele);
+    if(pubDebug)
+        console.log(ele);
     if ($(ele).text() == "Most Recent")
     {
         $(ele).text("Most Relevant");

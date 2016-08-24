@@ -133,7 +133,7 @@ var fileWindowController = function()
                 //Set citations data
                 citationSingleton.citationNum = 0;
                 var citations = JSON.parse(data.citationObjects);
-                if (!(citations.length === undefined)){
+                if (!(citations === undefined)){
                 var newCitations = {};
                 for (var key in citations)
                 {
@@ -149,7 +149,7 @@ var fileWindowController = function()
                 }
                 
                 citationSingleton.citations = newCitations;
-                citationSingleton.citationNum = newCitation.length;
+                citationSingleton.citationNum = Object.keys(newCitations).length;
                 }
                 
                 //Indicates that our current view was loaded from a save

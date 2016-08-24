@@ -1,9 +1,21 @@
 var footerSections = ["References", "Further reading", "See also", "External links", "Recommended reading"];
-//Object we create to store the footer data
-var footer;
+//Objects we create to store section data and lossy Wiki code
+var sections;
+var beginningCode = "";
+var images; //Array to store images
 
 var x = 0;
 //These helper functions help partition MarkDown
+
+//Obtain Beginning code
+function getArticleBeginningCode(article){
+    //Matches contiguous wikicode and comments
+    var codeRegEx = /(((<!--[^->]+-->)*{{[^{}]+}}(<!--[^->]+-->)*(\n)*)+)/g; 
+    var intro = article.match(codeRegEx)[0];
+    return intro;
+}
+
+//Obtain Main Sections
 function getSectionsByName(article, names){
     var articleArray = [];
     var start = 0;
@@ -54,13 +66,6 @@ function getSectionsByName(article, names){
     console.log(articleArray);
     return articleArray;
 }
-
-
-
-
-
-
-
 
 function extractReferences(text){
     //Variables to keep track of references
@@ -169,10 +174,12 @@ function convertAndReplaceReferences(reflist, text){
             //Create primitive reference object
             newRef["id"] = id;
             newRef["fullRef"] = reflist[x].contents;
-            newRef["long"] = "<a class='long" + id + "' href=\"" + encodeURIComponent(reftext) + "\"><sup>[" + uniqueRefNum + "]</sup></a>";
-            newRef["short"] = "<a class='short" + id + "' href=\"" + encodeURIComponent(shortreftext) + "\"><sup>[" + uniqueRefNum + "]</sup></a>";
+            newRef["long"] = "<a class='long" + id + "' href=\"" + encodeURIComponent(reftext) + "\" data-id='" + id + "'><sup data-id='" + id + "'>[" + uniqueRefNum + "]</sup></a>";
+            newRef["short"] = "<a class='short" + id + "' href=\"" + encodeURIComponent(shortreftext) + "\" data-id='" + id + "'><sup data-id='" + id + "'>[" + uniqueRefNum + "]</sup></a>";
             newRef["complete"] = true;
             newRef["count"] = 1;
+            newRef["supTag"] = "<sup data-id='" + id + "'>[" + uniqueRefNum + "]</sup></a>";
+            newRef["supTagReplace"] = "<sup>[" + uniqueRefNum + "]</sup></a>";
 
             //Index by name (citations with name attributes are index by name, otherwise name is set to ID)
             newrefs[name] = newRef;
@@ -206,8 +213,10 @@ function convertAndReplaceReferences(reflist, text){
             //Adjust count number
             newrefs[reflist[y].name].count++;
         }
-        else
+        else{
             text = text.replace(reflist[y].contents, newrefs[reflist[y].name]["long"]);
+            console.log("REPLACED WITH: " + newrefs[reflist[y].name]["long"]);
+        }
     }
 
     return {citations: newrefs, content: text}; 
@@ -229,6 +238,17 @@ function convertReferences(citations){
     }
 }
 
+//In order to preserver images, we will replace all [[FILE:...]] objects with ##IMG1##, ##IMG2##, etc. as placeholders
+function imagePreservation(article){
+    var imageRegex = /\[\[\s*File:.*\]\]/g;
+    images = article.match(imageRegex);
+    if (images != null){
+    for (var x=0;x<images.length;x++){
+        article = article.replace(images[x], "||IMG" + x + "||");
+    }}
+    return article;
+}
+
 function searchWiki()
 {
     var search = encodeURIComponent($("#wikiSearch").val());
@@ -244,15 +264,28 @@ function searchWiki()
             }
             else{
                 var contents = data.query.pages[Object.keys(data.query.pages)[0]].revisions[0]["*"];
-
+                
+                //DEBUG VIEW
                 console.log(contents);
                 
+                //Reset document citations
+                citationSingleton.clear();
+                
+                //Set title
+                $("#document_title").val(decodeURIComponent(search)).change();
+                
+                //Get code before article
+                beginningCode = getArticleBeginningCode(contents);
+                
+                //Preserve the images in article (convert to form ##IMG[NUM]##)
+                contents = imagePreservation(contents);
+                
                 //Partition and set to global footer variable
-                footer = getSectionsByName(contents, footerSections);
+                sections = getSectionsByName(contents, footerSections);
                 
                 //Set content to body of Wiki MarkDown (which is the last element of the array) and then remove from footer array
-                contents = footer[footer.length-1].content;
-                footer.splice(footer.length-1, 1);
+                contents = sections[sections.length-1].content;
+                sections.splice(sections.length-1, 1);
 
                 //Extract references from the Wiki mark up
                 var reflist = extractReferences(contents);
@@ -262,7 +295,7 @@ function searchWiki()
                 var newcontents = convertAndReplaceReferences(reflist, contents);
 
                 //Send to server to convert to HTML
-                processByServer(newcontents.content);
+                processByServer(newcontents);
 
                 //Add correct citations to citationSingleton
                 convertReferences(newcontents.citations);
@@ -282,13 +315,16 @@ function checkError(){
     }
 }
 
-function processByServer(text){
+function processByServer(obj){
+    var object = {text: encodeURIComponent(obj.content), citations:obj.citations}
+    console.log(obj.content);
     $.ajax({
         url: "http://localhost:3000/wikiToHTML",
         type: "post",
-        data: {text: encodeURIComponent(text)}, 
+        data: {object: object}, 
         success: function(data){
             fileOpened = true;
+            console.log(data);
             editor.setData(data);     
         }
     });

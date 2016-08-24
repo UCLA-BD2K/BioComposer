@@ -176,8 +176,12 @@ editorController.prototype._checkLock = function(self, req, res){
 };
 
 editorController.prototype._wiki2HTML = function(self, req, res){
-    var text = decodeURIComponent(req.body.text);
+    var text = decodeURIComponent(req.body.object.text);
+    
+    //Grab citations
+    var citations = req.body.object.citations;
     var tmpFile = req.user.id;
+    
     fs.writeFile("/tmp/" + tmpFile + ".md", text, function(err) {
         if(err) {
             return console.log(err);
@@ -190,6 +194,16 @@ editorController.prototype._wiki2HTML = function(self, req, res){
         exec(cmd, function(error, stdout, stderr) {
             fs.readFile("/tmp/" + tmpFile + ".html", function(err, data) {
                 console.log(data);
+                data = String(data);
+                
+                //Replace <sup> tags
+                for (var id in citations){
+                    var replaceWhat = citations[id]['supTagReplace'];
+                    replaceWhat = replaceWhat.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                    var re = new RegExp(replaceWhat, 'g');
+                    data = data.replace(re,citations[id]['supTag']);
+                }
+                
                 res.send(data);
                 
                 //Clean up

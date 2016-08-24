@@ -38,6 +38,9 @@ function initEditor()
 {   
     CKEDITOR.disableAutoInline = true;
     CKEDITOR.config.allowedContent = true;
+    CKEDITOR.config.extraAllowedContent = 'sup[data-*]';
+    
+    //Creates CKEditor Instance
     editor = CKEDITOR.inline( 'edit_area' );
     editor.config.extraPlugins = 'button,panelbutton';
     
@@ -68,6 +71,20 @@ function initEditor()
         if (!callBackLock)
             citationSingleton.updateCitationCounts();
     });
+
+    //TEST SELECTION
+//    editor.on( 'contentDom', function() {
+//        var editable = editor.editable();
+//        editable.attachListener( editable, 'mouseup', function() {
+//            findAdjacentCitations();
+////            var range = editor.getSelection().getRanges()[ 0 ],
+////            el = editor.document.createElement( 'div' );
+////            el.append( range.cloneContents() );
+////            alert( el.getHtml() );
+//        } );
+//
+//    } );
+
     
     //Make sure copy and paste works appropriately
     editor.on( 'paste', function( evt ) {
@@ -121,6 +138,7 @@ function processPaste(html)
 function sendHTMLtoServer()
 {
     var data = editor.getData()
+    console.log("UNPROCESSED: " + data);
     //Process references
     //create temp div to use DOM manipulation
     var dom_div = $('<div />', {html:data});
@@ -179,18 +197,25 @@ function downloadWikiMarkUp(data)
     data = data.replace(/\|ref name\=a([0-9]+)\|/g, "<ref name=\'a$1\'>");
     data = data.replace(/\|ref name\=a([0-9]+) \/\|/g, "<ref name=\'a$1\' />");
     data = data.replace(/\|eref\|/g, "</ref>");
+    data = data.replace(/%27/g, "'");
     
     //Add end of wiki markup back
     var footnotes = ""; 
-    for (ele in footer){
-        footnotes += "== " + footer[ele].name + " ==";
-        footnotes += footer[ele].content + "\n";
+    for (ele in sections){
+        footnotes += "== " + sections[ele].name + " ==";
+        footnotes += sections[ele].content + "\n";
     }
     
     data += "\n" + footnotes;
     
     //Add info box
-    data = "{{Infobox_gene}}\n" + data;
+    data = beginningCode + data;
+    
+    //Replace image data
+    if (images != null){
+    for (var x=0;x<images.length;x++){
+        data = data.replace("||IMG" + x + "||", images[x]);
+    }}
     
     //render data in a new window
     var w = window.open();

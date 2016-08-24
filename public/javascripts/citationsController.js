@@ -5,24 +5,39 @@
 var callBackLock = false;
 var debugCite = 1;
 
+//Debug vars
+var i = 0;
+var j = 0;
+var k = 0;
 //Citation Handler Singleton Class Definition
 var citationClass = function()
 {
     this.citationNum = 0;
     this.citations = {}; 
+    this.checkCitations = [];
     this.updateCitationCounts = function(){
-        //console.log("CALLED SINGLETON");
+        console.log("updateCitationCounts " + i);
+        i++;
+        j=0;
         
-        //Clean up broke citations
+        //Clean up broken citations
         cleanUp();
         
-        for (var key in this.citations)
-            this.citations[key].updateCitationCount();
+        var adjacent = findAdjacentCitations();
+        if (adjacent != -1)
+            this.checkCitations.push(adjacent);
+        
+        console.log("Adjacent: " + adjacent);
+        
+        //Only update citations that need to be checked
+        for (var key in this.checkCitations)
+            this.citations[this.checkCitations[key]].updateCitationCount();
     }
     
     this.displayCitations = function(){
         console.log("");
         console.log("//------ CITATIONS -------//");
+        console.log("citationSingleton: " + this.citationNum);
         for (var key in this.citations)
             console.log("Citation ID: " + key + ", CITENUM: " + this.citations[key].citeNum + ", COUNT: " + this.citations[key].count);
         console.log("//------ END -------//");
@@ -30,6 +45,7 @@ var citationClass = function()
     }
     
     this.removeCitationByID = function(id){
+        console.log("removeCitationByID");
         this.citationNum--;
         var citeNumOfRemoved = this.citations[id].citeNum;
         this.citations[id].citeNum = 0;
@@ -62,6 +78,11 @@ var citationClass = function()
         
         //set cursor to original location
         restoreCursorPos("placeHolder", editor);
+    }
+    
+    this.clear = function(){
+        this.citationNum = 0;
+        this.citations = {};
     }
 }; 
 
@@ -107,12 +128,18 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
     
     //reinit when count is 0
     this.reinit = function(obj){
-        this.citeNum = ++parent.citationNum;
+        this.citeNum = ++this.parent.citationNum;
         this.generateCitation(obj);
+        
+        if (debugCite)
+            console.log("REINIT");
     }
     
     //On CKEDITOR change check if any citations were deleted
     this.updateCitationCount = function(){
+        console.log("updateCitationCount (" + this.id + ") " + j);
+        j++;
+        
         //Prevents from updating before paste action is registered
         if (this.paste_lock)
         {
@@ -137,7 +164,7 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
         
         //Convert short ref to long ref if no long refs
         if (longRefs.size() == 0 && shortRefs.size() > 0)
-        {
+        {            
             //Prevent CKEDITOR.on('change')
             callBackLock = true;
             
@@ -186,6 +213,7 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
         else
             refHTML = this.generateShortRef();
 
+        console.log(refHTML);
         editor.insertHtml(refHTML);
 
         this.count++;
@@ -202,8 +230,18 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
     this.generateShortRef = function()
     {
         var ref = "|ref name=a" + this.id.toString() + " /|";
-        this.shortRef = " <a class='short" + this.id + "' href='" + encodeURIComponent(ref) +"'><sup>[" + this.citeNum + "]</sup></a>";
+        this.shortRef = " <a class='short" + this.id + "' href='" + encodeURIComponent(ref) +"' data-id='" + this.id + "'><sup data-id='" + this.id + "'>[" + this.citeNum + "]</sup></a>";
         return this.shortRef;
+    }
+    
+    //helper function to avoid WikiMark Down syntax errors
+    function removeBrackets(text){
+        text = text.replace(/\]/g, "");
+        text = text.replace(/\[/g, "");
+        
+        //Custom replace single quotes
+        text = text.replace(/'/g, "%27");
+        return text;
     }
     
     this.generateLongRef = function(obj)
@@ -236,9 +274,9 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
 
         //Generate the citation text
         // |ref| and |eref| are not RESERVED. We didn't use <ref> tags because they get eliminated in pandoc conversion
-        ref = "|ref name=a" + this.id.toString() + "|{{cite web |url=" + decodeURIComponent($(obj).data("url")) + " |title=" + decodeURIComponent($(obj).data("title")) + " |author=" + decodeURIComponent($(obj).data("authors")) + " |publisher=" + decodeURIComponent($(obj).data("publisher")) + " |date=" + pubDateString + " |accessdate=" + dateAccessString + "}}|eref|";   
+        ref = "|ref name=a" + this.id.toString() + "|{{cite web |url=" + decodeURIComponent($(obj).data("url")) + " |title=" + removeBrackets(decodeURIComponent($(obj).data("title"))) + " |author=" + decodeURIComponent($(obj).data("authors")) + " |publisher=" + decodeURIComponent($(obj).data("publisher")) + " |date=" + pubDateString + " |accessdate=" + dateAccessString + "}}|eref|";   
 
-        this.longRef = " <a class='long" + this.id + "' href='" + encodeURIComponent(ref) +"'><sup>[" + this.citeNum + "]</sup></a>";
+        this.longRef = " <a class='long" + this.id + "' href='" + encodeURIComponent(ref) +"' data-id='" + this.id + "'><sup data-id='" + this.id + "'>[" + this.citeNum + "]</sup></a>";
         return this.longRef;
     }
     
@@ -311,6 +349,9 @@ function generateCitation(obj)
 //This function is so we can process <ref> tags before sending to server for full conversion
 function cleanUp()
 {
+    console.log("Clean Up " + k);
+    k++;
+    
     //Process references
     //create temp div to use DOM manipulation
     var data = editor.getData();
@@ -361,11 +402,11 @@ function cleanUp()
         //set html data to editor
         editor.setData(processedData);
         
-        //Allow it to be called again
-        callBackLock = false;
-        
         //set cursor to original location
         restoreCursorPos("placeHolder2", editor);
+        
+        //Allow it to be called again
+        callBackLock = false;
     }
 }
 
@@ -425,5 +466,26 @@ function restoreCursorPos(placeHolderID, editor){
             //Remove placeholder
             element.remove(false);
         } 
+}
+
+//FUNCTIONS TO DETERMINE WHICH CITATIONS ARE NEAR THE CURSOR.
+//In order to minimize function calls, we will only update citation counts of citations that COULD be changed
+
+//Returns array of nearby citations or -1 if none nearby
+function findAdjacentCitations(){
+    var id = editor.getSelection().getStartElement().data("id");
+    console.log(id);
+    if (id!=null)
+        return -1;
+    else
+        return id;
+}
+
+//Returns array of selected citations or -1 if none selected
+function findSelectedCitations(){
+    var range = editor.getSelection().getRanges()[ 0 ],
+    el = editor.document.createElement( 'div' );
+    el.append( range.cloneContents() );
+    
 }
 
