@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>GeneWiki</title>
+    <title>BioCurator</title>
+
+      <!--Stylesheets-->
     <link rel='stylesheet' href='stylesheets/style.css'/>
     <link rel='stylesheet' href='stylesheets/fonts.css'/>
     <link rel='stylesheet' href='stylesheets/index.css'/>
   </head>
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
   <script type="text/javascript" src='javascripts/login_front.js'></script>
+
+
+
   <script type="text/javascript">
     <% if (typeof errors != 'undefined') { %>
         $(document).ready(function(){
@@ -62,7 +67,6 @@
       }
   
   </script>
-  </script>
   <body>
     <div id="navbar">
         <p id="nav_title"><a href='/'>HeartBD2K @ UCLA</a></p>
@@ -80,8 +84,9 @@
         <% if (user) { %>
         <p id="greeting">Welcome, <%= user.firstname %> <a href='/logout'>(logout)</a></p>
         <% }%>
-        </div>
         </form>
+        </div>
+
     </div>
     <div id="main_content">
 	<h1 id="main_title">B<span class="smaller">IO</span>C<span class="smaller">URATOR</span></h1>
