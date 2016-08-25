@@ -14,7 +14,7 @@ var citationClass = function()
 {
     this.citationNum = 0;
     this.citations = {}; 
-    this.checkCitations = [];
+    this.checkCitations = {};
     this.updateCitationCounts = function(){
         console.log("updateCitationCounts " + i);
         i++;
@@ -23,15 +23,16 @@ var citationClass = function()
         //Clean up broken citations
         cleanUp();
         
-        var adjacent = findAdjacentCitations();
-        if (adjacent != -1)
-            this.checkCitations.push(adjacent);
-        
-        console.log("Adjacent: " + adjacent);
-        
         //Only update citations that need to be checked
-        for (var key in this.checkCitations)
-            this.citations[this.checkCitations[key]].updateCitationCount();
+        for (var key in this.checkCitations){
+            console.log("sonnny d " + key + " " + this.checkCitations[key]);
+            if (this.checkCitations.hasOwnProperty(key) && this.checkCitations[key]){
+                this.citations[key].updateCitationCount();
+                console.log("KEY UPDATED: " + key);
+            }
+        }
+        //Clear check citations
+        this.checkCitations = {};
     }
     
     this.displayCitations = function(){
@@ -45,7 +46,7 @@ var citationClass = function()
     }
     
     this.removeCitationByID = function(id){
-        console.log("removeCitationByID");
+        console.log("removeCitationByID " + i);
         this.citationNum--;
         var citeNumOfRemoved = this.citations[id].citeNum;
         this.citations[id].citeNum = 0;
@@ -358,6 +359,7 @@ function cleanUp()
     var isBrokenReference1 = /^\[[0-9]+$/;
     var isBrokenReference2 = /^[0-9]+\]$/;
     var dom_div = $('<div />', {html:data});
+    var originalData = $(dom_div).html();
     var possible_anchors = dom_div.find("a");
     $.each(possible_anchors, function (i, anchor) {
         var matches = $(anchor).has("sup");
@@ -370,8 +372,9 @@ function cleanUp()
             var txt = $(sup[0]).html();
             
             //check against reg-ex and see if reference is not of form [[0-9]+]
-            if (isBrokenReference1.test(txt) || isBrokenReference2.test(txt))
+            if (isBrokenReference1.test(txt) || isBrokenReference2.test(txt)){
                 $(anchor).replaceWith("<a id='placeHolder2'></a>");
+            }
         }
         else //other times <a> is embedded in <sup>
         {
@@ -394,7 +397,7 @@ function cleanUp()
     var processedData = $(dom_div).html();
     
     //Update if changed
-    if (processedData != data)
+    if (processedData != originalData)
     {
         //Prevent CKEDITOR.on('change') from being called
         callBackLock = true;
@@ -463,6 +466,7 @@ function restoreCursorPos(placeHolderID, editor){
             range = editor.createRange();
             range.moveToPosition(element, CKEDITOR.POSITION_AFTER_START);
             editor.getSelection().selectRanges([range]);
+            
             //Remove placeholder
             element.remove(false);
         } 
@@ -471,11 +475,10 @@ function restoreCursorPos(placeHolderID, editor){
 //FUNCTIONS TO DETERMINE WHICH CITATIONS ARE NEAR THE CURSOR.
 //In order to minimize function calls, we will only update citation counts of citations that COULD be changed
 
-//Returns array of nearby citations or -1 if none nearby
+//Returns adjacent citation or -1 if none nearby
 function findAdjacentCitations(){
     var id = editor.getSelection().getStartElement().data("id");
-    console.log(id);
-    if (id!=null)
+    if (id==null)
         return -1;
     else
         return id;
@@ -483,9 +486,34 @@ function findAdjacentCitations(){
 
 //Returns array of selected citations or -1 if none selected
 function findSelectedCitations(){
-    var range = editor.getSelection().getRanges()[ 0 ],
-    el = editor.document.createElement( 'div' );
-    el.append( range.cloneContents() );
+    var range = editor.getSelection().getRanges()[ 0 ];
+//    console.log("Start offset: " + range.startOffset);
+//    console.log("End offset: " + range.endOffset);
     
+    //Determine if text selected before proceeding
+    if (range.startOffset != range.endOffset){        
+        //Create temp ckeditor div element
+        var el = new CKEDITOR.dom.element("div");
+        el.append(range.cloneContents());
+
+        //Convert to regular div
+        var div = $('<div />', {html:el.getHtml()});
+        
+        //Find the sup tags
+        var possible = $(div).find("sup");
+        
+        //Reset citations to check
+        citationSingleton.checkCitations = {};
+        
+        if (debugCite)
+            console.log(div.html());
+        $.each(possible, function (i, anchor) {
+            //Add ids to checkCitations
+            if ($(anchor).data("id") != null){
+                citationSingleton.checkCitations[$(anchor).data("id")] = 1;
+                console.log($(anchor).data("id"));
+            }
+        });
+    }
 }
 

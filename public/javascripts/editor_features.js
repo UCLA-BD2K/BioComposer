@@ -68,23 +68,29 @@ function initEditor()
     });
     
     editor.on('change', function(e) {
-        if (!callBackLock)
-            citationSingleton.updateCitationCounts();
+        if (!callBackLock){
+            if (Object.keys(citationSingleton.checkCitations).length > 0)
+                citationSingleton.updateCitationCounts();
+
+            citationSingleton.checkCitations = {};
+        }
     });
 
-    //TEST SELECTION
-//    editor.on( 'contentDom', function() {
-//        var editable = editor.editable();
-//        editable.attachListener( editable, 'mouseup', function() {
-//            findAdjacentCitations();
-////            var range = editor.getSelection().getRanges()[ 0 ],
-////            el = editor.document.createElement( 'div' );
-////            el.append( range.cloneContents() );
-////            alert( el.getHtml() );
-//        } );
-//
-//    } );
+    editor.on( 'key', function() {
+        console.log("FIRED");
+        var adjacent = findAdjacentCitations();
+        if (adjacent != -1)
+            citationSingleton.checkCitations[adjacent] = 1;
 
+        console.log("Adjacent: " + adjacent);
+    } );
+    
+    editor.on('contentDom', function() {
+    this.document.on('mouseup', function(event){
+         //your code
+         findSelectedCitations();
+     });
+    });
     
     //Make sure copy and paste works appropriately
     editor.on( 'paste', function( evt ) {

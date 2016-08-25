@@ -174,8 +174,8 @@ function convertAndReplaceReferences(reflist, text){
             //Create primitive reference object
             newRef["id"] = id;
             newRef["fullRef"] = reflist[x].contents;
-            newRef["long"] = "<a class='long" + id + "' href=\"" + encodeURIComponent(reftext) + "\" data-id='" + id + "'><sup data-id='" + id + "'>[" + uniqueRefNum + "]</sup></a>";
-            newRef["short"] = "<a class='short" + id + "' href=\"" + encodeURIComponent(shortreftext) + "\" data-id='" + id + "'><sup data-id='" + id + "'>[" + uniqueRefNum + "]</sup></a>";
+            newRef["long"] = "<a class='long" + id + "' href=\"" + encodeURIComponent(reftext) + "\" data-id='" + id + "'>|sup data-id='" + id + "'|[" + uniqueRefNum + "]|/sup|</a>";
+            newRef["short"] = "<a class='short" + id + "' href=\"" + encodeURIComponent(shortreftext) + "\" data-id='" + id + "'>|sup data-id='" + id + "'|[" + uniqueRefNum + "]|/sup|</a>";
             newRef["complete"] = true;
             newRef["count"] = 1;
             newRef["supTag"] = "<sup data-id='" + id + "'>[" + uniqueRefNum + "]</sup></a>";
@@ -215,7 +215,7 @@ function convertAndReplaceReferences(reflist, text){
         }
         else{
             text = text.replace(reflist[y].contents, newrefs[reflist[y].name]["long"]);
-            console.log("REPLACED WITH: " + newrefs[reflist[y].name]["long"]);
+            //console.log("REPLACED WITH: " + newrefs[reflist[y].name]["long"]);
         }
     }
 
@@ -266,7 +266,7 @@ function searchWiki()
                 var contents = data.query.pages[Object.keys(data.query.pages)[0]].revisions[0]["*"];
                 
                 //DEBUG VIEW
-                console.log(contents);
+                //console.log(contents);
                 
                 //Reset document citations
                 citationSingleton.clear();
@@ -316,12 +316,14 @@ function checkError(){
 }
 
 function processByServer(obj){
-    var object = {text: encodeURIComponent(obj.content), citations:obj.citations}
-    console.log(obj.content);
+    var object = {text: encodeURIComponent(obj.content)}//, citations:obj.citations}
     $.ajax({
         url: "http://localhost:3000/wikiToHTML",
         type: "post",
         data: {object: object}, 
+        fail: function(err){
+            console.log(err);
+        },
         success: function(data){
             fileOpened = true;
             console.log(data);

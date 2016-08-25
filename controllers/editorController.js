@@ -176,10 +176,11 @@ editorController.prototype._checkLock = function(self, req, res){
 };
 
 editorController.prototype._wiki2HTML = function(self, req, res){
+    console.log("ENTER HERE");
     var text = decodeURIComponent(req.body.object.text);
     
     //Grab citations
-    var citations = req.body.object.citations;
+    //var citations = req.body.object.citations;
     var tmpFile = req.user.id;
     
     fs.writeFile("/tmp/" + tmpFile + ".md", text, function(err) {
@@ -196,13 +197,9 @@ editorController.prototype._wiki2HTML = function(self, req, res){
                 console.log(data);
                 data = String(data);
                 
-                //Replace <sup> tags
-                for (var id in citations){
-                    var replaceWhat = citations[id]['supTagReplace'];
-                    replaceWhat = replaceWhat.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                    var re = new RegExp(replaceWhat, 'g');
-                    data = data.replace(re,citations[id]['supTag']);
-                }
+                //Replace |sup| with <sup> tags
+                var reg = /\|sup data-id='([0-9]+)'\|\[([0-9]+)\]\|\/sup\|/g;
+                data = data.replace(reg, "<sup data-id='$1'>[$2]</sup>");
                 
                 res.send(data);
                 
