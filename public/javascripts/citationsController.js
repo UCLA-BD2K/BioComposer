@@ -182,7 +182,11 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
             var newLongRef = $(dom_div).find('[class="short' + this.id + '"]')[0];
             $(newLongRef).removeClass('short' + this.id);
             $(newLongRef).addClass('long' + this.id);
-            $(newLongRef).html(this.longRef.replace(/\[([0-9]+)\]/, "[" + this.citeNum + "]"));
+            var data = this.longRef.replace(/\[([0-9]+)\]/, "[" + this.citeNum + "]");
+            var reg = /\|sup data-id='([0-9]+)'\|\[([0-9]+)\]\|\/sup\|/g;
+            data = data.replace(reg, "<sup data-id='$1'>[$2]</sup>");
+            $(newLongRef).html(data);
+            
             
             //Reset data in editor
             editor.setData(dom_div.html());

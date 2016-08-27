@@ -266,7 +266,7 @@ function searchWiki()
                 var contents = data.query.pages[Object.keys(data.query.pages)[0]].revisions[0]["*"];
                 
                 //DEBUG VIEW
-                //console.log(contents);
+                console.log(contents);
                 
                 //Reset document citations
                 citationSingleton.clear();
@@ -301,8 +301,8 @@ function searchWiki()
                 convertReferences(newcontents.citations);
                 
                 //Print citations
-                console.log(newcontents.citations);
-                console.log(citationSingleton);
+                //console.log(newcontents.citations);
+                //console.log(citationSingleton);
             }
         }
     });
@@ -315,6 +315,9 @@ function checkError(){
     }
 }
 
+//SOLUTION TO LINK PROBLEM:
+//FIND A WAY TO CHANGE THE ':' TO '\:' IN LINKS AND THEN BACK AGAIN
+
 function processByServer(obj){
     var object = {text: encodeURIComponent(obj.content)}//, citations:obj.citations}
     $.ajax({
@@ -326,7 +329,20 @@ function processByServer(obj){
         },
         success: function(data){
             fileOpened = true;
-            console.log(data);
+            //console.log(data);
+            
+            var tmpDiv = $('<div />', {html:data});
+            var anchors = $(tmpDiv).find("a");
+            
+            //Fix things that cause weird reference bugs
+            $.each(anchors, function (i, anchor) {
+                //Replace ":" with "\:" to avoid weird bug
+                $(anchor).attr("href", $(anchor).attr("href").replace(/:/g, "\\:"));
+            }); 
+            
+            var data = $(tmpDiv).html();
+
+        
             editor.setData(data);     
         }
     });

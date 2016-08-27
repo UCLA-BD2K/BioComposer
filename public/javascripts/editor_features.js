@@ -203,7 +203,11 @@ function downloadWikiMarkUp(data)
     data = data.replace(/\|ref name\=a([0-9]+)\|/g, "<ref name=\'a$1\'>");
     data = data.replace(/\|ref name\=a([0-9]+) \/\|/g, "<ref name=\'a$1\' />");
     data = data.replace(/\|eref\|/g, "</ref>");
+    //Fix bug with quotes in the href
     data = data.replace(/%27/g, "'");
+    //Fix bug with colons
+    data = data.replace(/\\:/g, ":");
+    
     
     //Add end of wiki markup back
     var footnotes = ""; 
