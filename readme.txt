@@ -31,6 +31,8 @@ INSTALLATION
 * Type 'npm install' to install other dependencies
 * Go into the repo and type 'npm start' from your command line to run the server
 * Go to your browser and type 'http://localhost:3000' to access the site
+* Install Pandoc: for mac - brew install pandoc
+* Install mongodb
 
 CONFIGURATION
 -------------

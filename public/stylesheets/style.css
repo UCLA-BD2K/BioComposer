@@ -12,6 +12,12 @@ body {
     height: 100%;
     width: 100%;
 	background-image:url(../images/dark_pattern.png);
+    overflow-y: hidden;
+}
+
+body:hover
+{
+    overflow-y: scroll;
 }
 
 /* NAVIGATION */
@@ -62,7 +68,7 @@ form
 
 .input_blur
 {
-	color: rgb(204,204,204) !important;
+	color: rgb(204,204,204);
 }
 
 .input_selected
@@ -155,7 +161,7 @@ form
     font-family: AvenirNext;
     font-size: 14px;
     position: relative;
-    bottom: 25px;
+    bottom: 10px;
     text-align: right; 
     right: 70px;
     color: #969393;
@@ -201,6 +207,7 @@ nav
     color: black;
     font-family: AvenirNext;
     font-size: 20px;
+    visibility: collapse;
 }
 
 nav a:hover

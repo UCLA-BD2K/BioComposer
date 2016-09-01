@@ -38,9 +38,11 @@ function initEditor()
 {   
     CKEDITOR.disableAutoInline = true;
     CKEDITOR.config.allowedContent = true;
+    CKEDITOR.config.extraAllowedContent = 'sup[data-*]';
+    //Creates CKEditor Instance
     editor = CKEDITOR.inline( 'edit_area' );
-    editor.config.extraPlugins = 'button,panelbutton';
-    
+    editor.config.extraPlugins = 'button,panelbutton,font';
+
     
     //set autogrow for title
     $("#document_title").autogrow({ vertical : false, horizontal : true });
@@ -65,8 +67,28 @@ function initEditor()
     });
     
     editor.on('change', function(e) {
-        if (!callBackLock)
-            citationSingleton.updateCitationCounts();
+        if (!callBackLock){
+            if (Object.keys(citationSingleton.checkCitations).length > 0)
+                citationSingleton.updateCitationCounts();
+
+            citationSingleton.checkCitations = {};
+        }
+    });
+
+    editor.on( 'key', function() {
+        console.log("FIRED");
+        var adjacent = findAdjacentCitations();
+        if (adjacent != -1)
+            citationSingleton.checkCitations[adjacent] = 1;
+
+        console.log("Adjacent: " + adjacent);
+    } );
+    
+    editor.on('contentDom', function() {
+    this.document.on('mouseup', function(event){
+         //your code
+         findSelectedCitations();
+     });
     });
     
     //Make sure copy and paste works appropriately
@@ -121,6 +143,7 @@ function processPaste(html)
 function sendHTMLtoServer()
 {
     var data = editor.getData()
+    console.log("UNPROCESSED: " + data);
     //Process references
     //create temp div to use DOM manipulation
     var dom_div = $('<div />', {html:data});
@@ -161,7 +184,7 @@ function sendHTMLtoServer()
     });
 
     var processedData = $(dom_div).html();
-    //console.log("HTML: " + processedData);
+    console.log("HTML: " + processedData);
     encodedData = encodeURIComponent(processedData); 
     return $.ajax({
         type: "POST",
@@ -175,9 +198,33 @@ function sendHTMLtoServer()
 
 function downloadWikiMarkUp(data)
 {
+    console.log(data);
     data = data.replace(/\|ref name\=a([0-9]+)\|/g, "<ref name=\'a$1\'>");
     data = data.replace(/\|ref name\=a([0-9]+) \/\|/g, "<ref name=\'a$1\' />");
     data = data.replace(/\|eref\|/g, "</ref>");
+    //Fix bug with quotes in the href
+    data = data.replace(/%27/g, "'");
+    //Fix bug with colons
+    data = data.replace(/\\:/g, ":");
+    
+    
+    //Add end of wiki markup back
+    var footnotes = ""; 
+    for (ele in sections){
+        footnotes += "== " + sections[ele].name + " ==";
+        footnotes += sections[ele].content + "\n";
+    }
+    
+    data += "\n" + footnotes;
+    
+    //Add info box
+    data = beginningCode + data;
+    
+    //Replace image data
+    if (images != null){
+    for (var x=0;x<images.length;x++){
+        data = data.replace("||IMG" + x + "||", images[x]);
+    }}
     
     //render data in a new window
     var w = window.open();
@@ -187,6 +234,26 @@ function downloadWikiMarkUp(data)
 //Bind to folder button
 function openWikiFile(){
     fwControllerSingleton.open();
+}
+
+//Bind to wiki button
+function openWikiSearch(){
+    var open = $("#wikiSearchForm").data("open");
+    //If its open, then close it
+    if (open){
+        $("#wikiSearchForm").css({"z-index": "-5"});
+        $("#wikiSearchForm").animate({top: "0px"}, 300, function(){
+            $("#wikiSearchForm").data("open", false);
+            $("#wikiSearch").val("Search Wikipedia");
+        });
+    }
+    else{
+        $("#wikiSearchForm").animate({top: "36px"}, 300, function(){
+            $("#wikiSearchForm").css({"z-index": "5"});
+            $("#wikiSearchForm").data("open", true);
+        });
+    }
+    
 }
 
 //Generate new title (appending number)
@@ -317,6 +384,7 @@ $(document).ready(function(){
     $("#download").click(function(){sendHTMLtoServer().then(downloadWikiMarkUp)});
     $("#save").click(function(){documentSave()})
     $("#open").click(function(){openWikiFile()});
+    $("#wiki").click(function(){openWikiSearch()});
     
     
     //On Change title window size

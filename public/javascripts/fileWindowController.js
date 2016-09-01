@@ -133,7 +133,7 @@ var fileWindowController = function()
                 //Set citations data
                 citationSingleton.citationNum = 0;
                 var citations = JSON.parse(data.citationObjects);
-                if (!(citations.length === undefined)){
+                if (!(citations === undefined)){
                 var newCitations = {};
                 for (var key in citations)
                 {
@@ -149,7 +149,7 @@ var fileWindowController = function()
                 }
                 
                 citationSingleton.citations = newCitations;
-                citationSingleton.citationNum = newCitation.length;
+                citationSingleton.citationNum = Object.keys(newCitations).length;
                 }
                 
                 //Indicates that our current view was loaded from a save
@@ -296,7 +296,9 @@ var fileWindowController = function()
         
         
         var tbl = "<table id='fwTable'><tr><th data-type='fn' onclick='fwControllerSingleton.sortBy(this)'>File Name</th><th data-type='dc' onclick='fwControllerSingleton.sortBy(this)'>Date Created</th><th data-type='dm' onclick='fwControllerSingleton.sortBy(this)'>Date Modified</th></tr></table>";
+        var fileViewParent = $("<div />").attr("id", "fwViewParent");
         var fileView = $("<div />", {html: tbl}).attr("id", "fwView");
+        fileViewParent.append(fileView);
         
         var searchHTML = "<div id='file_search_wrap'><input type='text' value='Search Files' id='fwSearchBar' class='input_blur' onfocus='selectInput(this, \"Search Files\")' onblur='deselectInput(this, \"Search Files\")' onkeyup='fwControllerSingleton.searchFw(this)'></input></div>";
         var searchBar = $("<div />", {html: searchHTML}).attr("id", "fwSearch");
@@ -310,7 +312,7 @@ var fileWindowController = function()
         
         //Link divs
         innerWindow.append(toolBar);
-        innerWindow.append(fileView);
+        innerWindow.append(fileViewParent);
         this.div.append(innerWindow);
         
         //Add handlers to make draggable

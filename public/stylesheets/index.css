@@ -1,3 +1,4 @@
+
 #main_title
 {
 	font-family:Cambria;
@@ -60,6 +61,8 @@
 	color: white;
 	font-size: 20px;
 	font-family: AvenirNext;
+	padding-right: 25px;
+	text-align: justify;
 }
 
 #description .button
@@ -89,6 +92,7 @@
     border: 2px white;
     border-style: solid;
     margin-bottom: 100px;
+	visibility: collapse;
 }
 
 .side-box h3
@@ -126,7 +130,7 @@
 	text-align: center;
 	position: relative;
 	left: 40px;	left: 40px;
-
+	visibility: collapse;
 	top: 30px;
 }
 
