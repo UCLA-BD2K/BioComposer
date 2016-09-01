@@ -118,7 +118,7 @@ editorController.prototype._save = function(self, req, res){
                 authors: authors,
                 contents: contents,
                 citationObjects: citations
-            })
+            });
             
             newArticle.save();
             res.send("WikiFile successfully created!");
@@ -210,7 +210,7 @@ editorController.prototype._wiki2HTML = function(self, req, res){
         });
         
     }); 
-}
+};
 
 
 //Export

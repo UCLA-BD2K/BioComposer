@@ -224,11 +224,12 @@ function convertAndReplaceReferences(reflist, text){
 
 //Function that updates the citation object singleton
 function convertReferences(citations){
-    console.log("convert");
-    console.log(citations);
+    // console.log("convert");
+    // console.log(citations);
+    //this is working fine
     for (var x=0; x<Object.keys(citations).length; x++){
         var key = Object.keys(citations)[x];
-        console.log("Key " + key);
+        // console.log("Key " + key);
         if (!citationSingleton.citations[citations[key].id]){
             var citation = new citationObj(citations[key].id, citationSingleton);
             citation.generateCitationFromWikiCitation(citations[key]);
@@ -266,8 +267,9 @@ function searchWiki()
                 var contents = data.query.pages[Object.keys(data.query.pages)[0]].revisions[0]["*"];
                 
                 //DEBUG VIEW
-                console.log(contents);
-                
+                // console.log("SearchWiki returns stuff below");
+                // console.log(contents);
+                // This part works
                 //Reset document citations
                 citationSingleton.clear();
                 
@@ -279,12 +281,25 @@ function searchWiki()
                 
                 //Preserve the images in article (convert to form ##IMG[NUM]##)
                 contents = imagePreservation(contents);
-                
+
+                // console.log("contents after image preservation");
+                // console.log(contents);
+                // contents are fine here
+
+                console.log("footer sections are");
+                console.log(footerSections);
                 //Partition and set to global footer variable
                 sections = getSectionsByName(contents, footerSections);
-                
+
+                console.log("sections are");
+                console.log(sections);
+
                 //Set content to body of Wiki MarkDown (which is the last element of the array) and then remove from footer array
                 contents = sections[sections.length-1].content;
+
+                console.log("contents after choosing them from sections");
+                console.log(contents);
+
                 sections.splice(sections.length-1, 1);
 
                 //Extract references from the Wiki mark up
@@ -293,7 +308,8 @@ function searchWiki()
 
                 //Convert references to BioCurator form
                 var newcontents = convertAndReplaceReferences(reflist, contents);
-
+                console.log("convert and Replace references returns");
+                console.log(newcontents);
                 //Send to server to convert to HTML
                 processByServer(newcontents);
 
@@ -317,9 +333,18 @@ function checkError(){
 
 //SOLUTION TO LINK PROBLEM:
 //FIND A WAY TO CHANGE THE ':' TO '\:' IN LINKS AND THEN BACK AGAIN
+/**
+ * process by server
+ * @param obj : a list of references and content
+ */
 
 function processByServer(obj){
-    var object = {text: encodeURIComponent(obj.content)}//, citations:obj.citations}
+    console.log("object received by the processByserver is");
+    console.log(obj);
+
+    var object = {text: encodeURIComponent(obj.content)}; //, citations:obj.citations}
+    console.log("object sent to ajax localhost - process by server");
+    console.log(object);
     $.ajax({
         url: "http://localhost:3000/wikiToHTML",
         type: "post",
@@ -329,9 +354,12 @@ function processByServer(obj){
         },
         success: function(data){
             fileOpened = true;
-            //console.log(data);
+            console.log("process by server data is logged");
+            console.log(data); // this is undefined
             
             var tmpDiv = $('<div />', {html:data});
+            console.log("tmp div is = ");
+            console.log(tmpDiv);
             var anchors = $(tmpDiv).find("a");
             
             //Fix things that cause weird reference bugs
@@ -340,10 +368,10 @@ function processByServer(obj){
                 $(anchor).attr("href", $(anchor).attr("href").replace(/:/g, "\\:"));
             }); 
             
-            var data = $(tmpDiv).html();
+            var wikiEditorContent = $(tmpDiv).html();
 
         
-            editor.setData(data);     
+            editor.setData(wikiEditorContent);
         }
     });
 }
