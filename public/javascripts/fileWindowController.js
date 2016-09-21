@@ -115,7 +115,7 @@ var fileWindowController = function()
         $.ajax({
             type: "POST",
             //url: "http://54.186.246.214:3000/open",
-            url: "http://localhost:3000/open",
+            url: "/open",
             data: data,
             success: function(data){
                 var d = new Date(data.date_modified);
@@ -168,7 +168,7 @@ var fileWindowController = function()
         $.ajax({
             type: "POST",
             //url: "http://54.186.246.214:3000/getFiles",
-            url: "http://localhost:3000/getFiles",
+            url: "/getFiles",
             data: data,
             success: function(data){
                 console.log(data);
@@ -210,7 +210,7 @@ var fileWindowController = function()
                     $.ajax({
                         type: "POST",
                         //url: "http://54.186.246.214:3000/delete",
-                        url: "http://localhost:3000/delete",
+                        url: "/delete",
                         data: data,
                         success: function(data){
                             

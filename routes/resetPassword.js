@@ -38,7 +38,7 @@ router.post('/reset_pass', function(req, res)
         var mailOptions={
         to : req.body.email,
         subject : "Reset Password",
-        text : "Click the following link to reset your password: http://localhost:3000/change_password?email=" + encodeURIComponent(req.body.email) + "&hash=" + encodeURIComponent(hash_val.toString())
+        text : "Click the following link to reset your password: /change_password?email=" + encodeURIComponent(req.body.email) + "&hash=" + encodeURIComponent(hash_val.toString())
         }
         User.update(query, {reset_hash: hash_val}, function(){
             //Actually send mail

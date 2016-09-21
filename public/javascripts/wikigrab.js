@@ -346,7 +346,7 @@ function processByServer(obj){
     console.log("object sent to ajax localhost - process by server");
     console.log(object);
     $.ajax({
-        url: "http://localhost:3000/wikiToHTML",
+        url: "/wikiToHTML",
         type: "post",
         data: {object: object}, 
         fail: function(err){
