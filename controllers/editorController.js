@@ -6,7 +6,7 @@ var fs = require('fs'); //for filesystem
 var exec = require('child_process').exec; //for executing commands
 var router = express.Router();
 var WikiFile = require('../models/file.js');
-
+var UserSchema = require('../models/user.js');
 //Interface
 function editorController(){
     var self = this;
@@ -78,7 +78,8 @@ editorController.prototype._save = function(self, req, res){
     var dateModified = Date.now();
     var dateCreated = dateModified;
     var authors = [req.user.id];
-    
+    var currentUserId = req.user.id;
+    // console.log(JSON.stringify(req.user));
     //Check if file exists
     WikiFile.find({title: title}, function(err, file){
         //Update
@@ -103,6 +104,7 @@ editorController.prototype._save = function(self, req, res){
             file[0].contents = contents;
             file[0].date_modified = dateModified;
             file[0].citationObjects = citations;
+            file[0].userId = currentUserId;
             file[0].save();
             res.send("WikiFile successfully saved!");
         }
@@ -117,7 +119,8 @@ editorController.prototype._save = function(self, req, res){
                 date_modified: dateModified,
                 authors: authors,
                 contents: contents,
-                citationObjects: citations
+                citationObjects: citations,
+                userId: currentUserId
             });
             
             newArticle.save();
@@ -136,7 +139,7 @@ editorController.prototype._getFiles = function(self, req, res){
 	var fileNames = [];
     if (req.body.sendFileNames == "true")
     {
-        WikiFile.find({}, function(err, files){
+        WikiFile.find({userId:req.user.id}, function(err, files){
             if (err)
             {
                 console.log(err);
