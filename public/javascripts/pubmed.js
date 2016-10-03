@@ -313,9 +313,12 @@ function displayResults(articles) {
         $('<button/>', {
 		    text: "Reference"
 			}).click(function(e){e.stopPropagation(); generateCitation($(this).parent())}).addClass('button').addClass('refButton').appendTo(container);
-        
-        
-        
-	});
+
+        $('<button/>', {
+            text: "Favorite"
+        }).click(function(e){e.stopPropagation(); generateCitation($(this).parent())}).addClass('button').addClass('refButton').addClass('favButton').appendTo(container);
+
+
+    });
 }
 

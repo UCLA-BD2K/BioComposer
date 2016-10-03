@@ -31,6 +31,7 @@ function userController(){
     //Changes the user's password
     this.submitChangePassword = function(req, res) {return self._submitChangePassword(self, req, res); };
 
+
 }
 
 
@@ -42,6 +43,7 @@ userController.prototype._register = function(self, req, res){
     var email = req.body.email;
     var password = req.body.password;
     var password_confirm = req.body.password_confirm;
+    var citations = [];
     
     //Validation
     req.checkBody('username', 'First name is required').notEmpty();
@@ -80,7 +82,8 @@ userController.prototype._register = function(self, req, res){
                         username: username,
                         email: email,
                         password: password,
-                        reset_hash: hash_val.toString()
+                        reset_hash: hash_val.toString(),
+                            saved_citations: citations,
                         });
 
                         User.createUser(newUser, function(err, user)
@@ -132,7 +135,7 @@ userController.prototype._resetPassword = function(self, req, res){
         to : req.body.email,
         subject : "Reset Password",
         text : "Click the following link to reset your password: http://localhost:3000/change_password?email=" + encodeURIComponent(req.body.email) + "&hash=" + encodeURIComponent(hash_val.toString())
-        }
+        };
         User.update(query, {reset_hash: hash_val}, function(){
             //Actually send mail
             smtpTransport.sendMail(mailOptions, function(error, response){
