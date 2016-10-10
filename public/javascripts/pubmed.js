@@ -301,8 +301,12 @@ function displayResults(articles) {
         
         //Add escaped html
         $($('.article_title')[i]).html((i+1+retstart) + ". " + unescapeHtml(article.title));
-        
-	    $('<p/>', {
+
+        $('<button/>', {
+            html: "<i class=\"icon ion-star\"> </i> "
+        }).click(function(e){e.stopPropagation(); save_citation($(this).parent());$(this).css("color", "yellow")}).addClass('button').addClass('favButton').appendTo(container);
+
+        $('<p/>', {
 		    text: authors
 			}).addClass('authors').appendTo(container);
         
@@ -314,9 +318,6 @@ function displayResults(articles) {
 		    text: "Reference"
 			}).click(function(e){e.stopPropagation(); generateCitation($(this).parent())}).addClass('button').addClass('refButton').appendTo(container);
 
-        $('<button/>', {
-            text: "Favorite"
-        }).click(function(e){e.stopPropagation(); generateCitation($(this).parent())}).addClass('button').addClass('refButton').addClass('favButton').appendTo(container);
 
 
     });

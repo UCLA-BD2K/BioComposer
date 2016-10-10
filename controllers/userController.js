@@ -31,6 +31,10 @@ function userController(){
     //Changes the user's password
     this.submitChangePassword = function(req, res) {return self._submitChangePassword(self, req, res); };
 
+    // Adds a citation to the user schema upon clicking favorite
+    this.addCitation = function(req, res){
+      return self._saveCitation(self, req,res);
+    };
 
 }
 
@@ -124,7 +128,7 @@ userController.prototype._resetPassword = function(self, req, res){
         req.flash('error_msg', errors[0].msg)
         res.redirect('/password_reset');
     }
-    
+
     //E-mail Sent
     else{
         
@@ -134,7 +138,7 @@ userController.prototype._resetPassword = function(self, req, res){
         var mailOptions={
         to : req.body.email,
         subject : "Reset Password",
-        text : "Click the following link to reset your password: http://localhost:3000/change_password?email=" + encodeURIComponent(req.body.email) + "&hash=" + encodeURIComponent(hash_val.toString())
+        text : "Click the following link to reset your password: http://localhost:8081/change_password?email=" + encodeURIComponent(req.body.email) + "&hash=" + encodeURIComponent(hash_val.toString())
         };
         User.update(query, {reset_hash: hash_val}, function(){
             //Actually send mail
@@ -205,8 +209,24 @@ userController.prototype._submitChangePassword = function(self, req, res){
             
             res.render('change_password', {email: req.body.email, hash: req.body.hash, err: "Passwords must be the same!"});
         }
-}
+};
 
+
+userController.prototype._saveCitation =
+    function (self, req, res) {
+    console.log(req.body.contents);
+        var citations_to_save = req.body.contents;
+        User.getUserById(req.user._id, function (err,user) {
+            console.log(user);
+            var old_citations = user.saved_citations;
+            console.log(old_citations);
+            var new_citations  = citations_to_save + old_citations;
+            user.saved_citations = new_citations;
+            console.log(user.saved_citations)
+        });
+        // console.log(req.user._id);
+
+};
 //Export
 module.exports = new userController();
 

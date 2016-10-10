@@ -513,7 +513,17 @@ h1, h2, h3, p, li
 }
 
 .favButton{
-    margin-left: 7px;
+    margin-left: 1%;
+    border: transparent;
+    background: transparent;
+    font-size: inherit;
+}
+.favButton:hover{
+    color: yellow;/*#8a8a8a;*/
+}
+
+.favBtnClicked{
+    color: yellow;
 }
 
 #doc_title_div
