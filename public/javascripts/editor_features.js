@@ -385,6 +385,7 @@ $(document).ready(function(){
     $("#save").click(function(){documentSave()})
     $("#open").click(function(){openWikiFile()});
     $("#wiki").click(function(){openWikiSearch()});
+    $("#cite").click(function(){openSavedCitations()});
     
     
     //On Change title window size
