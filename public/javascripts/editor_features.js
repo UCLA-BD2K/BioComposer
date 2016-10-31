@@ -355,6 +355,12 @@ function setDimensionsTextArea()
     //console.log("offset " + offset);
 }
 
+
+function openSavedCitations(){
+
+    citeControllerSingleton.open();
+
+}
 //----------------------
 
 function adjustResultDimensions()
@@ -378,6 +384,7 @@ $(document).ready(function(){
     
     //Init folder nav window
     fwControllerSingleton = new fileWindowController();
+    citeControllerSingleton = new citationController();
     fwControllerSingleton.loadFiles();
     
     //Bind send HTML/download function to download icon
