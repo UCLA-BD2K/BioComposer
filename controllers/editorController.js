@@ -32,7 +32,9 @@ function editorController(){
     
     //Queries the existing files and sends to the file navigator
     this.getFiles = function(req, res) {return self._getFiles(self, req, res); };
-    
+
+
+
     //Loads HTML Markup from Mongo into CKEditor
     this.openFile = function(req, res) {return self._openFile(self, req, res); };
     
@@ -155,6 +157,10 @@ editorController.prototype._getFiles = function(self, req, res){
         });
     }
 };
+
+
+
+
 
 editorController.prototype._openFile = function(self, req, res){
 	WikiFile.find({title: req.body.title}, function(err, file){

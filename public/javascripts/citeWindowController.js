@@ -167,11 +167,12 @@ var citationController = function()
     //AJAX CALL TO LOAD FILES
     this.loadFiles = function(){
         var data = {sendFileNames: true};
+        console.log(data)
         var self = this;
         $.ajax({
             type: "POST",
             //url: "http://54.186.246.214:3000/getFiles",
-            url: "/getFiles",
+            url: "/getCitations", //getFiles
             data: data,
             success: function(data){
                 console.log(data);
@@ -298,12 +299,12 @@ var citationController = function()
         var closeButton = $("<div />").attr("id", "fwExit");
 
 
-        var tbl = "<table id='fwTable'><tr><th data-type='fn' onclick='citeControllerSingleton.sortBy(this)'>File Name</th><th data-type='dc' onclick='citeControllerSingleton.sortBy(this)'>Date Created</th><th data-type='dm' onclick='citeControllerSingleton.sortBy(this)'>Date Modified</th></tr></table>";
+        var tbl = "<table id='fwTable'><tr><th data-type='fn' onclick='citeControllerSingleton.sortBy(this)'>Citation Name</th><th data-type='dc' onclick='citeControllerSingleton.sortBy(this)'>Date Created</th><th data-type='dm' onclick='citeControllerSingleton.sortBy(this)'>Date Modified</th></tr></table>";
         var fileViewParent = $("<div />").attr("id", "fwViewParent");
         var fileView = $("<div />", {html: tbl}).attr("id", "fwView");
         fileViewParent.append(fileView);
 
-        var searchHTML = "<div id='file_search_wrap'><input type='text' value='Search Files' id='fwSearchBar' class='input_blur' onfocus='selectInput(this, \"Search Files\")' onblur='deselectInput(this, \"Search Files\")' onkeyup='citeControllerSingleton.searchFw(this)'></input></div>";
+        var searchHTML = "<div id='file_search_wrap'><input type='text' value='Search Citations' id='fwSearchBar' class='input_blur' onfocus='selectInput(this, \"Search Files\")' onblur='deselectInput(this, \"Search Files\")' onkeyup='citeControllerSingleton.searchFw(this)'></input></div>";
         var searchBar = $("<div />", {html: searchHTML}).attr("id", "fwSearch");
 
 

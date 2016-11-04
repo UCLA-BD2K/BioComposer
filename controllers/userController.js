@@ -36,6 +36,10 @@ function userController(){
       return self._saveCitation(self, req,res);
     };
 
+    //Queries the existing citations
+    this.getCitations = function(req, res) {return self._getCitations(self, req, res); };
+
+
 }
 
 
@@ -214,19 +218,57 @@ userController.prototype._submitChangePassword = function(self, req, res){
 
 userController.prototype._saveCitation =
     function (self, req, res) {
-    console.log(req.body.contents);
-        var citations_to_save = req.body.contents;
+         var citations_to_save = req.body.contents;
         User.getUserById(req.user._id, function (err,user) {
             console.log(user);
             var old_citations = user.saved_citations;
-            console.log(old_citations);
-            var new_citations  = citations_to_save + old_citations;
-            user.saved_citations = new_citations;
+            console.log('citations to save are');
+            console.log(citations_to_save);
+            user.saved_citations.push(citations_to_save); //=  + old_citations;
+            user.save(function(err){
+                console.log('inside save');
+                if (err){
+                    console.log("Error in updating user");
+                }
+            });
+            console.log("user's saved citations are");
             console.log(user.saved_citations)
         });
-        // console.log(req.user._id);
 
 };
+
+
+
+
+userController.prototype._getCitations = function(self, req, res){
+    var fileNames = [];
+
+    console.log("the request for _getCitations is");
+    //console.log(req);
+    res.send(JSON.stringify(fileNames))
+    // if (req.body.sendFileNames == "true")
+    // {
+    //     User.getUserById(req.user._id, function (err,citations) {
+    //         if (err)
+    //         {
+    //             console.log(err);
+    //             throw err;
+    //         }
+    //
+    //         //fileNames.push(user.saved_citations)
+    //
+    //         // for (var x=0; x<files.length; x++)
+    //         // {
+    //         //     var fileInfo = {title: files[x].title, date_created: files[x].date_created, date_modified: files[x].date_modified}
+    //         //     fileNames.push(fileInfo);
+    //         // }
+    //
+    //         res.send(JSON.stringify(fileNames));
+    //     });
+    // }
+};
+
+
 //Export
 module.exports = new userController();
 

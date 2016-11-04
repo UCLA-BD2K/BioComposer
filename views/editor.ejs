@@ -39,7 +39,8 @@
             <p><a href='/password_reset' id='password_forgot'>Forgot password?</a></p>
             <% } %>
             <% if (user) { %>
-            <p id="greeting">Welcome, <%= user.firstname %> <a href='/logout'>(logout)</a></p>
+            <p id="greeting">Current Template : Blank <a href="/main">change</a> Logged in as: <%= user.firstname %> <a href='/logout'>(logout)</a> &nbsp; </p>
+
             <nav>
                 <a>Home</a> |
                 <a>Profile</a> |

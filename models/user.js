@@ -24,7 +24,7 @@ var UserSchema = mongoose.Schema ({
         type: String
     },
     saved_citations: {
-        type: mongoose.Schema.Types.Mixed
+        type: [String]
     }
 });
 
@@ -47,7 +47,7 @@ module.exports.getUserByUsername = function(username, callback)
 };
 
 module.exports.getUserById = function(id, callback)
-{ 
+{
     User.findById(id, callback);
 };
 
