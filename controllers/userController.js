@@ -241,31 +241,42 @@ userController.prototype._saveCitation =
 
 
 userController.prototype._getCitations = function(self, req, res){
-    var fileNames = [];
+    var citation_names = [];
+    User.getUserById(req.user.id, function (err,user) {
+        for (var x=0; x < user.saved_citations.length; x++)
+        {
+            var citeInfo = {title: user.saved_citations[x], date_created: null, date_modified: null};
+            citation_names.push(citeInfo);
+        }
 
-    console.log("the request for _getCitations is");
-    //console.log(req);
-    res.send(JSON.stringify(fileNames))
-    // if (req.body.sendFileNames == "true")
-    // {
-    //     User.getUserById(req.user._id, function (err,citations) {
-    //         if (err)
-    //         {
-    //             console.log(err);
-    //             throw err;
-    //         }
-    //
-    //         //fileNames.push(user.saved_citations)
-    //
-    //         // for (var x=0; x<files.length; x++)
-    //         // {
-    //         //     var fileInfo = {title: files[x].title, date_created: files[x].date_created, date_modified: files[x].date_modified}
-    //         //     fileNames.push(fileInfo);
-    //         // }
-    //
-    //         res.send(JSON.stringify(fileNames));
-    //     });
-    // }
+        console.log(citation_names);
+        res.send(JSON.stringify(citation_names));
+
+    });
+
+    // console.log("the request for _getCitations is");
+    // console.log(req.body);
+    // res.send(JSON.stringify(fileNames))
+    // // if (req.body.sendFileNames == "true")
+    // // {
+    // //     User.getUserById(req.user._id, function (err,citations) {
+    // //         if (err)
+    // //         {
+    // //             console.log(err);
+    // //             throw err;
+    // //         }
+    // //
+    // //         //fileNames.push(user.saved_citations)
+    // //
+    // //         // for (var x=0; x<files.length; x++)
+    // //         // {
+    // //         //     var fileInfo = {title: files[x].title, date_created: files[x].date_created, date_modified: files[x].date_modified}
+    // //         //     fileNames.push(fileInfo);
+    // //         // }
+    // //
+    // //         res.send(JSON.stringify(fileNames));
+    // //     });
+    // // }
 };
 
 

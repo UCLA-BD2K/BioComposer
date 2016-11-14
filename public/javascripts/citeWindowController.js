@@ -166,8 +166,8 @@ var citationController = function()
 
     //AJAX CALL TO LOAD FILES
     this.loadFiles = function(){
-        var data = {sendFileNames: true};
-        console.log(data)
+        var data = {} ;
+        console.log(data);
         var self = this;
         $.ajax({
             type: "POST",
@@ -184,7 +184,7 @@ var citationController = function()
             },
             dataType: "json"
         });
-    }
+    };
 
     this.displayFiles = function()
     {
@@ -203,7 +203,7 @@ var citationController = function()
             var dCreated = new Date(this.filteredFiles[i].date_created);
             var dMod = new Date(this.filteredFiles[i].date_modified);
             var title = this.filteredFiles[i].title;
-            var docs = "<td>" + title + "</td>" + "<td>" + formatDate(dCreated) + "</td>" + "<td>" + formatDate(dMod) + "</td>";
+            var docs = "<td>" + title + "</td>"; // + "<td>" + formatDate(dCreated) + "</td>" + "<td>" + formatDate(dMod) + "</td>
             var row = $("<tr />", {html: docs});
             row.click({title: title}, function(event){self.openFile(event.data.title)});
             row.append($("<div />").addClass("fwDeleteDiv").append($("<img />", {src: "../images/delete.png"}).data("title", title).addClass("fwDelete").click(function(e){
@@ -299,12 +299,12 @@ var citationController = function()
         var closeButton = $("<div />").attr("id", "fwExit");
 
 
-        var tbl = "<table id='fwTable'><tr><th data-type='fn' onclick='citeControllerSingleton.sortBy(this)'>Citation Name</th><th data-type='dc' onclick='citeControllerSingleton.sortBy(this)'>Date Created</th><th data-type='dm' onclick='citeControllerSingleton.sortBy(this)'>Date Modified</th></tr></table>";
+        var tbl = "<table id='fwTable'><tr><th data-type='fn' onclick='citeControllerSingleton.sortBy(this)'>Citation Name</th></tr></table>";
         var fileViewParent = $("<div />").attr("id", "fwViewParent");
         var fileView = $("<div />", {html: tbl}).attr("id", "fwView");
         fileViewParent.append(fileView);
 
-        var searchHTML = "<div id='file_search_wrap'><input type='text' value='Search Citations' id='fwSearchBar' class='input_blur' onfocus='selectInput(this, \"Search Files\")' onblur='deselectInput(this, \"Search Files\")' onkeyup='citeControllerSingleton.searchFw(this)'></input></div>";
+        var searchHTML = "<div id='file_search_wrap'><input type='text' value='Search Citations' id='fwSearchBar' class='input_blur' onfocus='selectInput(this, \"Search Citations\")' onblur='deselectInput(this, \"Search Citations\")' onkeyup='citeControllerSingleton.searchFw(this)'></input></div>";
         var searchBar = $("<div />", {html: searchHTML}).attr("id", "fwSearch");
 
 
