@@ -304,7 +304,7 @@ function displayResults(articles) {
 
         $('<button/>', {
             html: "<i class=\"icon ion-star\"> </i> "
-        }).click(function(e){e.stopPropagation(); save_citation($(this).parent());$(this).css("color", "yellow")}).addClass('button').addClass('favButton').appendTo(container);
+        }).click(function(e){e.stopPropagation();$(this).css("color", "yellow"); save_citation($(this).parent())}).addClass('button').addClass('favButton').appendTo(container);
 
         $('<p/>', {
 		    text: authors

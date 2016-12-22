@@ -175,8 +175,10 @@ var citationController = function()
             url: "/getCitations", //getFiles
             data: data,
             success: function(data){
-                console.log(data);
-                self.files = self.filteredFiles = data;
+                console.log(_.uniq(data,'title'));
+
+                // remove margin right from single_result_ citation bar
+                self.files = self.filteredFiles = _.uniq(data,'title');
 
                 if (self.isOpen)
                     self.displayFiles();
