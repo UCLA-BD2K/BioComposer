@@ -110,4 +110,11 @@ router.post('/open', ensureAuthenticated, editorController.openFile);
 //Downloads and converts wikipedia MediaWiki markup to HTML
 router.post('/wikiToHTML', ensureAuthenticated, editorController.wiki2HTML);
 
+// saves citations
+router.post('/save_citation', ensureAuthenticated, userController.addCitation);
+
+// gets citations
+router.post('/getCitations', ensureAuthenticated, userController.getCitations)
+
+
 module.exports = router;

@@ -1,9 +1,9 @@
-//Features to implement still: 
+ //Features to implement still:
 //* Adjust copy and paste so that correct citation generated
 
 //This global variable prevents infinite callbacks between CKEDITOR.on('change') and cleanUp()
 var callBackLock = false;
-var debugCite = 1;
+var debugCite = 0;
 
 //Debug vars
 var i = 0;
@@ -335,6 +335,8 @@ function generateCitation(obj)
     { 
         //Citation generated for the first time
         var citation = new citationObj(id, citationSingleton);
+        // console.log
+
         citation.generateCitation(obj);
         citationSingleton.citations[id.toString()] = citation;
     }   
@@ -519,5 +521,21 @@ function findSelectedCitations(){
             }
         });
     }
+}
+
+function save_citation(obj) {
+    var encodedHTML = obj[0].outerHTML;
+    var data = {"contents" : encodedHTML};
+    $.ajax({
+        type: "POST",
+        //url: "http://54.186.246.214:3000/save",
+        url: "/save_citation",
+        data: data,
+        success: function(msg){
+            alert(msg);
+            // $("#doc_status_text").text("(Last saved: " + formatDate(new Date()) + ")");
+        },
+        dataType: "text"
+    });
 }
 

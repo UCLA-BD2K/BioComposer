@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+// var UserSchema = require('../models/user.js');
 
 var WikiFileSchema = mongoose.Schema ({
     title: {
@@ -19,7 +20,11 @@ var WikiFileSchema = mongoose.Schema ({
     },
     citationObjects: {
         type: mongoose.Schema.Types.Mixed
+    },
+    userId: {
+        type: String
     }
-})
+
+});
 
 var WikiFile = module.exports = mongoose.model('WikiFile', WikiFileSchema);

@@ -295,6 +295,7 @@
     padding-bottom: 20px;
     padding-left: 30px;
     padding-right: 30px;
+    margin-right: 33px;
 }
 
 .single_result h1
@@ -472,7 +473,7 @@ h1, h2, h3, p, li
 .refButton
 {
     position: relative;
-    display: block;
+    display: inline-block; /*block;*/
     top: 8px;
     -moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
 	-webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
@@ -510,6 +511,20 @@ h1, h2, h3, p, li
 	background:linear-gradient(to bottom, #e9e9e9 5%, #f9f9f9 100%);
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#e9e9e9', endColorstr='#f9f9f9',GradientType=0);
 	background-color:#e9e9e9;
+}
+
+.favButton{
+    margin-left: 1%;
+    border: transparent;
+    background: transparent;
+    font-size: inherit;
+}
+.favButton:hover{
+    color: yellow;/*#8a8a8a;*/
+}
+
+.favBtnClicked{
+    color: yellow;
 }
 
 #doc_title_div

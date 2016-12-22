@@ -31,6 +31,15 @@ function userController(){
     //Changes the user's password
     this.submitChangePassword = function(req, res) {return self._submitChangePassword(self, req, res); };
 
+    // Adds a citation to the user schema upon clicking favorite
+    this.addCitation = function(req, res){
+      return self._saveCitation(self, req,res);
+    };
+
+    //Queries the existing citations
+    this.getCitations = function(req, res) {return self._getCitations(self, req, res); };
+
+
 }
 
 
@@ -42,6 +51,7 @@ userController.prototype._register = function(self, req, res){
     var email = req.body.email;
     var password = req.body.password;
     var password_confirm = req.body.password_confirm;
+    var citations = [];
     
     //Validation
     req.checkBody('username', 'First name is required').notEmpty();
@@ -80,7 +90,8 @@ userController.prototype._register = function(self, req, res){
                         username: username,
                         email: email,
                         password: password,
-                        reset_hash: hash_val.toString()
+                        reset_hash: hash_val.toString(),
+                            saved_citations: citations,
                         });
 
                         User.createUser(newUser, function(err, user)
@@ -121,7 +132,7 @@ userController.prototype._resetPassword = function(self, req, res){
         req.flash('error_msg', errors[0].msg)
         res.redirect('/password_reset');
     }
-    
+
     //E-mail Sent
     else{
         
@@ -131,8 +142,8 @@ userController.prototype._resetPassword = function(self, req, res){
         var mailOptions={
         to : req.body.email,
         subject : "Reset Password",
-        text : "Click the following link to reset your password: http://localhost:3000/change_password?email=" + encodeURIComponent(req.body.email) + "&hash=" + encodeURIComponent(hash_val.toString())
-        }
+        text : "Click the following link to reset your password: http://localhost:8081/change_password?email=" + encodeURIComponent(req.body.email) + "&hash=" + encodeURIComponent(hash_val.toString())
+        };
         User.update(query, {reset_hash: hash_val}, function(){
             //Actually send mail
             smtpTransport.sendMail(mailOptions, function(error, response){
@@ -202,7 +213,72 @@ userController.prototype._submitChangePassword = function(self, req, res){
             
             res.render('change_password', {email: req.body.email, hash: req.body.hash, err: "Passwords must be the same!"});
         }
-}
+};
+
+
+userController.prototype._saveCitation =
+    function (self, req, res) {
+         var citations_to_save = req.body.contents;
+        User.getUserById(req.user._id, function (err,user) {
+            console.log(user);
+            var old_citations = user.saved_citations;
+            console.log('citations to save are');
+            console.log(citations_to_save);
+            user.saved_citations.push(citations_to_save); //=  + old_citations;
+            user.save(function(err){
+                console.log('inside save');
+                if (err){
+                    console.log("Error in updating user");
+                }
+            });
+            console.log("user's saved citations are");
+            console.log(user.saved_citations)
+        });
+
+};
+
+
+
+
+userController.prototype._getCitations = function(self, req, res){
+    var citation_names = [];
+    User.getUserById(req.user.id, function (err,user) {
+        for (var x=0; x < user.saved_citations.length; x++)
+        {
+            var citeInfo = {title: user.saved_citations[x], date_created: null, date_modified: null};
+            citation_names.push(citeInfo);
+        }
+
+        console.log(citation_names);
+        res.send(JSON.stringify(citation_names));
+
+    });
+
+    // console.log("the request for _getCitations is");
+    // console.log(req.body);
+    // res.send(JSON.stringify(fileNames))
+    // // if (req.body.sendFileNames == "true")
+    // // {
+    // //     User.getUserById(req.user._id, function (err,citations) {
+    // //         if (err)
+    // //         {
+    // //             console.log(err);
+    // //             throw err;
+    // //         }
+    // //
+    // //         //fileNames.push(user.saved_citations)
+    // //
+    // //         // for (var x=0; x<files.length; x++)
+    // //         // {
+    // //         //     var fileInfo = {title: files[x].title, date_created: files[x].date_created, date_modified: files[x].date_modified}
+    // //         //     fileNames.push(fileInfo);
+    // //         // }
+    // //
+    // //         res.send(JSON.stringify(fileNames));
+    // //     });
+    // // }
+};
+
 
 //Export
 module.exports = new userController();
