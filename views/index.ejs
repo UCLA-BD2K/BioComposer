@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>BioCurator</title>
+    <title>BioComposer</title>
 
       <!--Stylesheets-->
     <link rel='stylesheet' href='stylesheets/style.css'/>
@@ -29,7 +29,7 @@
         }
     );
     <% } %>
-      
+
     //User succesfully registered
     <% if (reg_status == "success") { %>
     $(document).ready(function(){
@@ -38,7 +38,7 @@
         $("#description").html($("#description").html() + DOM);
         });
     <% } %>
-    
+
     //Usename already exists
     <% if (reg_status == "user_exists") { %>
     $(document).ready(function(){
@@ -47,7 +47,7 @@
         $("#description").html($("#description").html() + DOM);
         });
     <% } %>
-    
+
     //Email already registered
     <% if (reg_status == "email_exists") { %>
     $(document).ready(function(){
@@ -56,16 +56,16 @@
         $("#description").html($("#description").html() + DOM);
         });
     <% } %>
-      
+
       function showRegistration(){
         if ($("#register").length == 0){
-        $("#description").animate({height: "650px"}, 1000);  
-        var regFormDOM = "<h2>Register</h2><hr><p class='error' id='reg_err'></p><div id='registration_container'><form id='register' name='register' method='POST' action='/register'>First: <input type='text' name='firstname'></input><br>Last: <input type='text' name='lastname'></input><br>Username: <input type='text' name='username'></input><br>E-mail: <input type='text' name='email'></input><br>Password: <input type='password' name='password'></input><br>Confirm Password: <input type='password' name='password_confirm'></input><input style='margin-top: 30px; width: 90px; padding-bottom: 30px; position: relative; left: 60px;' type='submit' class='button' value='Register'/><br></form></div>"; 
+        $("#description").animate({height: "650px"}, 1000);
+        var regFormDOM = "<h2>Register</h2><hr><p class='error' id='reg_err'></p><div id='registration_container'><form id='register' name='register' method='POST' action='/register'>First: <input type='text' name='firstname'></input><br>Last: <input type='text' name='lastname'></input><br>Username: <input type='text' name='username'></input><br>E-mail: <input type='text' name='email'></input><br>Password: <input type='password' name='password'></input><br>Confirm Password: <input type='password' name='password_confirm'></input><input style='margin-top: 30px; width: 90px; padding-bottom: 30px; position: relative; left: 60px;' type='submit' class='button' value='Register'/><br></form></div>";
         $("#description").html($("#description").html() + regFormDOM);
         $("#joinus").remove();
         }
       }
-  
+
   </script>
   <body>
     <div id="navbar">
@@ -79,7 +79,7 @@
         <input type="text" class="input_blur" onfocus="selectInput(this, 'password')" onblur="deselectInput(this, 'password')" name="password" value="password">
         </input>
         <button>Log-in</button>
-        <p><a href='/password_reset' id='password_forgot'>Forgot password?</a></p>
+        <!-- <p><a href='/password_reset' id='password_forgot'>Forgot password?</a></p> -->
         <% } %>
         <% if (user) { %>
         <p id="greeting">Welcome, <%= user.firstname %> <a href='/logout'>(logout)</a></p>
@@ -89,7 +89,7 @@
 
     </div>
     <div id="main_content">
-	<h1 id="main_title">B<span class="smaller">IO</span>C<span class="smaller">URATOR</span></h1>
+	<h1 id="main_title">B<span class="smaller">IO</span>C<span class="smaller">OMPOSER</span></h1>
     <hr id="under_title_line">
     <h2 id="createdBy">Created by the HeartBD2k Center @ UCLA</h2>
     <br>
