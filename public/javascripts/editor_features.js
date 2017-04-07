@@ -189,7 +189,7 @@ function sendHTMLtoServer()
     return $.ajax({
         type: "POST",
         //url: "http://54.186.246.214:3000/convert",
-        url: "http://localhost:3000/convert",
+        url: "/convert",
         data: {"text": encodedData},
         dataType: "text"
     })
@@ -315,7 +315,7 @@ function documentSave()
     $.ajax({
         type: "POST",
         //url: "http://54.186.246.214:3000/save",
-        url: "http://localhost:3000/save",
+        url: "/save",
         data: data,
         success: function(msg){
             alert(msg);
