@@ -316,7 +316,7 @@ var fileWindowController = function()
         this.div.append(innerWindow);
         
         //Add handlers to make draggable
-        $(this.div).mousedown(function (e) {
+        $(toolBar).mousedown(function (e) {
             
         //Grab beginning mouse positions
         var mouse_pos_x = e.pageX;   
