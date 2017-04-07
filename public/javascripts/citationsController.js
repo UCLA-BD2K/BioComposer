@@ -493,7 +493,8 @@ function findSelectedCitations(){
     var range = editor.getSelection().getRanges()[ 0 ];
 //    console.log("Start offset: " + range.startOffset);
 //    console.log("End offset: " + range.endOffset);
-    
+    if (range == null)
+        return;
     //Determine if text selected before proceeding
     if (range.startOffset != range.endOffset){        
         //Create temp ckeditor div element
