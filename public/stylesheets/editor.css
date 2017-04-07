@@ -582,7 +582,7 @@ h1, h2, h3, p, li
 #fileWindow
 {
     height: 500px;
-    width: 490px;
+    width: 500px;
     border: 1px solid rgb(180,180,180);
     position: absolute;
     z-index: 200;
@@ -661,7 +661,7 @@ h1, h2, h3, p, li
 
 #fwView
 {
-    width: 100%;
+    width: auto;
     height: 469px;
     margin: 0;
     padding: 0;
