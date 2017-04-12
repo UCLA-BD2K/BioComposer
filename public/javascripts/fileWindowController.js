@@ -317,7 +317,12 @@ var fileWindowController = function()
         
         //Add handlers to make draggable
         $(this.div).mousedown(function (e) {
-            
+
+        // Disable text highlighting when window is dragged
+        $("body").addClass('disable_text_highlight');
+        $("#fileWindow").addClass('disable_text_highlight');
+        editor.setReadOnly(true);
+
         //Grab beginning mouse positions
         var mouse_pos_x = e.pageX;   
         var mouse_pos_y = e.pageY;
@@ -336,6 +341,11 @@ var fileWindowController = function()
 
         });
         }).mouseup(function () {
+            // Re-enable text highlight
+            $("body").removeClass('disable_text_highlight');  
+            $("#fileWindow").removeClass('disable_text_highlight');
+            editor.setReadOnly(false);
+
             $(document).unbind('mousemove');
         });
         
