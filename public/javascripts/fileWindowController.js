@@ -316,26 +316,36 @@ var fileWindowController = function()
         this.div.append(innerWindow);
         
         //Add handlers to make draggable
-        $(this.div).mousedown(function (e) {
-            
-        //Grab beginning mouse positions
-        var mouse_pos_x = e.pageX;   
-        var mouse_pos_y = e.pageY;
-        
-        var initPosX = $("#fileWindow").position().left;
-        var initPosY = $("#fileWindow").position().top;
+        $(toolBar).mousedown(function (e) {
 
-        $(document).mousemove(function (e) {
-            //Grab offset
-            var offset_x = e.pageX - mouse_pos_x;
-            var offset_y = e.pageY - mouse_pos_y;
-            
-            //Readjust CSS
-            $("#fileWindow").css({"left" : initPosX + offset_x + "px", "top" : initPosY + offset_y + "px"});
-           
+            // Disable text highlighting when window is dragged
+            $("body").addClass('disable_text_highlight');
+            $("#fileWindow").addClass('disable_text_highlight');
+            editor.setReadOnly(true);
 
-        });
+            //Grab beginning mouse positions
+            var mouse_pos_x = e.pageX;   
+            var mouse_pos_y = e.pageY;
+            
+            var initPosX = $("#fileWindow").position().left;
+            var initPosY = $("#fileWindow").position().top;
+
+            $(document).mousemove(function (e) {
+                //Grab offset
+                var offset_x = e.pageX - mouse_pos_x;
+                var offset_y = e.pageY - mouse_pos_y;
+                
+                //Readjust CSS
+                $("#fileWindow").css({"left" : initPosX + offset_x + "px", "top" : initPosY + offset_y + "px"});
+               
+
+            });
         }).mouseup(function () {
+            // Re-enable text highlight
+            $("body").removeClass('disable_text_highlight');  
+            $("#fileWindow").removeClass('disable_text_highlight');
+            editor.setReadOnly(false);
+
             $(document).unbind('mousemove');
         });
         

@@ -226,9 +226,15 @@ function downloadWikiMarkUp(data)
         data = data.replace("||IMG" + x + "||", images[x]);
     }}
     
+    dwControllerSingleton = new downloadWindowController();
+    dwControllerSingleton.open();
+    $("#contentView").html(data);
+    /*
     //render data in a new window
     var w = window.open();
+
     $(w.document.body).css({"white-space": "pre"}).text(data);
+    */
 }
 
 //Bind to folder button
