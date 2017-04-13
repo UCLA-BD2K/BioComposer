@@ -12,7 +12,7 @@ body {
     height: 100%;
     width: 100%;
 	background-image:url(../images/dark_pattern.png);
-    overflow-y: hidden;
+    overflow: hidden;
 }
 
 body:hover
