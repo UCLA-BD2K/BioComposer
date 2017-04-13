@@ -315,7 +315,7 @@ var fileWindowController = function()
         innerWindow.append(fileViewParent);
         this.div.append(innerWindow);
         
-        //Add handlers to make draggable
+        //Add handler to make draggable
         $(toolBar).mousedown(function(e){
             dragHandler(e, "fileWindow");
         });
