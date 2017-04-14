@@ -573,6 +573,13 @@ h1, h2, h3, p, li
 
 }
 
+#dlWindowCopyBtn
+{
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+
 #contentView::-webkit-scrollbar
 { 
     width: 0 !important;
@@ -613,6 +620,7 @@ h1, h2, h3, p, li
     background: -webkit-linear-gradient(top, #ededed 0%,#d3d3d3 100%); /* Chrome10-25,Safari5.1-6 */
     background: linear-gradient(to bottom, #ededed 0%,#d3d3d3 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ededed', endColorstr='#d3d3d3',GradientType=0 ); /* IE6-9 */
+    position: relative;
 }
 
 #fwToolbar p

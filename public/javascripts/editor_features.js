@@ -191,8 +191,10 @@ function sendHTMLtoServer()
         //url: "http://54.186.246.214:3000/convert",
         url: "/convert",
         data: {"text": encodedData},
-        dataType: "text"
-    })
+        dataType: "text",
+        success: function(data) { console.log("Processed Data: " + data)}
+    });
+    
 }
 
 

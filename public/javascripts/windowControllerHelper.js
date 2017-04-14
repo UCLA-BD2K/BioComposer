@@ -14,6 +14,8 @@ dragHandler = function(e, id) {
     //Grab beginning mouse positions
     var mouse_pos_x = e.clientX;   
     var mouse_pos_y = e.clientY;
+
+    console.log("Current mouse position: " + mouse_pos_x + ", " + mouse_pos_y);
     
     var initPosX = $(id).position().left;
     var initPosY = $(id).position().top;
@@ -27,16 +29,13 @@ dragHandler = function(e, id) {
         var offset_x = e.clientX - mouse_pos_x;
         var offset_y = e.clientY - mouse_pos_y;
 
-        //Use relative x,y pos to check if window will still be on screen
-        var bounds_x = initPosX_relative + offset_x;
-        var bounds_y = initPosY_relative + offset_y;
-
-        //Check bounds and move window if the window will not be off screen
-        if ((bounds_x >= 20) &&
-            (bounds_x + $(id).width()) <= (window_x - 20) &&
-            (bounds_y >= 20) &&
-            (bounds_y + $(id).height())<= (window_y - 20)) {
-
+        // Define border lines by amount of padding
+        var borderPadding = 50;
+        // Prevent window from being dragged if mouse passes border lines set
+        if (e.clientX >= borderPadding &&
+            e.clientX <= (window_x - borderPadding) &&
+            e.clientY >= borderPadding &&
+            e.clientY <= (window_y - borderPadding)) {
             //Readjust CSS
             $(id).css({"left" : initPosX + offset_x + "px", "top" : initPosY + offset_y + "px"});
         }

@@ -58,8 +58,10 @@ editorController.prototype._convert = function(self, req, res){
         //File saved successfully
         var cmd = "pandoc /tmp/test.html -f html -t MediaWiki -s -o /tmp/test";
         exec(cmd, function(error, stdout, stderr) {
+            console.log("error: " + error + "\nstdout: " + stdout + "\nstderr" + stderr);
             fs.readFile('/tmp/test', function(err, data) {
-                console.log(data);
+                console.log("err: " + err);
+                console.log("data: " + data);
                 res.send(data);
                 self.fileLock = false;
                 

@@ -33,6 +33,18 @@ var downloadWindowController = function()
         var toolBar = $("<div />").attr("id", "fwToolbar").append($("<p />").text("Download Wiki Markup")); 
         var closeButton = $("<div />").attr("id", "fwExit");
 
+        //Initialize Copy-to-Clipboard button
+        var clipboard = new Clipboard('#dlWindowCopyBtn');
+        clipboard.on('success', function(e) {
+            console.log(e);
+        });
+        clipboard.on('error', function(e) {
+            console.log(e);
+        });
+
+        var copyButton = $("<button />").attr({"id":"dlWindowCopyBtn", 
+            "data-clipboard-action":"copy", "data-clipboard-target":"#contentView"}).text("Copy to clipboard");
+
         var contentViewParent = $("<div />").attr("id", "contentViewParent");
         var contentView = $("<div />").attr("id", "contentView");
         
@@ -40,6 +52,7 @@ var downloadWindowController = function()
         closeButton.click(function(){self.close()});
         
         toolBar.append(closeButton);
+        toolBar.append(copyButton);
         
         //Link divs
         innerWindow.append(toolBar);
