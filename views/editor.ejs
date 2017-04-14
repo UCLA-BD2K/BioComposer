@@ -9,6 +9,7 @@
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
     <script type="text/javascript" src='javascripts/login_front.js'></script>
     <script src="../javascripts/autogrow.js"></script>
+    <script type="text/javascript" src='javascripts/APIConnection.js'></script>
     <script type="text/javascript" src='javascripts/pubmed.js'></script>
     <script src="../javascripts/ckeditor/ckeditor.js"></script>
     <script src="../javascripts/editor_features.js" type="text/javascript"></script>
@@ -50,7 +51,7 @@
             <div id="extend_div">
             </div>
             <div id="search">
-                <form onsubmit="event.preventDefault(); simpleAndSearch(true);" method='post' id='search_form' name='search'>
+                <form onsubmit="event.preventDefault(); initSearch();" method='post' id='search_form' name='search'>
                     <div id="search_wrap">
                         <input type='text' value='Search Publications' id='search_bar' class="input_blur" onfocus="selectInput(this, 'Search Publications')" onblur="deselectInput(this, 'Search Publications')" </input><div id="search_type" onclick="toggleSearchType(this)"><p>Most Recent</p> <div id="down_arrow"></div></div>
                     </div>

@@ -1,62 +1,12 @@
-//Global vars for AJAX search
-var search_count = 0;
-var retstart = 0;
-var itemsPerPage = 20;
-var pageNum = 1;
-var currentSearch = "";
-
-var pubDebug = 0;
-
-//When set to one, search by relevance
-var search_type = "recent";
-
-//Lock to prevent too many reuqests
-var ajaxLock = 0;
-
-//----- Functions to change page -------- //
-function movePage(x)
-{
-    //Do nothing if out of bounds
-    if ((x==-1 && pageNum==1) || (x==1 && pageNum == Math.ceil(search_count/itemsPerPage)))
-        return;
-    pageNum += x;
-    retstart += x*itemsPerPage; 
-    simpleAndSearch(false); 
+function initSearch() {
+    var api = Object.create(PubMed_API_Connection)
+    api.simpleAndSearch(true);
 }
 
-//----- HELPER FUNCTIONS
-function numberWithCommas(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
 
-function unescapeHtml(safe) {
-    return safe.replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#039;/g, "'");
-}
-//------------------------
+var PubMed_API_Connection = Object.create(APIConnection);
 
-function toggleSearchType(obj)
-{
-    var ele = $(obj).find("p")[0];
-    if(pubDebug)
-        console.log(ele);
-    if ($(ele).text() == "Most Recent")
-    {
-        $(ele).text("Most Relevant");
-        search_type = "relevance";
-    }
-    else
-    {
-        $(ele).text("Most Recent");
-        search_type = "recent";
-    }
-}
-
-function seeMore(obj)
-{
+PubMed_API_Connection.seeMore = function (obj) {
     //console.log($(obj).has('.abstract').length);
     if ($(obj).has('.abstract').length)
     {
@@ -93,8 +43,7 @@ function seeMore(obj)
     }
 }
 
-function display_abstract(response, obj)
-{
+PubMed_API_Connection.display_abstract = function (response, obj) {
     var abstract_text = $(response).find('AbstractText');
     var text = "";
     if (abstract_text.length > 1)
@@ -112,8 +61,7 @@ function display_abstract(response, obj)
     return text;
 }
 
-function fetchAbstract(id)
-{
+PubMed_API_Connection.fetchAbstract = function (id) {
     ajaxLock = 1;
     return $.ajax({
 	    url: 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi',
@@ -125,53 +73,8 @@ function fetchAbstract(id)
 	});
 }
 
-function simpleAndSearch(newSearch)
-{
-    if ($(".loader").length == 0){
-    var obj = document.getElementById('search_bar');
-    var text = obj.value; 
-    if (obj.value == "")
-        return;
-    
-    var ret = "";
-        
-    //Set search variables
-    if (newSearch)
-    {
-        retstart = 0;
-        pageNum = 1;
-        currentSearch = text;
-    }
-    else    
-        text = currentSearch;
-    if (debugCite)   
-        console.log(text);
-        
-    for (var x=0; x<text.length;x++)
-    {
-        if (text[x] == ' ')
-            ret += " AND ";
-        else
-            ret += text[x];
-    }
-    
-    //Loader gif
-    $("<img/>", {
-        src: "../images/loader.gif"
-    }).addClass("loader").appendTo($("#search_wrap")); 
-        
-    $("#search_type").hide();
-    
-    searchPubMed(ret)
-        .then(fetchResults)
-        .then(parseResults)
-        .then(displayResults);
-    }
-}
 
-
-
-function searchPubMed(term) {
+PubMed_API_Connection.search = function (term) {
     return $.ajax({
 	    url: 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi',
 		data: {
@@ -185,7 +88,7 @@ function searchPubMed(term) {
 	});
 }
 
-function fetchResults(response) {
+PubMed_API_Connection.fetchResults = function(response) {
     search_count = response.esearchresult.count;
     return $.ajax({
 	    url: 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi',
@@ -201,7 +104,7 @@ function fetchResults(response) {
 	});
 }
 
-function parseResults(response) {
+PubMed_API_Connection.parseResults = function(response) {
     var nodes = response.querySelectorAll('DocSum');
     return $.map(nodes, function(node) {
 	    var pmidNode = node.querySelector('Id');
@@ -224,7 +127,7 @@ function parseResults(response) {
 	});
 }
 
-function displayResults(articles) {
+PubMed_API_Connection.displayResults = function(articles) {
     if (debugCite)
         console.log(articles);
     
