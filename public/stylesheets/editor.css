@@ -532,8 +532,8 @@ h1, h2, h3, p, li
 /*DOWNLOAD WINDOW CSS*/
 #downloadWindow
 {
-    height: 800px;
-    width: 800px;
+    height: 500px;
+    width: 500px;
     border: 1px solid rgb(180,180,180);
     position: absolute;
     z-index: 200;
@@ -541,7 +541,7 @@ h1, h2, h3, p, li
     left: 50%;
     top: 50%;
     margin-left: -250px;
-    margin-top: -400px;
+    margin-top: -250px;
     -webkit-box-shadow: 18px 20px 31px -5px rgba(48,48,48,0.47);
     -moz-box-shadow: 18px 20px 31px -5px rgba(48,48,48,0.47);
     box-shadow: 18px 20px 31px -5px rgba(48,48,48,0.47);
