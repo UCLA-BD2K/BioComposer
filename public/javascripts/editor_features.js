@@ -191,8 +191,10 @@ function sendHTMLtoServer()
         //url: "http://54.186.246.214:3000/convert",
         url: "/convert",
         data: {"text": encodedData},
-        dataType: "text"
-    })
+        dataType: "text",
+        success: function(data) { console.log("Processed Data: " + data)}
+    });
+    
 }
 
 
@@ -226,9 +228,14 @@ function downloadWikiMarkUp(data)
         data = data.replace("||IMG" + x + "||", images[x]);
     }}
     
+    dwControllerSingleton = new downloadWindowController();
+    dwControllerSingleton.open(data);
+    /*
     //render data in a new window
     var w = window.open();
+
     $(w.document.body).css({"white-space": "pre"}).text(data);
+    */
 }
 
 //Bind to folder button

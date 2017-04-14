@@ -20,7 +20,7 @@ function navigationController(){
 
 //Implementation
 navigationController.prototype._home = function(self, req, res){
-    res.render('index', { title: 'GeneWiki', reg_status: "none" });
+    res.render('index', { title: 'BioComposer', reg_status: "none" });
 }
 
 navigationController.prototype._accountSettings = function(self, req, res){

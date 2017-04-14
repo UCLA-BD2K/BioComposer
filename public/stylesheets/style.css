@@ -12,7 +12,7 @@ body {
     height: 100%;
     width: 100%;
 	background-image:url(../images/dark_pattern.png);
-    overflow-y: hidden;
+    overflow: hidden;
 }
 
 body:hover
@@ -213,4 +213,14 @@ nav
 nav a:hover
 {
     text-decoration: underline;
+}
+
+.disable_text_highlight
+{
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }

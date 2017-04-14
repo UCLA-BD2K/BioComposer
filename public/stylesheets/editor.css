@@ -529,11 +529,67 @@ h1, h2, h3, p, li
     top: -3px;
 }
 
+/*DOWNLOAD WINDOW CSS*/
+#downloadWindow
+{
+    height: 500px;
+    width: 500px;
+    border: 1px solid rgb(180,180,180);
+    position: absolute;
+    z-index: 200;
+    border-radius: 6px;
+    left: 50%;
+    top: 50%;
+    margin-left: -250px;
+    margin-top: -250px;
+    -webkit-box-shadow: 18px 20px 31px -5px rgba(48,48,48,0.47);
+    -moz-box-shadow: 18px 20px 31px -5px rgba(48,48,48,0.47);
+    box-shadow: 18px 20px 31px -5px rgba(48,48,48,0.47);
+}
+
+#innerDownloadWindow
+{
+    height: 100%;
+    width: 100%;
+    background: white;
+    overflow:hidden;
+}
+
+#contentViewParent
+{
+    width: 100%;
+    height: 100%;
+    overflow-y: hidden;
+    display: inline-block;
+}
+#contentView
+{
+    width: auto;
+    height: 80%;
+    overflow-y: scroll;
+    overflow-x: none;    
+    position: relative;
+    margin: 20px;
+
+}
+
+#dlWindowCopyBtn
+{
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+
+#contentView::-webkit-scrollbar
+{ 
+    width: 0 !important;
+}
+
 /*FILE WINDOW CSS*/
 #fileWindow
 {
     height: 500px;
-    width: 490px;
+    width: 500px;
     border: 1px solid rgb(180,180,180);
     position: absolute;
     z-index: 200;
@@ -564,6 +620,7 @@ h1, h2, h3, p, li
     background: -webkit-linear-gradient(top, #ededed 0%,#d3d3d3 100%); /* Chrome10-25,Safari5.1-6 */
     background: linear-gradient(to bottom, #ededed 0%,#d3d3d3 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ededed', endColorstr='#d3d3d3',GradientType=0 ); /* IE6-9 */
+    position: relative;
 }
 
 #fwToolbar p
@@ -605,15 +662,14 @@ h1, h2, h3, p, li
 #fwViewParent
 {
     width: 100%;
-    height: 469px;
+    height: 435px;
     overflow-y: hidden;
-    background-color: pink;
 }
 
 #fwView
 {
-    width: 100%;
-    height: 469px;
+    width: auto;
+    height: 100%;
     margin: 0;
     padding: 0;
     padding-right: 17px;
