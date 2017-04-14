@@ -9,9 +9,9 @@ var downloadWindowController = function()
     this.arrowImg = new upCarrot("arrowimg");
     
     //When window is open
-    this.open = function(){
+    this.open = function(data){
         if (!this.isOpen){
-            this.init();
+            this.init(data);
             $("body").prepend(this.div);
             this.isOpen = true;
         }
@@ -25,7 +25,7 @@ var downloadWindowController = function()
     };
     
     //Inititialize: Create GUI
-    this.init = function()
+    this.init = function(data)
     {        
         //Create DIV
         this.div = $("<div />").attr("id", "downloadWindow");
@@ -44,10 +44,10 @@ var downloadWindowController = function()
 
         var copyButton = $("<button />").attr({"id":"dlWindowCopyBtn", 
             "data-clipboard-action":"copy", "data-clipboard-target":"#contentView"}).text("Copy to clipboard");
-
-        var contentViewParent = $("<div />").attr("id", "contentViewParent");
-        var contentView = $("<div />").attr("id", "contentView");
         
+        var contentViewParent = $("<div />").attr("id", "contentViewParent");
+        var contentView = $("<div />").attr("id", "contentView").html(data);
+
         var self = this;
         closeButton.click(function(){self.close()});
         

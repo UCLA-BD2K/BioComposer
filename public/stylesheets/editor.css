@@ -565,7 +565,7 @@ h1, h2, h3, p, li
 #contentView
 {
     width: auto;
-    height: 690px;
+    height: 80%;
     overflow-y: scroll;
     overflow-x: none;    
     position: relative;

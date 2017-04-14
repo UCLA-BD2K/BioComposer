@@ -229,8 +229,7 @@ function downloadWikiMarkUp(data)
     }}
     
     dwControllerSingleton = new downloadWindowController();
-    dwControllerSingleton.open();
-    $("#contentView").html(data);
+    dwControllerSingleton.open(data);
     /*
     //render data in a new window
     var w = window.open();
