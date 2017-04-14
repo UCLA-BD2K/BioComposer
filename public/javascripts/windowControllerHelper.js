@@ -33,14 +33,18 @@ dragHandler = function(e, id) {
         var bounds_x = initPosX_relative + offset_x;
         var bounds_y = initPosY_relative + offset_y;
 
-        
         //Check bounds and move window if the window will not be off screen
-        if ((bounds_x >= 20) &&
-            (bounds_x + $(id).width()) <= (window_x - 20) &&
-            (bounds_y >= 20) &&
-            (bounds_y + $(id).height())<= (window_y - 20)) {
-            //Readjust CSS
-            $(id).css({"left" : initPosX + offset_x + "px", "top" : initPosY + offset_y + "px"});
-        }
+        if (offset_x < 0 && bounds_x <= 20)
+            return;
+        if (offset_x > 0 && (bounds_x + $(id).width()) >= (window_x - 20))
+            return;
+        if (offset_y < 0 && bounds_y <= 20)
+            return;
+        if (offset_y > 0 && (bounds_y + $(id).height()) >= (window_y - 20))
+            return;
+        
+        //Readjust CSS
+        $(id).css({"left" : initPosX + offset_x + "px", "top" : initPosY + offset_y + "px"});
+
     });
 }
