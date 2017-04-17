@@ -1,10 +1,17 @@
-function initSearch() {
+/*function initSearch() {
     var api = Object.create(PubMed_API_Connection)
     api.simpleAndSearch(true);
-}
+}*/
 
 
 var PubMed_API_Connection = Object.create(APIConnection);
+
+PubMed_API_Connection.searchSequence = function (value) {
+    this.search(value)
+        .then(this.fetchResults)
+        .then(this.parseResults)
+        .then(this.displayResults);
+}
 
 PubMed_API_Connection.seeMore = function (obj) {
     //console.log($(obj).has('.abstract').length);
@@ -74,35 +81,35 @@ PubMed_API_Connection.fetchAbstract = function (id) {
 }
 
 
-PubMed_API_Connection.search = function (term) {
+PubMed_API_Connection.search = function(term) {
     return $.ajax({
-	    url: 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi',
-		data: {
-		db: 'pubmed',
-		    usehistory: 'y',
-		    term: term,
+        url: 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi',
+        data: {
+        db: 'pubmed',
+            usehistory: 'y',
+            term: term,
             sort: search_type,
-		    retmode: 'json',
-		    retmax: 0
-		    }
-	});
-}
+            retmode: 'json',
+            retmax: 0
+            }
+    });
+};
 
 PubMed_API_Connection.fetchResults = function(response) {
-    search_count = response.esearchresult.count;
+ search_count = response.esearchresult.count;
     return $.ajax({
-	    url: 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi',
-		data: {
-		db: 'pubmed',
-		    usehistory: 'y',
-		    webenv: response.esearchresult.webenv,
-		    query_key: response.esearchresult.querykey,
+        url: 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi',
+        data: {
+        db: 'pubmed',
+            usehistory: 'y',
+            webenv: response.esearchresult.webenv,
+            query_key: response.esearchresult.querykey,
             retstart: retstart,
-		    retmode: 'xml',
-		    retmax: itemsPerPage // how many items to return
-		    }
-	});
-}
+            retmode: 'xml',
+            retmax: itemsPerPage // how many items to return
+            }
+    });
+};
 
 PubMed_API_Connection.parseResults = function(response) {
     var nodes = response.querySelectorAll('DocSum');
