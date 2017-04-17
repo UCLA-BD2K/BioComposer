@@ -1,5 +1,5 @@
 function initSearch() {
-    var api = Object.create(Uniprot_API_Connection)
+    var api = Object.create(PubMed_API_Connection)
     api.simpleAndSearch(true);
 }
 

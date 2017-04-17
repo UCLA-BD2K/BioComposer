@@ -36,7 +36,7 @@ PubMed_API_Connection.seeMore = function (obj) {
     }
     else{
         if (ajaxLock == 0){
-        fetchAbstract(obj_id).then(display_abstract).then(function(text){
+        this.fetchAbstract(obj_id).then(this.display_abstract).then(function(text){
         if (debugCite)
             console.log("Called from web");
             $($(obj).children(".authors")[0]).after(function(){return "<p class='abstract'>" + text + "</p>"});
@@ -180,7 +180,7 @@ PubMed_API_Connection.displayResults = function(articles) {
         //Basically see if user is clicking for longer that 1500ms which would indicate that it is not a click, but a highlight
         var timeoutId; 
         var highLightLock = false;
-	    var container = $('<div/>').addClass(alternate).addClass("single_result").click(function(){if (!highLightLock){seeMore($(this))}}).data("id", article.id).appendTo(pubmed);
+	    var container = $('<div/>').addClass(alternate).addClass("single_result").click(function(){if (!highLightLock){PubMed_API_Connection.seeMore($(this))}}).data("id", article.id).appendTo(pubmed);
         
         //MECHANISM HERE TO PREVENT HIGH LIGHT PROBLEM
         container.mousedown(function(){highLightLock = false; timeoutId = setTimeout(function(){highLightLock = true}, 1000)}).mouseup(function(){clearTimeout(timeoutId)});
