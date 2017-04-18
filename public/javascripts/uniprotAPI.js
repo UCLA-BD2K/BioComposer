@@ -1,6 +1,77 @@
 function initSearch() {
-    var api = Object.create(PubMed_API_Connection)
+    var api = Object.create(Uniprot_API_Connection)
     api.simpleAndSearch(true);
+}
+
+function rotateImg(id) {
+    if ($(id).hasClass("rotateArrow"))
+        $(id).removeClass("rotateArrow");
+    else
+        $(id).addClass("rotateArrow");
+}
+
+function createResultSubheader(id, subheader, parent_container) {
+    $('<div/>', {
+        class: "result_subheader",
+        id: "h_" + id,
+        onClick: "$('#container_" + id + "').toggle(); rotateImg('#arrow_"+ id + "');"
+    }).appendTo(parent_container);
+
+    $('<p/>', {
+        text: subheader,
+        float: "left"
+    }).appendTo($("#h_" + id));
+
+   $('<img/>', {
+        src: "../images/down-arrow-3.png",
+        class: "show_more_arrow",
+        id: "arrow_"+ id 
+   }).appendTo($("#h_" + id));
+
+}
+
+function createInfoText(id, text, parent_container) {
+    $('<div/>', {
+        id: "container_" + id
+    }).appendTo(parent_container);
+
+    $('<p/>', {
+        text: text
+    }).appendTo($("#container_" + id));
+
+    $("#container_" + id).hide();
+ 
+}
+
+function createInfoListGO(id, list, parent_container) {
+    $('<div/>', {
+        id: "container_" + id
+    }).appendTo(parent_container);
+
+    for (var i = 0; i  < list.length; i++) {
+        $('<a/>', {
+            href: 'https://www.ebi.ac.uk/QuickGO/GTerm?id=' + list[i].id,
+            target: "_blank",
+            text: list[i].text
+        }).appendTo($("#container_" + id));
+        $('<br>').appendTo($("#container_" + id));
+    }
+    $("#container_" + id).hide();
+}
+
+function createInfoDiseases(id, diseases, parent_container) {
+    
+    $('<div/>', {
+        id: "container_" + id
+    }).appendTo(parent_container);
+
+    for (var i = 0; i < diseases.length; i++) {
+        $('<p/>', {
+            text: diseases[i].name + ' - ' + diseases[i].description
+        }).appendTo($("#container_" + id));
+    }
+    $("#container_" + id).hide();
+ 
 }
 
 
@@ -10,7 +81,7 @@ var Uniprot_API_Connection = Object.create(APIConnection);
 Uniprot_API_Connection.searchSequence = function (value) {
     this.search(value)
         .then(this.parseResults)
-      //  .then(this.displayResults);
+        .then(this.displayResults);
 };
 
 
@@ -31,60 +102,68 @@ Uniprot_API_Connection.parseResults = function(res) {
     var accessionNode = res.querySelector('accession');
     var functionsNodes = res.querySelectorAll('comment[type=function] > text')
     var functions = "";
-    functionsNodes.forEach(function (item) {
-        functions += item.textContent;
+    var i;
+    console.log(functionsNodes);
+    console.log(functionsNodes[0]);
+    for (i = 0; i < functionsNodes.length; i++) {
+        functions += functionsNodes[i].textContent;
         functions += "\n\n";
-    });
+    }
+
     var proteinNameNode = res.querySelector('protein > recommendedName > fullName');
-    var geneNameNode = res.querySelector('gene > name[type=primary]');
+    //var geneNameNode = res.querySelector('gene > name[type=primary]');
+    var geneNameNode = res.querySelector('name');
     console.log('*** GO - Molecular ***');
     var goMolecularNodes = res.querySelectorAll('dbReference[type=GO] > property[type=term][value^=F]')
     var goMoleculars = [];
-    goMolecularNodes.forEach(function(item) {
+    for (i = 0; i < goMolecularNodes.length; i++) {
         goMoleculars.push({
-            id: item.parentNode.getAttribute('id'),
-            text: item.getAttribute('value').substring(2)
+            id: goMolecularNodes[i].parentNode.getAttribute('id'),
+            text: goMolecularNodes[i].getAttribute('value').substring(2)
         });
-    });
+    }
 
     console.log('*** GO - Biological ***');
     var goBiologicalNodes = res.querySelectorAll('dbReference[type=GO] > property[type=term][value^=P]')
     var goBiologicals = [];
-    goBiologicalNodes.forEach( function(item) {
+    for (i = 0; i < goBiologicalNodes.length; i++) {
         goBiologicals.push({
-            id: item.parentNode.getAttribute('id'),
-            text: item.getAttribute('value').substring(2)
+            id: goBiologicalNodes[i].parentNode.getAttribute('id'),
+            text: goBiologicalNodes[i].getAttribute('value').substring(2)
         });
-    });
+    }
 
     console.log('*** GO - Cellulars ***')
     var goCellularNodes = res.querySelectorAll('dbReference[type=GO] > property[type=term][value^=C]')
     var goCellulars = [];
-    goCellularNodes.forEach( function(item) {
+    for (i = 0; i < goCellularNodes.length; i++) {
         goCellulars.push({
-            id: item.parentNode.getAttribute('id'),
-            text: item.getAttribute('value').substring(2)
+            id: goCellularNodes[i].parentNode.getAttribute('id'),
+            text: goCellularNodes[i].getAttribute('value').substring(2)
         });
-    });
+    }
 
     var diseasesNodes = res.querySelectorAll('comment[type=disease]');
     var diseases = [];
-    diseasesNodes.forEach(function(item) {
-        var nameNode = item.querySelector('disease > name');
-        var descriptionNode = item.querySelector('disease > description');
-        var textNode = item.querySelector('text');
-        diseases.push({
-            name: nameNode ? nameNode.textContent : null,
-            description: descriptionNode ? descriptionNode.textContent : null,
-            text: textNode ? textNode.textContent : null
-        });
-    });
+    for (i = 0; i < diseasesNodes.length; i++) {
+        var nameNode = diseasesNodes[i].querySelector('disease > name');
+        var descriptionNode = diseasesNodes[i].querySelector('disease > description');
+        var textNode = diseasesNodes[i].querySelector('text');
+        if (nameNode && descriptionNode) {
+            diseases.push({
+                name: nameNode ? nameNode.textContent : null,
+                description: descriptionNode ? descriptionNode.textContent : null,
+                text: textNode ? textNode.textContent : null
+            }); 
+        }
+    }
 
     var tissueSpecificityNode = res.querySelector('comment[type="tissue specificity"] > text');
     var subunitStructureNode = res.querySelector('comment[type=subunit] > text');
     var seqSimilarityNode = res.querySelector('comment[type=similarity] > text');
 
     var ret = {
+        url: accessionNode ? 'http://www.uniprot.org/uniprot/' + accessionNode.textContent : null,
         accession: accessionNode ? accessionNode.textContent : null,
         functions: functions,
         proteinName: proteinNameNode ? proteinNameNode.textContent : null,
@@ -102,11 +181,15 @@ Uniprot_API_Connection.parseResults = function(res) {
     return ret;
 }
 
-/*
-PubMed_API_Connection.displayResults = function(articles) {
+
+Uniprot_API_Connection.displayResults = function(uniprot) {
     if (debugCite)
-        console.log(articles);
+        console.log(uniprot);
     
+    //For now, only single uniprot search results
+    var uniprots = [uniprot];
+    search_count = 1;
+
     //Show most recent/relevant element again
     $("#search_type").show();
     
@@ -139,7 +222,7 @@ PubMed_API_Connection.displayResults = function(articles) {
       }).addClass('results_header').prependTo(wrapper);
 
     //Create each DIV for each article 
-    $.each(articles, function (i, article) {
+    $.each(uniprots, function (i, uni) {
         var alternate;
         if (i%2 == 0)
             alternate="single_result_a";
@@ -149,22 +232,12 @@ PubMed_API_Connection.displayResults = function(articles) {
         //Basically see if user is clicking for longer that 1500ms which would indicate that it is not a click, but a highlight
         var timeoutId; 
         var highLightLock = false;
-        var container = $('<div/>').addClass(alternate).addClass("single_result").click(function(){if (!highLightLock){}}).data("id", article.id).appendTo(results);
+        var container = $('<div/>').addClass(alternate).addClass("single_result").click(function(){if (!highLightLock){}}).data("id", uni.accession).appendTo(results);
         
         //MECHANISM HERE TO PREVENT HIGH LIGHT PROBLEM
         container.mousedown(function(){highLightLock = false; timeoutId = setTimeout(function(){highLightLock = true}, 1000)}).mouseup(function(){clearTimeout(timeoutId)});
         
-        authors = "";
-        for (var x=0; x<article.authors.length && x<5; x++)
-            {
-                authors += article.authors[x];
-                if (!(x == article.authors.length-1 || x == 4))
-                    authors += ", ";
-                
-                if (x < article.authors.length-1 && x==4)
-                    authors += " et al."
-            }
-        
+        /*
         //Add data to container
         $(container).data('id', article.id);
         $(container).data('url', encodeURIComponent(article.url));
@@ -172,32 +245,60 @@ PubMed_API_Connection.displayResults = function(articles) {
         $(container).data('date', encodeURIComponent(article.date));
         $(container).data('authors', encodeURIComponent(authors));
         $(container).data('publisher', encodeURIComponent(article.source));
-        
+        */
+
         $('<a/>', {
-            href: article.url,
+            href: uni.url,
             target: "_blank"
-            }).addClass('article_title').appendTo(container);
+        }).addClass('result_header').appendTo(container);
         
         //Add escaped html
-        $($('.article_title')[i]).html((i+1+retstart) + ". " + unescapeHtml(article.title));
+        $($('.result_header')[i]).html((i+1+retstart) + ". " + unescapeHtml(uni.accession));
         
         $('<p/>', {
-            text: authors
-            }).addClass('authors').appendTo(container);
+            text: uni.proteinName
+        }).addClass('protein_name').appendTo(container);
         
         $('<p/>', {
-            text: "Circ Res. " + article.date + ' · ' + article.source
-            }).addClass('dateSource').appendTo(container);
-        
+            text: uni.geneName
+        }).addClass('gene_name').appendTo(container);
+        /*
         $('<button/>', {
             text: "Reference"
             }).click(function(e){e.stopPropagation(); generateCitation($(this).parent())}).addClass('button').addClass('refButton').appendTo(container);
-        
-        
-        
-    });
+        */
+        var infoContainer = $('<div/>').appendTo(container);
 
-}*/
+        createResultSubheader("functions", "Functions: ", infoContainer);
+        createInfoText("functions", uni.functions, infoContainer);
+        
+        createResultSubheader("go_molecular", "GO - Molecular: ", infoContainer);
+        createInfoListGO("go_molecular", uni.GO_moleculars, infoContainer);
+
+        createResultSubheader("go_biological", "GO - Biological: ", infoContainer);
+        createInfoListGO("go_biological", uni.GO_biologicals, infoContainer);
+
+        createResultSubheader("go_cellular", "GO - Cellular: ", infoContainer);
+        createInfoListGO("go_cellular", uni.GO_cellulars, infoContainer);
+
+        createResultSubheader("diseases", "Diseases: ", infoContainer);
+        createInfoDiseases("diseases", uni.diseases, infoContainer);
+        
+        createResultSubheader("tissue", "Tissue Specificity: ", infoContainer);
+        createInfoText("tissue", uni.tissueSpecificity, infoContainer);
+
+        createResultSubheader("subunit_structure", "Subunit Structure: ", infoContainer);
+        createInfoText("subunit_structure", uni.subunitStructure, infoContainer);
+
+        createResultSubheader("seq_similarity", "Sequence Similarities: ", infoContainer);
+        createInfoText("seq_similarity", uni.seqSimilarity, infoContainer);
+      
+    })
+}
+      
+
+
+
 
 /*
 PubMed_API_Connection.seeMore = function (obj) {

@@ -207,10 +207,10 @@ PubMed_API_Connection.displayResults = function(articles) {
 	    $('<a/>', {
 		    href: article.url,
             target: "_blank"
-			}).addClass('article_title').appendTo(container);
+			}).addClass('result_header').appendTo(container);
         
         //Add escaped html
-        $($('.article_title')[i]).html((i+1+retstart) + ". " + unescapeHtml(article.title));
+        $($('.result_header')[i]).html((i+1+retstart) + ". " + unescapeHtml(article.title));
         
 	    $('<p/>', {
 		    text: authors

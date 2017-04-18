@@ -254,8 +254,9 @@
     overflow: hidden;
 }
 
-.results_container > * {
+.results_container  * {
     color: white;
+    text-decoration: none;
 }
 
 #pubmed_results, #google_results
@@ -275,6 +276,7 @@
     text-align: center;
     font-family: AvenirNext;
     font-weight: normal;
+    text-decoration: none;
 }
 
 .single_result_a
@@ -341,10 +343,12 @@
     font-size: 16px;
 }
 
-.article_title
+.result_header
 {
+    font-size: 20px;
     color: white;
-    text-decoration: none;
+    text-decoration: underline;
+    width: 100%;
 }
 
 .single_result b
@@ -376,6 +380,36 @@
     bottom: 18px;
     left: 330px;
 }
+
+.result_subheader
+{
+    font-size: 20px;
+    font-style: italic;
+    position: relative;
+    border-bottom: 1px solid white;
+    margin: 16px 0;
+}
+
+.result_subheader > p
+{
+    width: 0px;
+    display: inline;    
+}
+
+.result_info > *
+{
+    font-size: 16px;
+    color: white;
+}
+
+.show_more_arrow
+{
+    height: 14px;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+}
+
 
 /* --- Page controller ----- */
 #pageNum
