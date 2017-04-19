@@ -90,32 +90,56 @@ Uniprot_API_Connection.searchSequence = function (value) {
 Uniprot_API_Connection.search = function(term) {
     var search_url = 'http://www.uniprot.org/uniprot/?';
     var params = jQuery.param({
-        query: term,
+        query: "reviewed:yes+"+term,
         format: 'xml',
         compress: 'no',
-        
+        limit: "100",
+        sort: "score"
     });
-    //return $.getJSON('https://www.ebi.ac.uk/proteins/api/proteins/P31749');
-    return $.get('http://www.uniprot.org/uniprot/P31749.xml');
+
+    console.log("url:"+search+params);
+
+    return $.get(search_url+params);
 };
 
 Uniprot_API_Connection.parseResults = function(res) {
     console.log(res);
-    var accessionNode = res.querySelector('accession');
-    var functionsNodes = res.querySelectorAll('comment[type=function] > text')
-    var functions = "";
-    var i;
-    console.log(functionsNodes);
-    console.log(functionsNodes[0]);
-    for (i = 0; i < functionsNodes.length; i++) {
-        functions += functionsNodes[i].textContent;
-        functions += "\n\n";
+
+    var uniprotNodes = res.querySelectorAll('entry');
+
+    var uniprots = [];
+
+    for (var i = 0; i < uniprotNodes.length; i++) {
+        var accessionNode = uniprotNodes[i].querySelector('accession');
+        var functionsNodes = uniprotNodes[i].querySelectorAll('comment[type=function] > text')
+        var functions = "";
+
+        for (var j = 0; j < functionsNodes.length; j++) {
+            functions += functionsNodes[j].textContent;
+            functions += "\n\n";
+        }
+
+        var proteinNameNode = uniprotNodes[i].querySelector('protein > recommendedName > fullName');
+        //var geneNameNode = res.querySelector('gene > name[type=primary]');
+        var geneNameNode = uniprotNodes[i].querySelector('name');
+
+        var info = {
+            url: accessionNode ? 'http://www.uniprot.org/uniprot/' + accessionNode.textContent : null,
+            accession: accessionNode ? accessionNode.textContent : null,
+            functions: functions,
+            proteinName: proteinNameNode ? proteinNameNode.textContent : null,
+            geneName: geneNameNode ? geneNameNode.textContent : null
+        };
+        uniprots.push(info);
+
     }
 
-    var proteinNameNode = res.querySelector('protein > recommendedName > fullName');
-    //var geneNameNode = res.querySelector('gene > name[type=primary]');
-    var geneNameNode = res.querySelector('name');
-    console.log('*** GO - Molecular ***');
+    return uniprots     
+}
+
+
+Uniprot_API_Connection.parseUniprotInfo = function(res) {
+    
     var goMolecularNodes = res.querySelectorAll('dbReference[type=GO] > property[type=term][value^=F]')
     var goMoleculars = [];
     for (i = 0; i < goMolecularNodes.length; i++) {
@@ -125,7 +149,6 @@ Uniprot_API_Connection.parseResults = function(res) {
         });
     }
 
-    console.log('*** GO - Biological ***');
     var goBiologicalNodes = res.querySelectorAll('dbReference[type=GO] > property[type=term][value^=P]')
     var goBiologicals = [];
     for (i = 0; i < goBiologicalNodes.length; i++) {
@@ -135,7 +158,6 @@ Uniprot_API_Connection.parseResults = function(res) {
         });
     }
 
-    console.log('*** GO - Cellulars ***')
     var goCellularNodes = res.querySelectorAll('dbReference[type=GO] > property[type=term][value^=C]')
     var goCellulars = [];
     for (i = 0; i < goCellularNodes.length; i++) {
@@ -165,11 +187,6 @@ Uniprot_API_Connection.parseResults = function(res) {
     var seqSimilarityNode = res.querySelector('comment[type=similarity] > text');
 
     var ret = {
-        url: accessionNode ? 'http://www.uniprot.org/uniprot/' + accessionNode.textContent : null,
-        accession: accessionNode ? accessionNode.textContent : null,
-        functions: functions,
-        proteinName: proteinNameNode ? proteinNameNode.textContent : null,
-        geneName: geneNameNode ? geneNameNode.textContent : null,
         GO_moleculars: goMoleculars, 
         GO_biologicals: goBiologicals,
         GO_cellulars: goCellulars, 
@@ -179,18 +196,17 @@ Uniprot_API_Connection.parseResults = function(res) {
         seqSimilarity: seqSimilarityNode ? seqSimilarityNode.textContent : null
     };
     console.log(ret);
-
     return ret;
 }
 
 
-Uniprot_API_Connection.displayResults = function(uniprot) {
+Uniprot_API_Connection.displayResults = function(uniprots) {
     if (debugCite)
-        console.log(uniprot);
+        console.log(uniprots);
     
     //For now, only single uniprot search results
-    var uniprots = [uniprot];
-    search_count = 1;
+
+    search_count = uniprots.length;
 
     //Show most recent/relevant element again
     $("#search_type").show();
@@ -223,8 +239,9 @@ Uniprot_API_Connection.displayResults = function(uniprot) {
         text: numberWithCommas(search_count) + " Results for " + '"' + currentSearch + '"...'
       }).addClass('results_header').prependTo(wrapper);
 
-    //Create each DIV for each article 
-    $.each(uniprots, function (i, uni) {
+    //Create each DIV for each uniprot 
+    for (var i = 0; i < uniprots.length; i++) {
+        var uniprot = uniprots[i];
         var alternate;
         if (i%2 == 0)
             alternate="single_result_a";
@@ -234,7 +251,7 @@ Uniprot_API_Connection.displayResults = function(uniprot) {
         //Basically see if user is clicking for longer that 1500ms which would indicate that it is not a click, but a highlight
         var timeoutId; 
         var highLightLock = false;
-        var container = $('<div/>').addClass(alternate).addClass("single_result").click(function(){if (!highLightLock){}}).data("id", uni.accession).appendTo(results);
+        var container = $('<div/>').addClass(alternate).addClass("single_result").click(function(){if (!highLightLock){}}).data("id", uniprot.accession).appendTo(results);
         
         //MECHANISM HERE TO PREVENT HIGH LIGHT PROBLEM
         container.mousedown(function(){highLightLock = false; timeoutId = setTimeout(function(){highLightLock = true}, 1000)}).mouseup(function(){clearTimeout(timeoutId)});
@@ -250,53 +267,67 @@ Uniprot_API_Connection.displayResults = function(uniprot) {
         */
 
         $('<a/>', {
-            href: uni.url,
+            href: uniprot.url,
             target: "_blank"
         }).addClass('result_header').appendTo(container);
         
         //Add escaped html
-        $($('.result_header')[i]).html((i+1+retstart) + ". " + unescapeHtml(uni.accession));
+        $($('.result_header')[i]).html((i+1+retstart) + ". " + unescapeHtml(uniprot.accession));
         
         $('<p/>', {
-            text: uni.proteinName
+            text: uniprot.proteinName
         }).addClass('protein_name').appendTo(container);
         
         $('<p/>', {
-            text: uni.geneName
+            text: uniprot.geneName
         }).addClass('gene_name').appendTo(container);
         /*
         $('<button/>', {
             text: "Reference"
             }).click(function(e){e.stopPropagation(); generateCitation($(this).parent())}).addClass('button').addClass('refButton').appendTo(container);
         */
-        var infoContainer = $('<div/>').appendTo(container);
-
-        createResultSubheader("functions", "Functions: ", infoContainer);
-        createInfoText("functions", uni.functions, infoContainer);
         
-        createResultSubheader("go_molecular", "GO - Molecular: ", infoContainer);
-        createInfoListGO("go_molecular", uni.GO_moleculars, infoContainer);
+      }
+  }
 
-        createResultSubheader("go_biological", "GO - Biological: ", infoContainer);
-        createInfoListGO("go_biological", uni.GO_biologicals, infoContainer);
+    Uniprot_API_Connection.showMoreUniprotInfo = function(uniprot, subheader_id) {
+        $.get({
+            url: "http://www.uniprot.org/uniprot/"+uniprot,
+            success: function(data) {
+                var infoContainer = $('<div/>').insertAfter("#"+subheader_id).hide();
 
-        createResultSubheader("go_cellular", "GO - Cellular: ", infoContainer);
-        createInfoListGO("go_cellular", uni.GO_cellulars, infoContainer);
 
-        createResultSubheader("diseases", "Diseases: ", infoContainer);
-        createInfoDiseases("diseases", uni.diseases, infoContainer);
-        
-        createResultSubheader("tissue", "Tissue Specificity: ", infoContainer);
-        createInfoText("tissue", uni.tissueSpecificity, infoContainer);
+                createResultSubheader("functions", "Functions: ", infoContainer);
+                createInfoText("functions", uni.functions, infoContainer);
+                
+                createResultSubheader("go_molecular", "GO - Molecular: ", infoContainer);
+                createInfoListGO("go_molecular", uni.GO_moleculars, infoContainer);
 
-        createResultSubheader("subunit_structure", "Subunit Structure: ", infoContainer);
-        createInfoText("subunit_structure", uni.subunitStructure, infoContainer);
+                createResultSubheader("go_biological", "GO - Biological: ", infoContainer);
+                createInfoListGO("go_biological", uni.GO_biologicals, infoContainer);
 
-        createResultSubheader("seq_similarity", "Sequence Similarities: ", infoContainer);
-        createInfoText("seq_similarity", uni.seqSimilarity, infoContainer);
-      
-    })
-}
+                createResultSubheader("go_cellular", "GO - Cellular: ", infoContainer);
+                createInfoListGO("go_cellular", uni.GO_cellulars, infoContainer);
+
+                createResultSubheader("diseases", "Diseases: ", infoContainer);
+                createInfoDiseases("diseases", uni.diseases, infoContainer);
+                
+                createResultSubheader("tissue", "Tissue Specificity: ", infoContainer);
+                createInfoText("tissue", uni.tissueSpecificity, infoContainer);
+
+                createResultSubheader("subunit_structure", "Subunit Structure: ", infoContainer);
+                createInfoText("subunit_structure", uni.subunitStructure, infoContainer);
+
+                createResultSubheader("seq_similarity", "Sequence Similarities: ", infoContainer);
+                createInfoText("seq_similarity", uni.seqSimilarity, infoContainer);   
+
+                infoContainer.show("slow");                     
+            }
+        });
+    }
+
+
+
       
 
 
