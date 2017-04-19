@@ -290,8 +290,9 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
 
         $('<a/>', {
             href: uniprot.url,
-            target: "_blank"
-        }).addClass('result_header').appendTo(header);
+            target: "_blank",
+            class: 'result_header'
+        }).appendTo(header);
         
         //Add escaped html
         $($('.result_header')[i]).html((i+1+retstart) + ". " + unescapeHtml(uniprot.accession));
