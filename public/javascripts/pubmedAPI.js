@@ -142,7 +142,7 @@ PubMed_API_Connection.displayResults = function(articles) {
     $("#search_type").show();
     
     //Reset HTML elements
-    $(".loader")[0].remove();
+    $(".search_loader")[0].remove();
     $(".results_header").remove();
     $("#pageNext").remove();
     $("#pageNum").remove();

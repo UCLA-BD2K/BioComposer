@@ -17,7 +17,7 @@ function createResultSubheader(id, uniprot, subheader, parent_container) {
         class: "result_subheader",
         id: "h_" + uniprot+ "_" + id,
         onClick: "$('#container_" + uniprot+ "_" + id + 
-        "').toggle('fast'); rotateImg('#arrow_"+ uniprot+ "_" + id + "');"
+        "').toggle('slow'); rotateImg('#arrow_"+ uniprot+ "_" + id + "');"
     }).appendTo(parent_container);
 
     $('<p/>', {
@@ -98,13 +98,27 @@ Uniprot_API_Connection.search = function(term) {
         sort: "score"
     });
 
-    console.log("url:"+search+params);
+    console.log("url: "+search_url+(params));
 
-    return $.get(search_url+params);
+    return $.get({
+        url: search_url+(params),
+        timeout: 30000,
+        success: function() { 
+            console.log("Search query success");
+            ajaxLock = 0
+        },
+        error: function() { 
+            console.log("failed");
+            $(".search_loader")[0].remove()
+            ajaxLock = 0;
+        }
+        });
 };
 
 Uniprot_API_Connection.parseResults = function(res) {
     console.log(res);
+    if (!res)
+        return;
 
     var uniprotNodes = res.querySelectorAll('entry');
 
@@ -207,19 +221,20 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
     if (debugCite)
         console.log(uniprots);
     
-    //For now, only single uniprot search results
-
-    search_count = uniprots.length;
-
     //Show most recent/relevant element again
     $("#search_type").show();
     
     //Reset HTML elements
-    $(".loader")[0].remove();
+    $(".search_loader")[0].remove();
     $(".results_header").remove();
     $("#pageNext").remove();
     $("#pageNum").remove();
     $("#pagePrev").remove();
+
+    if (!uniprots)
+        return;
+
+    search_count = uniprots.length;
     
     //Pubmed container
     var wrapper = $('.results_container')[0];
@@ -253,7 +268,7 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
         
         //Basically see if user is clicking for longer that 1500ms which would indicate that it is not a click, but a highlight
         var timeoutId; 
-        var highLightLock = false;
+        highLightLock = false;
         var container = $('<div/>').addClass(alternate).addClass("single_result").appendTo(results);
 
         
@@ -297,173 +312,65 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
       }
   }
 
-    Uniprot_API_Connection.showMoreUniprotInfo = function(prev_div) {
-        var uniprot = $(prev_div).data("id");
-        $.get({
-            url: "http://www.uniprot.org/uniprot/"+uniprot+".xml",
-            success: function(data) {
-                var uni = Uniprot_API_Connection.parseUniprotInfo(data);
-                var infoContainer = $('<div/>').appendTo($(prev_div).parent());
-
-                createResultSubheader("functions", uniprot, "Functions: ", infoContainer);
-                createInfoText("functions", uniprot, uni.functions, infoContainer);
-                
-                createResultSubheader("go_molecular", uniprot, "GO - Molecular: ", infoContainer);
-                createInfoListGO("go_molecular", uniprot, uni.GO_moleculars, infoContainer);
-
-                createResultSubheader("go_biological", uniprot, "GO - Biological: ", infoContainer);
-                createInfoListGO("go_biological", uniprot, uni.GO_biologicals, infoContainer);
-
-                createResultSubheader("go_cellular", uniprot, "GO - Cellular: ", infoContainer);
-                createInfoListGO("go_cellular", uniprot, uni.GO_cellulars, infoContainer);
-
-                createResultSubheader("diseases", uniprot, "Diseases: ", infoContainer);
-                createInfoDiseases("diseases", uniprot, uni.diseases, infoContainer);
-                
-                createResultSubheader("tissue", uniprot, "Tissue Specificity: ", infoContainer);
-                createInfoText("tissue", uniprot, uni.tissueSpecificity, infoContainer);
-
-                createResultSubheader("subunit_structure", uniprot, "Subunit Structure: ", infoContainer);
-                createInfoText("subunit_structure", uniprot, uni.subunitStructure, infoContainer);
-
-                createResultSubheader("seq_similarity", uniprot, "Sequence Similarities: ", infoContainer);
-                createInfoText("seq_similarity", uniprot, uni.seqSimilarity, infoContainer);   
-
-                infoContainer.show("slow");               
-                console.log("showing info");      
-            }
-        });
-    }
-
-
-
-      
-
-
-
-
-/*
-PubMed_API_Connection.seeMore = function (obj) {
-    //console.log($(obj).has('.abstract').length);
-    if ($(obj).has('.abstract').length)
+Uniprot_API_Connection.showMoreUniprotInfo = function(prev_div) {
+    var uniprot = $(prev_div).data("id");
+    console.log($(prev_div).siblings('.info_container').length);
+    if ($(prev_div).siblings('.info_container').length > 0)
     {
-        $((obj).children(".abstract")[0]).hide("slow", function(){
-            $((obj).children(".abstract")[0]).remove();
-        });
-        
+        $((prev_div).siblings(".info_container")[0]).toggle("slow");            
         return;
-    }
-    
-    var obj_id = $(obj).data("id");
-    
-    if ($(obj).data("abstract"))
-    {
-        if (debugCite)
-            console.log("Called from data");
-        var text = decodeURIComponent($(obj).data("abstract"));
-        $($(obj).children(".authors")[0]).after(function(){return "<p class='abstract'>" + text + "</p>"});
-        $($(obj).children(".abstract")[0]).show("slow");
-    }
-    else{
-        if (ajaxLock == 0){
-        fetchAbstract(obj_id).then(display_abstract).then(function(text){
-        if (debugCite)
-            console.log("Called from web");
-            $($(obj).children(".authors")[0]).after(function(){return "<p class='abstract'>" + text + "</p>"});
-            $($(obj).children(".abstract")[0]).show("slow");
+    }       
 
-            //Basically cache abstract so we don't have to HTTP request it every time and encode to maintain html tags
-            $(obj).data("abstract", encodeURIComponent(text));
-            ajaxLock = 0;
-        });
-        }
-    }
-}
+    if (ajaxLock != 0)
+        return;
 
-PubMed_API_Connection.display_abstract = function (response, obj) {
-    var abstract_text = $(response).find('AbstractText');
-    var text = "";
-    if (abstract_text.length > 1)
-        $.each(abstract_text, function (i, abstract) {
-            if ($(abstract_text[i]).attr("Label"))
-                text += "<b>" + $(abstract_text[i]).attr("Label") + ": </b>";
-            text += $(abstract_text[i]).text() + "<br><br>";
-        });
-    else
-        text = abstract_text.text();
+     //Loader gif
+    $("<img/>", {
+        src: "../images/loader.gif"
+    }).addClass("info_loader").appendTo($(prev_div).parent()); 
 
-    if (text == "")
-        text = "[Abstract not available from source]";
-    
-    return text;
-}
-
-PubMed_API_Connection.fetchAbstract = function (id) {
     ajaxLock = 1;
-    return $.ajax({
-	    url: 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi',
-		data: {
-		db: 'pubmed',
-		    id: id,
-            retmode: "xml"
-		    }
-	});
-}
 
+    $.get({
+        url: "http://www.uniprot.org/uniprot/"+uniprot+".xml",
+        success: function(data) {
+            ajaxLock = 0;
+            var uni = Uniprot_API_Connection.parseUniprotInfo(data);
+            var infoContainer = $('<div/>').addClass('info_container').appendTo($(prev_div).parent()).hide();
 
-PubMed_API_Connection.search = function(term) {
-    return $.ajax({
-        url: 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi',
-        data: {
-        db: 'pubmed',
-            usehistory: 'y',
-            term: term,
-            sort: search_type,
-            retmode: 'json',
-            retmax: 0
-            }
+            createResultSubheader("functions", uniprot, "Functions: ", infoContainer);
+            createInfoText("functions", uniprot, uni.functions, infoContainer);
+            
+            createResultSubheader("go_molecular", uniprot, "GO - Molecular: ", infoContainer);
+            createInfoListGO("go_molecular", uniprot, uni.GO_moleculars, infoContainer);
+
+            createResultSubheader("go_biological", uniprot, "GO - Biological: ", infoContainer);
+            createInfoListGO("go_biological", uniprot, uni.GO_biologicals, infoContainer);
+
+            createResultSubheader("go_cellular", uniprot, "GO - Cellular: ", infoContainer);
+            createInfoListGO("go_cellular", uniprot, uni.GO_cellulars, infoContainer);
+
+            createResultSubheader("diseases", uniprot, "Diseases: ", infoContainer);
+            createInfoDiseases("diseases", uniprot, uni.diseases, infoContainer);
+            
+            createResultSubheader("tissue", uniprot, "Tissue Specificity: ", infoContainer);
+            createInfoText("tissue", uniprot, uni.tissueSpecificity, infoContainer);
+
+            createResultSubheader("subunit_structure", uniprot, "Subunit Structure: ", infoContainer);
+            createInfoText("subunit_structure", uniprot, uni.subunitStructure, infoContainer);
+
+            createResultSubheader("seq_similarity", uniprot, "Sequence Similarities: ", infoContainer);
+            createInfoText("seq_similarity", uniprot, uni.seqSimilarity, infoContainer);   
+            
+            $(".info_loader")[0].remove();
+            infoContainer.show("slow");               
+            console.log("showing info");      
+        },
+        error: function() { 
+            ajaxLock = 0;
+            $(".info_loader")[0].remove(); 
+        },
+        timeout: 5000
     });
-};
-
-PubMed_API_Connection.fetchResults = function(response) {
- search_count = response.esearchresult.count;
-    return $.ajax({
-        url: 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi',
-        data: {
-        db: 'pubmed',
-            usehistory: 'y',
-            webenv: response.esearchresult.webenv,
-            query_key: response.esearchresult.querykey,
-            retstart: retstart,
-            retmode: 'xml',
-            retmax: itemsPerPage // how many items to return
-            }
-    });
-};
-
-PubMed_API_Connection.parseResults = function(response) {
-    var nodes = response.querySelectorAll('DocSum');
-    return $.map(nodes, function(node) {
-	    var pmidNode = node.querySelector('Id');
-	    var titleNode = node.querySelector('Item[Name=Title]');
-	    var sourceNode = node.querySelector('Item[Name=Source]');
-	    var epubDateNode = node.querySelector('Item[Name=EPubDate]');
-	    var pubDateNode = node.querySelector('Item[Name=PubDate]');
-	    var authorNodes = node.querySelectorAll('Item[Name=AuthorList] > Item[Name=Author]');
-
-	    return {
-            id: pmidNode.textContent,
-		    title: titleNode ? titleNode.textContent : null,
-		    source: sourceNode ? sourceNode.textContent : null,
-		    authors: $.map(authorNodes, function(authorNode) {
-			    return authorNode.textContent;
-			}),
-		    url: 'http://pubmed.gov/' + pmidNode.textContent,
-		    date: epubDateNode && epubDateNode.textContent ? epubDateNode.textContent : pubDateNode.textContent,
-		    };
-	});
 }
-
-
-*/
 

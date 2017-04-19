@@ -4,7 +4,12 @@ var APIConnection = {
     fetch_options: {},
     
     simpleAndSearch: function(newSearch) {
-        if ($(".loader").length == 0){
+        if (ajaxLock != 0)
+            return;
+
+        ajaxLock = 1;
+
+        if ($(".search_loader").length == 0){
         var obj = document.getElementById('search_bar');
         var text = obj.value; 
         if (obj.value == "")
@@ -35,7 +40,7 @@ var APIConnection = {
         //Loader gif
         $("<img/>", {
             src: "../images/loader.gif"
-        }).addClass("loader").appendTo($("#search_wrap")); 
+        }).addClass("search_loader").appendTo($("#search_wrap")); 
             
         $("#search_type").hide();
         

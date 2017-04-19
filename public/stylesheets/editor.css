@@ -373,7 +373,7 @@
     display: block;
 }
 
-.loader
+.search_loader
 {
     height: 20px;
     position: relative;
@@ -408,6 +408,14 @@
     position: absolute;
     bottom: 5px;
     right: 5px;
+}
+
+.info_loader
+{
+    height: 20px;
+    position: relative;
+    display: block;
+    margin: auto;
 }
 
 
