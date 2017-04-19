@@ -10,11 +10,13 @@ function rotateImg(id) {
         $(id).addClass("rotateArrow");
 }
 
+//Helper functions to create and modify info content HTML
+
 function createResultSubheader(id, subheader, parent_container) {
     $('<div/>', {
         class: "result_subheader",
         id: "h_" + id,
-        onClick: "$('#container_" + id + "').toggle(); rotateImg('#arrow_"+ id + "');"
+        onClick: "$('#container_" + id + "').toggle('fast'); rotateImg('#arrow_"+ id + "');"
     }).appendTo(parent_container);
 
     $('<p/>', {
