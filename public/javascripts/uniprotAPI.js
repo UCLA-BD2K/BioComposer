@@ -12,42 +12,43 @@ function rotateImg(id) {
 
 //Helper functions to create and modify info content HTML
 
-function createResultSubheader(id, subheader, parent_container) {
+function createResultSubheader(id, uniprot, subheader, parent_container) {
     $('<div/>', {
         class: "result_subheader",
-        id: "h_" + id,
-        onClick: "$('#container_" + id + "').toggle('fast'); rotateImg('#arrow_"+ id + "');"
+        id: "h_" + uniprot+ "_" + id,
+        onClick: "$('#container_" + uniprot+ "_" + id + 
+        "').toggle('fast'); rotateImg('#arrow_"+ uniprot+ "_" + id + "');"
     }).appendTo(parent_container);
 
     $('<p/>', {
         text: subheader,
         float: "left"
-    }).appendTo($("#h_" + id));
+    }).appendTo($("#h_" + uniprot+ "_" + id));
 
    $('<img/>', {
         src: "../images/down-arrow-3.png",
         class: "show_more_arrow",
-        id: "arrow_"+ id 
-   }).appendTo($("#h_" + id));
+        id: "arrow_"+ uniprot+ "_" + id 
+   }).appendTo($("#h_" + uniprot+ "_" + id));
 
 }
 
-function createInfoText(id, text, parent_container) {
+function createInfoText(id, uniprot, text, parent_container) {
     $('<div/>', {
-        id: "container_" + id
+        id: "container_" + uniprot+ "_" + id
     }).appendTo(parent_container);
 
     $('<p/>', {
         text: text
-    }).appendTo($("#container_" + id));
+    }).appendTo($("#container_" + uniprot+ "_" + id));
 
-    $("#container_" + id).hide();
+    $("#container_" + uniprot+ "_" + id).hide();
  
 }
 
-function createInfoListGO(id, list, parent_container) {
+function createInfoListGO(id, uniprot, list, parent_container) {
     $('<div/>', {
-        id: "container_" + id
+        id: "container_" + uniprot+ "_" + id
     }).appendTo(parent_container);
 
     for (var i = 0; i  < list.length; i++) {
@@ -55,24 +56,24 @@ function createInfoListGO(id, list, parent_container) {
             href: 'https://www.ebi.ac.uk/QuickGO/GTerm?id=' + list[i].id,
             target: "_blank",
             text: list[i].text
-        }).appendTo($("#container_" + id));
-        $('<br>').appendTo($("#container_" + id));
+        }).appendTo($("#container_" + uniprot+ "_" + id));
+        $('<br>').appendTo($("#container_" + uniprot+ "_" + id));
     }
-    $("#container_" + id).hide();
+    $("#container_" + uniprot+ "_" + id).hide();
 }
 
-function createInfoDiseases(id, diseases, parent_container) {
+function createInfoDiseases(id, uniprot, diseases, parent_container) {
     
     $('<div/>', {
-        id: "container_" + id
+        id: "container_" + uniprot+ "_" + id
     }).appendTo(parent_container);
 
     for (var i = 0; i < diseases.length; i++) {
         $('<p/>', {
             text: diseases[i].name + ' - ' + diseases[i].description
-        }).appendTo($("#container_" + id));
+        }).appendTo($("#container_" + uniprot+ "_" + id));
     }
-    $("#container_" + id).hide();
+    $("#container_" + uniprot+ "_" + id).hide();
  
 }
 
@@ -111,13 +112,6 @@ Uniprot_API_Connection.parseResults = function(res) {
 
     for (var i = 0; i < uniprotNodes.length; i++) {
         var accessionNode = uniprotNodes[i].querySelector('accession');
-        var functionsNodes = uniprotNodes[i].querySelectorAll('comment[type=function] > text')
-        var functions = "";
-
-        for (var j = 0; j < functionsNodes.length; j++) {
-            functions += functionsNodes[j].textContent;
-            functions += "\n\n";
-        }
 
         var proteinNameNode = uniprotNodes[i].querySelector('protein > recommendedName > fullName');
         //var geneNameNode = res.querySelector('gene > name[type=primary]');
@@ -126,7 +120,6 @@ Uniprot_API_Connection.parseResults = function(res) {
         var info = {
             url: accessionNode ? 'http://www.uniprot.org/uniprot/' + accessionNode.textContent : null,
             accession: accessionNode ? accessionNode.textContent : null,
-            functions: functions,
             proteinName: proteinNameNode ? proteinNameNode.textContent : null,
             geneName: geneNameNode ? geneNameNode.textContent : null
         };
@@ -139,7 +132,16 @@ Uniprot_API_Connection.parseResults = function(res) {
 
 
 Uniprot_API_Connection.parseUniprotInfo = function(res) {
-    
+    console.log(res);
+
+    var functionsNodes = res.querySelectorAll('comment[type=function] > text')
+    var functions = "";
+
+    for (var j = 0; j < functionsNodes.length; j++) {
+        functions += functionsNodes[j].textContent;
+        functions += "\n\n";
+    }
+
     var goMolecularNodes = res.querySelectorAll('dbReference[type=GO] > property[type=term][value^=F]')
     var goMoleculars = [];
     for (i = 0; i < goMolecularNodes.length; i++) {
@@ -187,6 +189,7 @@ Uniprot_API_Connection.parseUniprotInfo = function(res) {
     var seqSimilarityNode = res.querySelector('comment[type=similarity] > text');
 
     var ret = {
+        functions: functions,
         GO_moleculars: goMoleculars, 
         GO_biologicals: goBiologicals,
         GO_cellulars: goCellulars, 
@@ -251,11 +254,15 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
         //Basically see if user is clicking for longer that 1500ms which would indicate that it is not a click, but a highlight
         var timeoutId; 
         var highLightLock = false;
-        var container = $('<div/>').addClass(alternate).addClass("single_result").click(function(){if (!highLightLock){}}).data("id", uniprot.accession).appendTo(results);
+        var container = $('<div/>').addClass(alternate).addClass("single_result").appendTo(results);
+
         
         //MECHANISM HERE TO PREVENT HIGH LIGHT PROBLEM
         container.mousedown(function(){highLightLock = false; timeoutId = setTimeout(function(){highLightLock = true}, 1000)}).mouseup(function(){clearTimeout(timeoutId)});
         
+        var header = $('<div/>').click(function(){if (!highLightLock){Uniprot_API_Connection.showMoreUniprotInfo($(this));}})
+        .data("id", uniprot.accession).appendTo(container);
+
         /*
         //Add data to container
         $(container).data('id', article.id);
@@ -269,18 +276,18 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
         $('<a/>', {
             href: uniprot.url,
             target: "_blank"
-        }).addClass('result_header').appendTo(container);
+        }).addClass('result_header').appendTo(header);
         
         //Add escaped html
         $($('.result_header')[i]).html((i+1+retstart) + ". " + unescapeHtml(uniprot.accession));
         
         $('<p/>', {
             text: uniprot.proteinName
-        }).addClass('protein_name').appendTo(container);
+        }).addClass('protein_name').appendTo(header);
         
         $('<p/>', {
             text: uniprot.geneName
-        }).addClass('gene_name').appendTo(container);
+        }).addClass('gene_name').appendTo(header);
         /*
         $('<button/>', {
             text: "Reference"
@@ -290,38 +297,40 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
       }
   }
 
-    Uniprot_API_Connection.showMoreUniprotInfo = function(uniprot, subheader_id) {
+    Uniprot_API_Connection.showMoreUniprotInfo = function(prev_div) {
+        var uniprot = $(prev_div).data("id");
         $.get({
-            url: "http://www.uniprot.org/uniprot/"+uniprot,
+            url: "http://www.uniprot.org/uniprot/"+uniprot+".xml",
             success: function(data) {
-                var infoContainer = $('<div/>').insertAfter("#"+subheader_id).hide();
+                var uni = Uniprot_API_Connection.parseUniprotInfo(data);
+                var infoContainer = $('<div/>').appendTo($(prev_div).parent());
 
-
-                createResultSubheader("functions", "Functions: ", infoContainer);
-                createInfoText("functions", uni.functions, infoContainer);
+                createResultSubheader("functions", uniprot, "Functions: ", infoContainer);
+                createInfoText("functions", uniprot, uni.functions, infoContainer);
                 
-                createResultSubheader("go_molecular", "GO - Molecular: ", infoContainer);
-                createInfoListGO("go_molecular", uni.GO_moleculars, infoContainer);
+                createResultSubheader("go_molecular", uniprot, "GO - Molecular: ", infoContainer);
+                createInfoListGO("go_molecular", uniprot, uni.GO_moleculars, infoContainer);
 
-                createResultSubheader("go_biological", "GO - Biological: ", infoContainer);
-                createInfoListGO("go_biological", uni.GO_biologicals, infoContainer);
+                createResultSubheader("go_biological", uniprot, "GO - Biological: ", infoContainer);
+                createInfoListGO("go_biological", uniprot, uni.GO_biologicals, infoContainer);
 
-                createResultSubheader("go_cellular", "GO - Cellular: ", infoContainer);
-                createInfoListGO("go_cellular", uni.GO_cellulars, infoContainer);
+                createResultSubheader("go_cellular", uniprot, "GO - Cellular: ", infoContainer);
+                createInfoListGO("go_cellular", uniprot, uni.GO_cellulars, infoContainer);
 
-                createResultSubheader("diseases", "Diseases: ", infoContainer);
-                createInfoDiseases("diseases", uni.diseases, infoContainer);
+                createResultSubheader("diseases", uniprot, "Diseases: ", infoContainer);
+                createInfoDiseases("diseases", uniprot, uni.diseases, infoContainer);
                 
-                createResultSubheader("tissue", "Tissue Specificity: ", infoContainer);
-                createInfoText("tissue", uni.tissueSpecificity, infoContainer);
+                createResultSubheader("tissue", uniprot, "Tissue Specificity: ", infoContainer);
+                createInfoText("tissue", uniprot, uni.tissueSpecificity, infoContainer);
 
-                createResultSubheader("subunit_structure", "Subunit Structure: ", infoContainer);
-                createInfoText("subunit_structure", uni.subunitStructure, infoContainer);
+                createResultSubheader("subunit_structure", uniprot, "Subunit Structure: ", infoContainer);
+                createInfoText("subunit_structure", uniprot, uni.subunitStructure, infoContainer);
 
-                createResultSubheader("seq_similarity", "Sequence Similarities: ", infoContainer);
-                createInfoText("seq_similarity", uni.seqSimilarity, infoContainer);   
+                createResultSubheader("seq_similarity", uniprot, "Sequence Similarities: ", infoContainer);
+                createInfoText("seq_similarity", uniprot, uni.seqSimilarity, infoContainer);   
 
-                infoContainer.show("slow");                     
+                infoContainer.show("slow");               
+                console.log("showing info");      
             }
         });
     }

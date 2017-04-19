@@ -4,6 +4,8 @@ var retstart = 0;
 var itemsPerPage = 20;
 var pageNum = 1;
 var currentSearch = "";
+var ajaxLock = false;
+var highLightLock = false;
 
 var pubDebug = 0;
 

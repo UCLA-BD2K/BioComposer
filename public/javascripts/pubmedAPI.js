@@ -179,7 +179,7 @@ PubMed_API_Connection.displayResults = function(articles) {
         
         //Basically see if user is clicking for longer that 1500ms which would indicate that it is not a click, but a highlight
         var timeoutId; 
-        var highLightLock = false;
+        highLightLock = false;
 	    var container = $('<div/>').addClass(alternate).addClass("single_result").click(function(){if (!highLightLock){PubMed_API_Connection.seeMore($(this))}}).data("id", article.id).appendTo(pubmed);
         
         //MECHANISM HERE TO PREVENT HIGH LIGHT PROBLEM
