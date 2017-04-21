@@ -1,7 +1,4 @@
-function initSearch() {
-    var api = Object.create(Uniprot_API_Connection)
-    api.simpleAndSearch(true);
-}
+
 
 function rotateImg(id) {
     if ($(id).hasClass("rotateArrow"))
@@ -80,6 +77,8 @@ function createInfoDiseases(id, uniprot, diseases, parent_container) {
 
 
 var Uniprot_API_Connection = Object.create(APIConnection);
+
+api_connections["uniprot"] = Uniprot_API_Connection;
 
 Uniprot_API_Connection.searchSequence = function (value) {
     this.search(value)

@@ -29,7 +29,7 @@
 
 #search
 {
-    height: 62px;
+    /*height: 65px;*/
     border: 1px solid rgb(150,150,150);
     
     /*GRADIENT*/
@@ -141,6 +141,33 @@
     margin: auto;
 }
 
+#select_api_wrap
+{
+    display: inline-block;
+}
+#select_api_wrap *
+{
+    display: inline;
+    font-family: AvenirNext;
+    font-size: 14px;
+}
+
+#API_selection
+{
+    background: transparent;
+    outline: 0;
+    border: 0;
+    height: 34px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+#API_selection:hover
+{
+    font-weight: bold;
+}
+
 #tabs_container
 {
     height: 35px;
@@ -247,7 +274,6 @@
 
 .results_container
 {
-    top: 70px;
     display: block;
     margin: auto;
     position: absolute;
@@ -261,7 +287,7 @@
 
 #pubmed_results, #google_results
 {
-    overflow:hidden;
+    overflow: hidden;
     width: 100%;
 }
 

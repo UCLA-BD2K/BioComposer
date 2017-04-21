@@ -5,6 +5,8 @@ var itemsPerPage = 20;
 var pageNum = 1;
 var currentSearch = "";
 var highLightLock = false;
+var api_connections = {};
+var selected_api;
 
 var pubDebug = 0;
 
@@ -22,7 +24,7 @@ function movePage(x)
         return;
     pageNum += x;
     retstart += x*itemsPerPage; 
-    simpleAndSearch(false); 
+    api_connections[selected_api].simpleAndSearch(false); 
 }
 
 //----- HELPER FUNCTIONS
@@ -39,8 +41,7 @@ function unescapeHtml(safe) {
 }
 //------------------------
 
-function toggleSearchType(obj)
-{
+function toggleSearchType(obj) {
     var ele = $(obj).find("p")[0];
     if(pubDebug)
         console.log(ele);
@@ -54,4 +55,16 @@ function toggleSearchType(obj)
         $(ele).text("Most Recent");
         search_type = "recent";
     }
+}
+
+function updateAPISelection(selected) {
+    selected_api = selected.options[selected.selectedIndex].value;
+    console.log(selected.options[selected.selectedIndex].value)
+   
+}
+
+function initSearch() {
+    //var api = Object.create(Uniprot_API_Connection)
+    console.log(selected_api);
+    api_connections[selected_api].simpleAndSearch(true);
 }

@@ -5,6 +5,7 @@
 
 
 var PubMed_API_Connection = Object.create(APIConnection);
+api_connections["pubmed"] = PubMed_API_Connection;
 
 PubMed_API_Connection.searchSequence = function (value) {
     this.search(value)
@@ -91,7 +92,16 @@ PubMed_API_Connection.search = function(term) {
             sort: search_type,
             retmode: 'json',
             retmax: 0
-            }
+            },
+        success: function() { 
+            console.log("Search query success");
+            ajaxLock = 0
+        },
+        error: function() { 
+            console.log("failed");
+            $(".search_loader")[0].remove()
+            ajaxLock = 0;
+        }
     });
 };
 
