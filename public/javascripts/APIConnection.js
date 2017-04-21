@@ -66,6 +66,13 @@ var APIConnection = {
 
     searchSequence: function(value) {
         
+    },
+
+    noResults: function(obj) {
+        $('<p/>', {
+            text: "Sorry, there were no matching results...",
+            class: "results_header"
+        }).appendTo($(obj));
     }
 };
 

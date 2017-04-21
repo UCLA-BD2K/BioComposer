@@ -217,15 +217,17 @@ Uniprot_API_Connection.parseUniprotInfo = function(res) {
 Uniprot_API_Connection.displayResults = function(uniprots) {
     if (debugCite)
         console.log(uniprots);
-    
-    if (!uniprots)
-        return;
-
-    search_count = uniprots.length;
-    
+        
     //Pubmed container
     var wrapper = $('.results_container')[0];
     var results = $('#pubmed_results').html("");
+
+    if (!uniprots || uniprots.length == 0) {
+        Uniprot_API_Connection.noResults(results);
+        return;
+    }
+
+    search_count = uniprots.length;
     
     //Create page control buttons
     $('<p/>', {

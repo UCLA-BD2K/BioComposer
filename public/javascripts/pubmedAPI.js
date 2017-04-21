@@ -95,11 +95,13 @@ PubMed_API_Connection.search = function(term) {
             },
         success: function() { 
             console.log("Search query success");
+            PubMed_API_Connection.resetSearchHTML();
             ajaxLock = 0
         },
         error: function() { 
             console.log("failed");
             $(".search_loader")[0].remove()
+            PubMed_API_Connection.resetSearchHTML();
             ajaxLock = 0;
         }
     });
@@ -150,18 +152,19 @@ PubMed_API_Connection.displayResults = function(articles) {
     
     //Show most recent/relevant element again
     $("#search_type").show();
-    
-    //Reset HTML elements
-    $(".search_loader")[0].remove();
-    $(".results_header").remove();
-    $("#pageNext").remove();
-    $("#pageNum").remove();
-    $("#pagePrev").remove();
+  
     
     //Pubmed container
-    var wrapper = $('.results_container')[0];
-    var pubmed = $('#pubmed_results').html("");
-    
+    var wrapper = $('.results_container')[0];    
+    var results = $('#pubmed_results').html("");
+
+
+    if (articles.length == 0) {
+        PubMed_API_Connection.noResults(results);
+        return;
+    }
+
+
     //Create page control buttons
     $('<p/>', {
         text: "NEXT"
@@ -190,7 +193,7 @@ PubMed_API_Connection.displayResults = function(articles) {
         //Basically see if user is clicking for longer that 1500ms which would indicate that it is not a click, but a highlight
         var timeoutId; 
         highLightLock = false;
-	    var container = $('<div/>').addClass(alternate).addClass("single_result").click(function(){if (!highLightLock){PubMed_API_Connection.seeMore($(this))}}).data("id", article.id).appendTo(pubmed);
+	    var container = $('<div/>').addClass(alternate).addClass("single_result").click(function(){if (!highLightLock){PubMed_API_Connection.seeMore($(this))}}).data("id", article.id).appendTo(results);
         
         //MECHANISM HERE TO PREVENT HIGH LIGHT PROBLEM
         container.mousedown(function(){highLightLock = false; timeoutId = setTimeout(function(){highLightLock = true}, 1000)}).mouseup(function(){clearTimeout(timeoutId)});
