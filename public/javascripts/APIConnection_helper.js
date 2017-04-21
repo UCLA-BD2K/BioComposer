@@ -6,7 +6,7 @@ var pageNum = 1;
 var currentSearch = "";
 var highLightLock = false;
 var api_connections = {};
-var selected_api;
+var selected_api = "pubmed"; //default selected value
 
 var pubDebug = 0;
 
