@@ -89,26 +89,24 @@ Uniprot_API_Connection.searchSequence = function (value) {
 
 Uniprot_API_Connection.search = function(term) {
     var search_url = 'http://www.uniprot.org/uniprot/?';
-    var params = jQuery.param({
-        query: "reviewed:yes+"+term,
-        format: 'xml',
-        compress: 'no',
-        limit: "100",
-        sort: "score"
-    });
-
-    console.log("url: "+search_url+(params));
-
+ 
     return $.get({
-        url: search_url+(params),
-        timeout: 30000,
+        url: search_url,
+        data: {
+            query: term,
+            format: 'xml',
+            compress: 'no',
+            limit: "100",
+            sort: "score"
+        },
         success: function() { 
             console.log("Search query success");
+            Uniprot_API_Connection.resetSearchHTML();
             ajaxLock = 0
         },
         error: function() { 
             console.log("failed");
-            $(".search_loader")[0].remove()
+            Uniprot_API_Connection.resetSearchHTML();
             ajaxLock = 0;
         }
         });
@@ -220,16 +218,6 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
     if (debugCite)
         console.log(uniprots);
     
-    //Show most recent/relevant element again
-    $("#search_type").show();
-    
-    //Reset HTML elements
-    $(".search_loader")[0].remove();
-    $(".results_header").remove();
-    $("#pageNext").remove();
-    $("#pageNum").remove();
-    $("#pagePrev").remove();
-
     if (!uniprots)
         return;
 

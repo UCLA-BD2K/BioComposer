@@ -2,6 +2,19 @@ var APIConnection = {
 
     search_options: {},
     fetch_options: {},
+
+    resetSearchHTML: function() {
+        //Show most recent/relevant element again
+        $("#search_type").show();
+        
+        //Reset HTML elements
+        $(".search_loader")[0].remove();
+        $(".results_header").remove();
+        $("#pageNext").remove();
+        $("#pageNum").remove();
+        $("#pagePrev").remove();
+        $('#pubmed_results').html("");
+    },
     
     simpleAndSearch: function(newSearch) {
         if (ajaxLock != 0)
