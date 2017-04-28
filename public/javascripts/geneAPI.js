@@ -1,8 +1,22 @@
-/*function initSearch() {
-    var api = Object.create(PubMed_API_Connection)
-    api.simpleAndSearch(true);
-}*/
+// Helper function to zero-pad GO id to 7 digit format
+function formatGOid(id) {
+    // Convert id to type string, if not already
+    var result = "" + id;
+    // Front pad with 0's until length of 7
+    while (result.length < 7) {
+        result = '0' + result;
+    }
+    return result;
+}
 
+// Helper function, returns true if GO id already present in list
+function listHasGO(list, id) {
+    for (var i = 0; i < list.length; i++) {
+        if (list[i].id == id)
+            return true;
+    }
+    return false;
+}
 
 var Gene_API_Connection = Object.create(APIConnection);
 api_connections["gene"] = Gene_API_Connection;
@@ -79,9 +93,9 @@ Gene_API_Connection.parseResults = function(res) {
         var info = {
             id: id,
             url: url,
-            symbol: symbolNode ? symbolNode.textContent : null,
-            fullName: fullNameNode ? fullNameNode.textContent : null,
-            aka: akaNode ? akaNode.textContent : null
+            symbol: symbolNode ? symbolNode.textContent : "N/A",
+            fullName: fullNameNode ? fullNameNode.textContent : "N/A",
+            aka: akaNode ? akaNode.textContent : "N/A"
         }
         genes.push(info);
     }
@@ -129,10 +143,14 @@ Gene_API_Connection.parseGeneInfo = function(res) {
                     var idNode = itemNodes[k].querySelector('Object-id_id');
                     var textNode = itemNodes[k].querySelector('Other-source_anchor');
                     var item = {
-                        id: idNode ? idNode.textContent : null,
-                        text: textNode ? textNode.textContent : null
+                        id: idNode ? formatGOid(idNode.textContent) : "N/A",
+                        text: textNode ? textNode.textContent : "N/A"
                     }
-                    list.items.push(item);
+
+                    // Check if GO is already present 
+                    // (prevent duplicates because of multiple sources)
+                    if (!listHasGO(list.items, item.id))
+                        list.items.push(item);
                 }
                 GO_lists.push(list);
             }
@@ -140,12 +158,25 @@ Gene_API_Connection.parseGeneInfo = function(res) {
         }
     }
 
+    var nameNodes = res.querySelectorAll('Prot-ref_name_E');
+    var prefNameNodes = res.querySelectorAll('Prot-ref_desc');
+
+    var names = [];
+    var prefNames = [];
+    for (var i = 0; i < nameNodes.length; i++) {
+        names.push(nameNodes[i].textContent);
+    }
+    for (var i = 0; i < prefNameNodes.length; i++) {
+        prefNames.push(prefNameNodes[i].textContent);
+    }
 
     var info = {
-        summary: summaryNode ? summaryNode.textContent : null,
-        location: locationNode ? locationNode.textContent : null,
-        exonCount: exonNode ? exonNode.textContent : null,
-        GO_lists: GO_lists
+        summary: summaryNode ? summaryNode.textContent : "N/A",
+        location: locationNode ? locationNode.textContent : "N/A",
+        exonCount: exonNode ? exonNode.textContent : "N/A",
+        GO_lists: GO_lists,
+        names: names,
+        prefNames: prefNames
     }
 
     console.log(info);
@@ -274,14 +305,39 @@ Gene_API_Connection.showMoreGeneInfo = function(prev_div) {
                 createResultSubheader(info.GO_lists[i].type, gene, "GO - " + info.GO_lists[i].type + ":", infoContainer);
                 createInfoListGO(info.GO_lists[i].type, "http://amigo.geneontology.org/amigo/term/GO:",
                     gene, info.GO_lists[i].items, infoContainer);
-                
             }
 
+            var proteinInfoString = "";
+            if (info.prefNames.length > 0) {
+                proteinInfoString += "Prefered names: ";
+                for (var i = 0; i < info.prefNames.length; i++) {
+                    proteinInfoString += "<br>" + info.prefNames[i];
+                }
+                proteinInfoString += "<br>";
+            }
+
+            if (info.names.length > 0) {
+                proteinInfoString += "<br>Names: " ;
+                for (var i = 0; i < info.names.length; i++) {
+                    proteinInfoString += "<br>" + info.names[i];
+                }
+            }
+
+            if (proteinInfoString.length > 0) {
+                createResultSubheader("protein_info", gene, "General Protein Info: ", infoContainer);
+                createInfoText("protein_info", gene, proteinInfoString, infoContainer);
+            }
 
             $(".info_loader")[0].remove();
             infoContainer.show("slow");               
             console.log("showing info");   
-        }
+        },
+        error: function() { 
+            ajaxLock = 0;
+            $(".info_loader")[0].remove();                
+            console.log("error requesting gene info");   
+        },
+        timeout: 5000
     });
 /*
     $.get({
