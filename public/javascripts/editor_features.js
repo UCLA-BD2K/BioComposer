@@ -366,8 +366,8 @@ function setDimensionsTextArea()
 
 function adjustResultDimensions()
 {
-    $(".results_container").width($("#content_panel").width());
-    $("#pubmed_results").height($("#content_panel").height() - 160);
+    $("#results_container").width($("#content_panel").width());
+    $("#search_results").height($("#content_panel").height() - 160);
 }
 
 //Functions for extending side panel

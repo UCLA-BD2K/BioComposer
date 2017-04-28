@@ -285,13 +285,13 @@
     text-decoration: none;
 }
 
-#pubmed_results, #google_results
+#search_results, #google_results
 {
     overflow: hidden;
     width: 100%;
 }
 
-#pubmed_results:hover
+#search_results:hover
 {
     overflow-y: scroll;
 }

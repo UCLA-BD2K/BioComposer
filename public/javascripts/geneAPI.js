@@ -194,7 +194,7 @@ Gene_API_Connection.displayResults = function(genes) {
     
     //Pubmed container
     var wrapper = $('.results_container')[0];    
-    var results = $('#pubmed_results').html("");
+    var results = $('#search_results').html("");
 
 
     if (genes.length == 0) {

@@ -13,7 +13,7 @@ var APIConnection = {
         $("#pageNext").remove();
         $("#pageNum").remove();
         $("#pagePrev").remove();
-        $('#pubmed_results').html("");
+        $('#search_results').html("");
     },
     
     simpleAndSearch: function(newSearch) {

@@ -146,7 +146,7 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
         
     //Results container
     var wrapper = $('.results_container')[0];
-    var results = $('#pubmed_results').html("");
+    var results = $('#search_results').html("");
 
     if (!uniprots || uniprots.length == 0) {
         Uniprot_API_Connection.noResults(results);
