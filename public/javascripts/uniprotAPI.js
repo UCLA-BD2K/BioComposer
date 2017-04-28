@@ -1,9 +1,15 @@
-
+function jumpToElement(id) {
+    var container = $('#search_results');
+    var scrollTo = $('#'+id);
+    container.scrollTop(
+        scrollTo.offset().top - container.offset().top + container.scrollTop()
+    );
+}
 
 
 
 var Uniprot_API_Connection = Object.create(APIConnection);
-
+Uniprot_API_Connection.pageNum = 1;
 api_connections["uniprot"] = Uniprot_API_Connection;
 
 Uniprot_API_Connection.searchSequence = function (value) {
@@ -22,8 +28,9 @@ Uniprot_API_Connection.search = function(term) {
             query: term,
             format: 'xml',
             compress: 'no',
-            limit: "100",
-            sort: "score"
+            offset: retstart,
+            limit: itemsPerPage,
+            sort: 'score'
         },
         success: function() { 
             console.log("Search query success");
@@ -74,7 +81,7 @@ Uniprot_API_Connection.parseUniprotInfo = function(res) {
     var functionsNodes = res.querySelectorAll('comment[type=function] > text')
     var functions = "N/A";
 
-    if (functionsNodes) {
+    if (functionsNodes && functionsNodes.length > 0) {
         functions = "";
         for (var j = 0; j < functionsNodes.length; j++) {
             functions += functionsNodes[j].textContent;
@@ -152,7 +159,12 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
     var results = $('#search_results').html("");
 
     if (!uniprots || uniprots.length == 0) {
-        Uniprot_API_Connection.noResults(results);
+        if (pageNum > 1)
+            // No more results, go back to previous page
+            movePage(-1);
+        else
+            // Search term has no results
+            Uniprot_API_Connection.noResults(results);
         return;
     }
 
@@ -160,6 +172,15 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
     
     //Create page control buttons
     Uniprot_API_Connection.initResultsNavigator(wrapper);
+
+    if (uniprots.length < 20) {
+        $('#pageNext').unbind('click');
+        if (pageNum == 1)
+            $('#pagePrev').unbind('click');
+    }
+
+    //$('#pagePrev').unbind('click').click(function(){jumpToElement(0)});
+    //$('#pageNext').unbind('click').click(function(){jumpToElement(20)});
 
     //Create each DIV for each uniprot 
     for (var i = 0; i < uniprots.length; i++) {
@@ -173,7 +194,10 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
         //Basically see if user is clicking for longer that 1500ms which would indicate that it is not a click, but a highlight
         var timeoutId; 
         highLightLock = false;
-        var container = $('<div/>').addClass(alternate).addClass("single_result").appendTo(results);
+        var container = $('<div/>', {
+            class: "single_result " + alternate,
+            id: i
+        }).appendTo(results);
 
         
         //MECHANISM HERE TO PREVENT HIGH LIGHT PROBLEM
@@ -288,5 +312,34 @@ Uniprot_API_Connection.showMoreUniprotInfo = function(prev_div) {
         },
         timeout: 5000
     });
+}
+
+
+// Override page navigation
+Uniprot_API_Connection.initResultsNavigator = function(wrapper) {
+        //Create page control buttons
+        $('<p/>', {
+            text: "NEXT"
+        }).attr("id", "pageNext").click(function(){Uniprot_API_Connection.movePage(1);}).prependTo(wrapper);
+        
+        $('<p/>', {
+            text: "PREVIOUS"
+        }).attr("id", "pagePrev").click(function(){Uniprot_API_Connection.movePage(-1);}).prependTo(wrapper);
+        
+         $('<p/>', {
+            text: "Page " + pageNum 
+        }).attr("id", "pageNum").prependTo(wrapper);
+        
+        $('<h1/>',{
+            text: "Results for " + '"' + currentSearch + '"...'
+          }).addClass('results_header').prependTo(wrapper);
+}
+
+Uniprot_API_Connection.movePage = function(x) {
+    if (pageNum == 1 && x < 0)
+        return;
+    pageNum += x;
+    retstart += x*itemsPerPage; 
+    this.startSearch(false); 
 }
 

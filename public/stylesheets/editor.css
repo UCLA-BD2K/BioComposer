@@ -278,6 +278,7 @@
     margin: auto;
     position: absolute;
     overflow: hidden;
+    width: 100%;
 }
 
 .results_container  * {
@@ -303,6 +304,7 @@
     font-family: AvenirNext;
     font-weight: normal;
     text-decoration: none;
+    padding: 10px;
 }
 
 .single_result_a
