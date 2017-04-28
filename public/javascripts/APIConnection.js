@@ -73,6 +73,25 @@ var APIConnection = {
             text: "Sorry, there were no matching results...",
             class: "results_header"
         }).appendTo($(obj));
+    },
+
+    initResultsNavigator: function(wrapper) {
+        //Create page control buttons
+        $('<p/>', {
+            text: "NEXT"
+        }).attr("id", "pageNext").click(function(){movePage(1)}).prependTo(wrapper);
+        
+        $('<p/>', {
+            text: "PREVIOUS"
+        }).attr("id", "pagePrev").click(function(){movePage(-1)}).prependTo(wrapper);
+        
+         $('<p/>', {
+            text: "Page " + pageNum + " of " + numberWithCommas(Math.ceil(search_count/itemsPerPage))
+        }).attr("id", "pageNum").prependTo(wrapper);
+        
+        $('<h1/>',{
+            text: numberWithCommas(search_count) + " Results for " + '"' + currentSearch + '"...'
+          }).addClass('results_header').prependTo(wrapper);
     }
 };
 

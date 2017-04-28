@@ -1,79 +1,5 @@
 
 
-function rotateImg(id) {
-    if ($(id).hasClass("rotateArrow"))
-        $(id).removeClass("rotateArrow");
-    else
-        $(id).addClass("rotateArrow");
-}
-
-//Helper functions to create and modify info content HTML
-
-function createResultSubheader(id, uniprot, subheader, parent_container) {
-    $('<div/>', {
-        class: "result_subheader",
-        id: "h_" + uniprot+ "_" + id,
-        onClick: "$('#container_" + uniprot+ "_" + id + 
-        "').toggle('slow'); rotateImg('#arrow_"+ uniprot+ "_" + id + "');"
-    }).appendTo(parent_container);
-
-    $('<p/>', {
-        text: subheader,
-        float: "left"
-    }).appendTo($("#h_" + uniprot+ "_" + id));
-
-   $('<img/>', {
-        src: "../images/down-arrow-3.png",
-        class: "show_more_arrow",
-        id: "arrow_"+ uniprot+ "_" + id 
-   }).appendTo($("#h_" + uniprot+ "_" + id));
-
-}
-
-function createInfoText(id, uniprot, text, parent_container) {
-    $('<div/>', {
-        id: "container_" + uniprot+ "_" + id
-    }).appendTo(parent_container);
-
-    $('<p/>', {
-        text: text
-    }).appendTo($("#container_" + uniprot+ "_" + id));
-
-    $("#container_" + uniprot+ "_" + id).hide();
- 
-}
-
-function createInfoListGO(id, uniprot, list, parent_container) {
-    $('<div/>', {
-        id: "container_" + uniprot+ "_" + id
-    }).appendTo(parent_container);
-
-    for (var i = 0; i  < list.length; i++) {
-        $('<a/>', {
-            href: 'https://www.ebi.ac.uk/QuickGO/GTerm?id=' + list[i].id,
-            target: "_blank",
-            text: list[i].text
-        }).appendTo($("#container_" + uniprot+ "_" + id));
-        $('<br>').appendTo($("#container_" + uniprot+ "_" + id));
-    }
-    $("#container_" + uniprot+ "_" + id).hide();
-}
-
-function createInfoDiseases(id, uniprot, diseases, parent_container) {
-    
-    $('<div/>', {
-        id: "container_" + uniprot+ "_" + id
-    }).appendTo(parent_container);
-
-    for (var i = 0; i < diseases.length; i++) {
-        $('<p/>', {
-            text: diseases[i].name + ' - ' + diseases[i].description
-        }).appendTo($("#container_" + uniprot+ "_" + id));
-    }
-    $("#container_" + uniprot+ "_" + id).hide();
- 
-}
-
 
 
 var Uniprot_API_Connection = Object.create(APIConnection);
@@ -218,7 +144,7 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
     if (debugCite)
         console.log(uniprots);
         
-    //Pubmed container
+    //Results container
     var wrapper = $('.results_container')[0];
     var results = $('#pubmed_results').html("");
 
@@ -230,21 +156,7 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
     search_count = uniprots.length;
     
     //Create page control buttons
-    $('<p/>', {
-        text: "NEXT"
-    }).attr("id", "pageNext").click(function(){movePage(1)}).prependTo(wrapper);
-    
-    $('<p/>', {
-        text: "PREVIOUS"
-    }).attr("id", "pagePrev").click(function(){movePage(-1)}).prependTo(wrapper);
-    
-     $('<p/>', {
-        text: "Page " + pageNum + " of " + numberWithCommas(Math.ceil(search_count/itemsPerPage))
-    }).attr("id", "pageNum").prependTo(wrapper);
-    
-    $('<h1/>',{
-        text: numberWithCommas(search_count) + " Results for " + '"' + currentSearch + '"...'
-      }).addClass('results_header').prependTo(wrapper);
+    Uniprot_API_Connection.initResultsNavigator(wrapper);
 
     //Create each DIV for each uniprot 
     for (var i = 0; i < uniprots.length; i++) {
@@ -332,13 +244,16 @@ Uniprot_API_Connection.showMoreUniprotInfo = function(prev_div) {
             createInfoText("functions", uniprot, uni.functions, infoContainer);
             
             createResultSubheader("go_molecular", uniprot, "GO - Molecular: ", infoContainer);
-            createInfoListGO("go_molecular", uniprot, uni.GO_moleculars, infoContainer);
+            createInfoListGO("go_molecular", "https://www.ebi.ac.uk/QuickGO/GTerm?id=",
+                uniprot, uni.GO_moleculars, infoContainer);
 
             createResultSubheader("go_biological", uniprot, "GO - Biological: ", infoContainer);
-            createInfoListGO("go_biological", uniprot, uni.GO_biologicals, infoContainer);
+            createInfoListGO("go_biological", "https://www.ebi.ac.uk/QuickGO/GTerm?id=",
+                uniprot, uni.GO_biologicals, infoContainer);
 
             createResultSubheader("go_cellular", uniprot, "GO - Cellular: ", infoContainer);
-            createInfoListGO("go_cellular", uniprot, uni.GO_cellulars, infoContainer);
+            createInfoListGO("go_cellular", "https://www.ebi.ac.uk/QuickGO/GTerm?id=",
+                uniprot, uni.GO_cellulars, infoContainer);
 
             createResultSubheader("diseases", uniprot, "Diseases: ", infoContainer);
             createInfoDiseases("diseases", uniprot, uni.diseases, infoContainer);
