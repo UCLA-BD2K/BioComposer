@@ -54,7 +54,7 @@
             <div id="extend_div">
             </div>
             <div id="search">
-                <form onsubmit="event.preventDefault(); startSearch();" method='post' id='search_form' name='search'>
+                <form onsubmit="event.preventDefault(); requestSearch();" method='post' id='search_form' name='search'>
                     <div id="search_wrap">
                         <input type='text' value='Search Publications' id='search_bar' class="input_blur" onfocus="selectInput(this, 'Search Publications')" onblur="deselectInput(this, 'Search Publications')" </input><div id="search_type" onclick="toggleSearchType(this)"><p>Most Recent</p> <div id="down_arrow"></div></div>
                     </div>

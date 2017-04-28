@@ -24,7 +24,7 @@ function movePage(x)
         return;
     pageNum += x;
     retstart += x*itemsPerPage; 
-    api_connections[selected_api].simpleAndSearch(false); 
+    api_connections[selected_api].startSearch(false); 
 }
 
 //----- HELPER FUNCTIONS
@@ -63,10 +63,10 @@ function updateAPISelection(selected) {
    
 }
 
-function startSearch() {
+function requestSearch() {
     //var api = Object.create(Uniprot_API_Connection)
     console.log(selected_api);
-    api_connections[selected_api].simpleAndSearch(true);
+    api_connections[selected_api].startSearch(true);
 }
 
 

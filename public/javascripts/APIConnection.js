@@ -16,7 +16,7 @@ var APIConnection = {
         $('#search_results').html("");
     },
     
-    simpleAndSearch: function(newSearch) {
+    startSearch: function(newSearch) {
         if (ajaxLock != 0)
             return;
 

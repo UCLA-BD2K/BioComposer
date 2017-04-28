@@ -1,6 +1,6 @@
 /*function initSearch() {
     var api = Object.create(PubMed_API_Connection)
-    api.simpleAndSearch(true);
+    api.startSearch(true);
 }*/
 
 

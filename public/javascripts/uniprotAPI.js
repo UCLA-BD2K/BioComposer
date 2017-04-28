@@ -72,11 +72,14 @@ Uniprot_API_Connection.parseUniprotInfo = function(res) {
     console.log(res);
 
     var functionsNodes = res.querySelectorAll('comment[type=function] > text')
-    var functions = "";
+    var functions = "N/A";
 
-    for (var j = 0; j < functionsNodes.length; j++) {
-        functions += functionsNodes[j].textContent;
-        functions += "\n\n";
+    if (functionsNodes) {
+        functions = "";
+        for (var j = 0; j < functionsNodes.length; j++) {
+            functions += functionsNodes[j].textContent;
+            functions += "\n\n";
+        }
     }
 
     var goMolecularNodes = res.querySelectorAll('dbReference[type=GO] > property[type=term][value^=F]')
@@ -242,31 +245,39 @@ Uniprot_API_Connection.showMoreUniprotInfo = function(prev_div) {
 
             createResultSubheader("functions", uniprot, "Functions: ", infoContainer);
             createInfoText("functions", uniprot, uni.functions, infoContainer);
-            
-            createResultSubheader("go_molecular", uniprot, "GO - Molecular: ", infoContainer);
-            createInfoListGO("go_molecular", "https://www.ebi.ac.uk/QuickGO/GTerm?id=",
-                uniprot, uni.GO_moleculars, infoContainer);
 
-            createResultSubheader("go_biological", uniprot, "GO - Biological: ", infoContainer);
-            createInfoListGO("go_biological", "https://www.ebi.ac.uk/QuickGO/GTerm?id=",
-                uniprot, uni.GO_biologicals, infoContainer);
-
-            createResultSubheader("go_cellular", uniprot, "GO - Cellular: ", infoContainer);
-            createInfoListGO("go_cellular", "https://www.ebi.ac.uk/QuickGO/GTerm?id=",
-                uniprot, uni.GO_cellulars, infoContainer);
-
-            createResultSubheader("diseases", uniprot, "Diseases: ", infoContainer);
-            createInfoDiseases("diseases", uniprot, uni.diseases, infoContainer);
-            
-            createResultSubheader("tissue", uniprot, "Tissue Specificity: ", infoContainer);
-            createInfoText("tissue", uniprot, uni.tissueSpecificity, infoContainer);
-
-            createResultSubheader("subunit_structure", uniprot, "Subunit Structure: ", infoContainer);
-            createInfoText("subunit_structure", uniprot, uni.subunitStructure, infoContainer);
-
-            createResultSubheader("seq_similarity", uniprot, "Sequence Similarities: ", infoContainer);
-            createInfoText("seq_similarity", uniprot, uni.seqSimilarity, infoContainer);   
-            
+            if (uni.GO_moleculars.length > 0) {
+                createResultSubheader("go_molecular", uniprot, "GO - Molecular: ", infoContainer);
+                createInfoListGO("go_molecular", "https://www.ebi.ac.uk/QuickGO/GTerm?id=",
+                    uniprot, uni.GO_moleculars, infoContainer);
+            }                
+            if (uni.GO_biologicals.length > 0) {
+                createResultSubheader("go_biological", uniprot, "GO - Biological: ", infoContainer);
+                createInfoListGO("go_biological", "https://www.ebi.ac.uk/QuickGO/GTerm?id=",
+                    uniprot, uni.GO_biologicals, infoContainer);
+            }
+            if (uni.GO_cellulars.length > 0) {
+                createResultSubheader("go_cellular", uniprot, "GO - Cellular: ", infoContainer);
+                createInfoListGO("go_cellular", "https://www.ebi.ac.uk/QuickGO/GTerm?id=",
+                    uniprot, uni.GO_cellulars, infoContainer);
+            }
+            if (uni.diseases.length > 0) {
+                createResultSubheader("diseases", uniprot, "Diseases: ", infoContainer);
+                createInfoDiseases("diseases", uniprot, uni.diseases, infoContainer);
+            }
+            if (uni.tissueSpecificity) {
+                createResultSubheader("tissue", uniprot, "Tissue Specificity: ", infoContainer);
+                createInfoText("tissue", uniprot, uni.tissueSpecificity, infoContainer);
+            }
+            if (uni.subunitStructure) {
+                createResultSubheader("subunit_structure", uniprot, "Subunit Structure: ", infoContainer);
+                createInfoText("subunit_structure", uniprot, uni.subunitStructure, infoContainer);
+            }
+            if (uni.seqSimilarity) {
+                createResultSubheader("seq_similarity", uniprot, "Sequence Similarities: ", infoContainer);
+                createInfoText("seq_similarity", uniprot, uni.seqSimilarity, infoContainer);   
+            }
+           
             $(".info_loader")[0].remove();
             infoContainer.show("slow");               
             console.log("showing info");      
