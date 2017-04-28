@@ -1,12 +1,3 @@
-function jumpToElement(id) {
-    var container = $('#search_results');
-    var scrollTo = $('#'+id);
-    container.scrollTop(
-        scrollTo.offset().top - container.offset().top + container.scrollTop()
-    );
-}
-
-
 
 var Uniprot_API_Connection = Object.create(APIConnection);
 Uniprot_API_Connection.pageNum = 1;
@@ -173,14 +164,13 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
     //Create page control buttons
     Uniprot_API_Connection.initResultsNavigator(wrapper);
 
-    if (uniprots.length < 20) {
+    if (uniprots.length < itemsPerPage) {
+        // If not results panel not filled, disable pageNext
         $('#pageNext').unbind('click');
+        // If first page, disable pagePrev
         if (pageNum == 1)
             $('#pagePrev').unbind('click');
     }
-
-    //$('#pagePrev').unbind('click').click(function(){jumpToElement(0)});
-    //$('#pageNext').unbind('click').click(function(){jumpToElement(20)});
 
     //Create each DIV for each uniprot 
     for (var i = 0; i < uniprots.length; i++) {
@@ -205,16 +195,6 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
         
         var header = $('<div/>').click(function(){if (!highLightLock){Uniprot_API_Connection.showMoreUniprotInfo($(this));}})
         .data("id", uniprot.accession).appendTo(container);
-
-        /*
-        //Add data to container
-        $(container).data('id', article.id);
-        $(container).data('url', encodeURIComponent(article.url));
-        $(container).data('title', encodeURIComponent(article.title));
-        $(container).data('date', encodeURIComponent(article.date));
-        $(container).data('authors', encodeURIComponent(authors));
-        $(container).data('publisher', encodeURIComponent(article.source));
-        */
 
         $('<a/>', {
             href: uniprot.url,
@@ -335,6 +315,7 @@ Uniprot_API_Connection.initResultsNavigator = function(wrapper) {
           }).addClass('results_header').prependTo(wrapper);
 }
 
+// Use "this" movePage and not the helper function for Uniprot API
 Uniprot_API_Connection.movePage = function(x) {
     if (pageNum == 1 && x < 0)
         return;
