@@ -59,7 +59,9 @@
                         <input type='text' value='Search Publications' id='search_bar' class="input_blur" onfocus="selectInput(this, 'Search Publications')" onblur="deselectInput(this, 'Search Publications')" </input><div id="search_type" onclick="toggleSearchType(this)"><p>Most Recent</p> <div id="down_arrow"></div></div>
                     </div>
                     <img id="mag_glass" src="../images/search_glass.png"/>
-                    <div id="select_api_wrap">
+                    
+                </form>
+                <div id="select_api_wrap">
                         <p>Database: </p>
                         <select id="API_selection" onChange="updateAPISelection(this);">
                             <option value="pubmed">PubMed</option>
@@ -67,7 +69,6 @@
                             <option value="gene">NCBI Gene</option>
                         </select>
                     </div>
-                </form>
             </div>
             <div id="search_content">
 <!--
