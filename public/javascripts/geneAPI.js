@@ -313,11 +313,11 @@ Gene_API_Connection.showMoreGeneInfo = function(prev_div) {
                 for (var i = 0; i < info.prefNames.length; i++) {
                     proteinInfoString += "<br>" + info.prefNames[i];
                 }
-                proteinInfoString += "<br>";
+                proteinInfoString += "<br><br>";
             }
 
             if (info.names.length > 0) {
-                proteinInfoString += "<br>Names: " ;
+                proteinInfoString += "Names: " ;
                 for (var i = 0; i < info.names.length; i++) {
                     proteinInfoString += "<br>" + info.names[i];
                 }

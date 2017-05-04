@@ -80,6 +80,8 @@ editorController.prototype._save = function(self, req, res){
     var dateModified = Date.now();
     var dateCreated = dateModified;
     var authors = [req.user.id];
+    var type = req.body.type;
+    console.log(type);
     
     //Check if file exists
     WikiFile.find({title: title}, function(err, file){
@@ -119,7 +121,8 @@ editorController.prototype._save = function(self, req, res){
                 date_modified: dateModified,
                 authors: authors,
                 contents: contents,
-                citationObjects: citations
+                citationObjects: citations,
+                type: type
             });
             
             newArticle.save();
@@ -136,9 +139,10 @@ editorController.prototype._deleteFile = function(self, req, res){
 
 editorController.prototype._getFiles = function(self, req, res){
 	var fileNames = [];
+    console.log(req.body.type);
     if (req.body.sendFileNames == "true")
     {
-        WikiFile.find({}, function(err, files){
+        WikiFile.find({type: req.body.type}, function(err, files){
             if (err)
             {
                 console.log(err);

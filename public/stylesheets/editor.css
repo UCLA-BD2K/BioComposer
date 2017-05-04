@@ -179,6 +179,8 @@
     font-weight: bold;
 }
 
+
+/*
 #tabs_container
 {
     height: 35px;
@@ -217,11 +219,11 @@
 .tabs-click
 {
     background-color: #5C81D2;
-    /*INNER SHADOW*/
     -webkit-box-shadow: inset 0px 0px 6px 0px rgba(80,80,80,0.6);
 	-moz-box-shadow: inset 0px 0px 6px 0px rgba(80,80,80,0.6);
 	box-shadow: inset 0px 0px 6px 0px rgba(80,80,80,0.6);
 }
+*/
 
 .pubmed-click
 {
@@ -638,6 +640,11 @@ h1, h2, h3, p, li
     box-shadow: 18px 20px 31px -5px rgba(48,48,48,0.47);
 }
 
+#dlToolbar
+{
+    height: 65px; 
+}
+
 #innerDownloadWindow
 {
     height: 100%;
@@ -703,9 +710,9 @@ h1, h2, h3, p, li
     overflow:hidden;
 }
 
-#fwToolbar
+.windowToolbar
 {
-    height: 65px; 
+    /*    height: 65px; */
     background: #ededed; /* Old browsers */
     background: -moz-linear-gradient(top, #ededed 0%, #d3d3d3 100%); /* FF3.6-15 */
     background: -webkit-linear-gradient(top, #ededed 0%,#d3d3d3 100%); /* Chrome10-25,Safari5.1-6 */
@@ -714,7 +721,7 @@ h1, h2, h3, p, li
     position: relative;
 }
 
-#fwToolbar p
+.windowToolbar p
 {
     font-family: AvenirNext;
     text-align: center;
@@ -774,6 +781,42 @@ h1, h2, h3, p, li
 #fwView::-webkit-scrollbar
 { 
     width: 0 !important;
+}
+
+/* Style the tab */
+div.tab {
+    overflow: hidden;
+    /*border: 1px solid #ccc;
+    background-color: #333;*/
+}
+
+/* Style the buttons inside the tab */
+div.tab button {
+    border-radius: 8px 8px 0 0;
+    border: none;/* 0.25px solid black;
+    /*-webkit-box-shadow: 18px 20px 31px -5px rgba(48,48,48,0.47);
+    -moz-box-shadow: 18px 20px 31px -5px rgba(48,48,48,0.47);
+    box-shadow: 18px 20px 31px -5px rgba(48,48,48,0.47);*/
+    border-bottom: none;
+    background-color: inherit;
+    float: left;
+    outline: none;
+    cursor: pointer;
+    padding: 8px 18px;
+    margin: 0 5px;
+    transition: 0.3s;
+    font-family: AvenirNext;
+    font-size: 12px;
+}
+
+/* Change background color of buttons on hover */
+div.tab button:hover {
+    background-color: #b8b7b5;
+}
+
+/* Create an active/current tablink class */
+div.tab button.active {
+    background-color: #bfbebc;
 }
 
 #fwTable
@@ -876,3 +919,12 @@ h1, h2, h3, p, li
     -webkit-transform: rotate(180deg); /* Chrome, Safari, Opera */
     transform: rotate(180deg);
 }
+
+
+/* For JQuery UI widget */
+.ui-widget {
+    font-size: 85% !important;
+    margin-left: 16px !important;
+}
+
+.noTitleStuff .ui-dialog-titlebar {display:none}

@@ -26,6 +26,12 @@ function compareDM(a,b){
         return 0;
 }
 
+function fileTypeClick(obj) {
+    $(".tablinks").removeClass('active');
+    $(obj).addClass('active');
+    fwControllerSingleton.loadFiles($(obj).val());
+}
+
 var upCarrot = function(id)
 {
     this.id = id;
@@ -123,7 +129,7 @@ var fileWindowController = function()
                 //Set title
                 $("#document_title").val(data.title);
                 $("#doc_status_text").text("(Last modified " + formatDate(d) + ")");
-                $("#document_title").change();
+                //$("#document_title").change();
                 
                 //Set editor data
                 callBackLock = true;
@@ -162,8 +168,8 @@ var fileWindowController = function()
     };
     
     //AJAX CALL TO LOAD FILES
-    this.loadFiles = function(){
-        var data = {sendFileNames: true};
+    this.loadFiles = function(type='article'){
+        var data = {sendFileNames: true, type: type};
         var self = this;
         $.ajax({
             type: "POST",
@@ -291,13 +297,20 @@ var fileWindowController = function()
         //Create DIV
         this.div = $("<div />").attr("id", "fileWindow");
         var innerWindow = $("<div />").attr("id", "innerFileWindow");
-        var toolBar = $("<div />").attr("id", "fwToolbar").append($("<p />").text("WikiFile Navigator")); 
+        var toolBar = $("<div />").attr("class", "windowToolbar").append($("<p />").text("WikiFile Navigator")); 
         var closeButton = $("<div />").attr("id", "fwExit");
         
-        
+        var fileType = $("<div/>", {
+            html: '<div class="tab">' +
+                '<button class="tablinks active" value="article" onclick="fileTypeClick(this)">Articles</button>' +
+                '<button class="tablinks" value="template" onclick="fileTypeClick(this)">Templates</button>' + 
+                '</div>'
+            });
+
         var tbl = "<table id='fwTable'><tr><th data-type='fn' onclick='fwControllerSingleton.sortBy(this)'>File Name</th><th data-type='dc' onclick='fwControllerSingleton.sortBy(this)'>Date Created</th><th data-type='dm' onclick='fwControllerSingleton.sortBy(this)'>Date Modified</th></tr></table>";
         var fileViewParent = $("<div />").attr("id", "fwViewParent");
         var fileView = $("<div />", {html: tbl}).attr("id", "fwView");
+        
         fileViewParent.append(fileView);
         
         var searchHTML = "<div id='file_search_wrap'><input type='text' value='Search Files' id='fwSearchBar' class='input_blur' onfocus='selectInput(this, \"Search Files\")' onblur='deselectInput(this, \"Search Files\")' onkeyup='fwControllerSingleton.searchFw(this)'></input></div>";
@@ -306,13 +319,16 @@ var fileWindowController = function()
         
         var self = this;
         closeButton.click(function(){self.close()});
-        
+       
+
         toolBar.append(closeButton);
         toolBar.append(searchBar);
-        
+        toolBar.append(fileType);
+
         //Link divs
         innerWindow.append(toolBar);
         innerWindow.append(fileViewParent);
+
         this.div.append(innerWindow);
         
         //Add handler to make draggable

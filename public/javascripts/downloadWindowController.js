@@ -30,7 +30,11 @@ var downloadWindowController = function()
         //Create DIV
         this.div = $("<div />").attr("id", "downloadWindow");
         var innerWindow = $("<div />").attr("id", "innerDownloadWindow");
-        var toolBar = $("<div />").attr("id", "fwToolbar").append($("<p />").text("Download Wiki Markup")); 
+        var toolBar = $("<div />", {
+            class: "windowToolbar",
+            id: "dlToolbar",
+            html: "<p> Download Wiki Markup"
+        });
         var closeButton = $("<div />").attr("id", "fwExit");
 
         //Initialize Copy-to-Clipboard button

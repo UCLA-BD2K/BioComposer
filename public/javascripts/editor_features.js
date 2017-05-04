@@ -281,32 +281,61 @@ function generateTitle(t)
 //Bind to save button
 function documentSave()
 {
-    var encodedHTML = encodeURIComponent(editor.getData());
     var title = $("#document_title").val();
 
-    if (!fwControllerSingleton.viewIsLoadedFromSave && fwControllerSingleton.fileExists(title))
+    if (!fwControllerSingleton.viewIsLoadedFromSave)
     {
-        var areYouSure = confirm("A file already exists by this name. Are you sure you want to overwrite it?");
-        //If cancel, change file name
-        if (!areYouSure)
-        {
-            //Keep changing title until it's new
-            var temp = title;
-            while(fwControllerSingleton.fileExists(title))
+        if (fwControllerSingleton.fileExists(title)) {
+            var areYouSure = confirm("A file already exists by this name. Are you sure you want to overwrite it?");
+            //If cancel, change file name
+            if (!areYouSure)
             {
-                console.log(fwControllerSingleton.fileExists(title));
-                title = generateTitle(title);
+                //Keep changing title until it's new
+                var temp = title;
+                while(fwControllerSingleton.fileExists(title))
+                {
+                    console.log(fwControllerSingleton.fileExists(title));
+                    title = generateTitle(title);
+                }
+
+                $("#document_title").val(title);
+                $("#document_title").change();
             }
-
-            $("#document_title").val(title);
-            $("#document_title").change();
         }
-    }
+        else {
+            var dialog = $('<p>Save as...</p>').dialog({
+                dialogClass: 'noTitleStuff',
+                buttons: {
+                    "Article": function(){
+                        saveAs("article", title);
+                        dialog.dialog('close');
+                    },
+                    "Template":  function(){
+                        saveAs("template", title);
+                        dialog.dialog('close');
+                    },
+                    "Cancel":  function() {
+                        dialog.dialog('close');
+                    }
+                },
+                height: "auto",
+                width: 300,
+                resizable: false
+            });
+        }
+    
+    } 
+    else {
+        saveAs("", title)
+    }  
+}
 
+function saveAs(type, title) {
     //In order to stringify, we needed to eliminate duplicate objects. 
     //The parent will only be set to the first element. 
     //Upon opening again, we need to set citationSingleton.citations = [this citations]
     //As well as set citationSingleton.citationNumber = MAX(citations.citeNum)
+    var encodedHTML = encodeURIComponent(editor.getData());
     seen = [];
     var citations = JSON.stringify(citationSingleton.citations, function(key, val) {
        if (val != null && typeof val == "object") {
@@ -318,7 +347,10 @@ function documentSave()
         return val;
     });
     
-    var data = {"contents" : encodedHTML, "title" : title, "citations" : citations};
+    var data = {contents : encodedHTML, 
+                title : title,
+                citations : citations,
+                type : type};
     $.ajax({
         type: "POST",
         //url: "http://54.186.246.214:3000/save",
@@ -343,6 +375,12 @@ function titleHandler(obj)
 {
     if (obj.value == "")
         obj.value = "Untitled";
+
+    console.log("Title changed");
+
+    // Title name changed. Could be new document
+    fwControllerSingleton.viewIsLoadedFromSave = false;
+    $("#doc_status_text").text("(Unsaved)");
 }
 
 //Configure dimensions of textArea
