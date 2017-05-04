@@ -285,7 +285,10 @@ function documentSave()
 
     if (!fwControllerSingleton.viewIsLoadedFromSave)
     {
+        console.log("New doc being saved");
+
         if (fwControllerSingleton.fileExists(title)) {
+            console.log("exists");
             var areYouSure = confirm("A file already exists by this name. Are you sure you want to overwrite it?");
             //If cancel, change file name
             if (!areYouSure)
@@ -306,20 +309,20 @@ function documentSave()
             var dialog = $('<p>Save as...</p>').dialog({
                 dialogClass: 'noTitleStuff',
                 buttons: {
-                    "Article": function(){
-                        saveAs("article", title);
+                    "Cancel":  function() {
                         dialog.dialog('close');
                     },
                     "Template":  function(){
                         saveAs("template", title);
                         dialog.dialog('close');
                     },
-                    "Cancel":  function() {
+                    "Article": function(){
+                        saveAs("article", title);
                         dialog.dialog('close');
                     }
                 },
                 height: "auto",
-                width: 300,
+                width: 290,
                 resizable: false
             });
         }

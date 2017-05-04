@@ -110,9 +110,32 @@ var fileWindowController = function()
         
         this.displayFiles();
     }
+
+    this.handleTemplateRequest = function(title) {
+        this.close();
+        var dialog = $('<p>Would you like to...</p>').dialog({
+                dialogClass: 'noTitleStuff',
+                buttons: {
+                    "Edit Template":  function(){
+                        fwControllerSingleton.openFile(title, false);
+                        dialog.dialog('close');
+                    },
+                    "Use Template": function(){
+                        fwControllerSingleton.openFile(title, true);
+                        dialog.dialog('close');
+                    },
+                    "Cancel":  function() {
+                        dialog.dialog('close');
+                    }
+                },
+                height: "auto",
+                width: 275,
+                resizable: false
+            });
+    }
     
     //When file is opened
-    this.openFile = function(title){
+    this.openFile = function(title, newDoc){
         //prevents from deleting CKEDitor text
         fileOpened = true;
         console.log(title);
@@ -126,10 +149,7 @@ var fileWindowController = function()
             success: function(data){
                 var d = new Date(data.date_modified);
                 console.log(data);
-                //Set title
-                $("#document_title").val(data.title);
-                $("#doc_status_text").text("(Last modified " + formatDate(d) + ")");
-                //$("#document_title").change();
+                
                 
                 //Set editor data
                 callBackLock = true;
@@ -157,9 +177,24 @@ var fileWindowController = function()
                 citationSingleton.citations = newCitations;
                 citationSingleton.citationNum = Object.keys(newCitations).length;
                 }
-                
-                //Indicates that our current view was loaded from a save
+
+                var docTitle = data.title;
+                var lastModified = "(Last modified " + formatDate(d) + ")";
+                // Indicates that our current view was loaded from a save
                 this.viewIsLoadedFromSave = true;
+
+                // If user opens a template to create new Doc
+                if (newDoc) {
+                    docTitle = "Untitled";
+                    lastModified = "(Unsaved)";
+                    this.viewIsLoadedFromSave = false;
+                }
+
+                //Set title and modified status
+                $("#document_title").val(docTitle);
+                $("#doc_status_text").text(lastModified);
+                //$("#document_title").change();
+                
                 console.log(citationSingleton);
                 self.close();
             },
@@ -168,7 +203,9 @@ var fileWindowController = function()
     };
     
     //AJAX CALL TO LOAD FILES
-    this.loadFiles = function(type='article'){
+    this.loadFiles = function(type){
+        if (type==null)
+            type ='article' //default;
         var data = {sendFileNames: true, type: type};
         var self = this;
         $.ajax({
@@ -205,9 +242,15 @@ var fileWindowController = function()
             var dCreated = new Date(this.filteredFiles[i].date_created);
             var dMod = new Date(this.filteredFiles[i].date_modified);
             var title = this.filteredFiles[i].title;
+            var type = this.filteredFiles[i].type;
             var docs = "<td>" + title + "</td>" + "<td>" + formatDate(dCreated) + "</td>" + "<td>" + formatDate(dMod) + "</td>";
             var row = $("<tr />", {html: docs});
-            row.click({title: title}, function(event){self.openFile(event.data.title)});
+            row.click({title: title, type:type }, function(event){
+                if (event.data.type == 'template')
+                    self.handleTemplateRequest(event.data.title);
+                else
+                    self.openFile(event.data.title, false)
+            });
             row.append($("<div />").addClass("fwDeleteDiv").append($("<img />", {src: "../images/delete.png"}).data("title", title).addClass("fwDelete").click(function(e){
                 var this_title = $(this).data("title");
                 var deleteRecord = confirm("Are you sure you want to delete '" + this_title + "'?");

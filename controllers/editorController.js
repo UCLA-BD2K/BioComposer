@@ -150,7 +150,12 @@ editorController.prototype._getFiles = function(self, req, res){
             }
             for (var x=0; x<files.length; x++)
             {
-                var fileInfo = {title: files[x].title, date_created: files[x].date_created, date_modified: files[x].date_modified}
+                var fileInfo = {
+                    title: files[x].title, 
+                    date_created: files[x].date_created, 
+                    date_modified: files[x].date_modified,
+                    type: files[x].type
+                }
                 fileNames.push(fileInfo);
             }
             
