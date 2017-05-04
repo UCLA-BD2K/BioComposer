@@ -101,6 +101,11 @@
     background-image: url(../images/down-arrow-2.png);
 }
 
+#search_wrap
+{
+    text-align: left;
+}
+
 #search_wrap, #file_search_wrap
 {
     height: 40px;
