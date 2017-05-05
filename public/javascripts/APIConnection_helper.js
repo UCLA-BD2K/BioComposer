@@ -59,8 +59,21 @@ function toggleSearchType(obj) {
 
 function updateAPISelection(selected) {
     selected_api = selected.options[selected.selectedIndex].value;
-    console.log(selected.options[selected.selectedIndex].value)
-   
+    console.log(selected_api);
+    
+    // Set default value of sort type
+    if ($($("#search_type").find("p")[0]).text() == "Most Recent") {
+        if (selected_api == "gene")
+            toggleSearchType($("#search_type"));
+    }
+    else {
+        if (selected_api == "pubmed")
+            toggleSearchType($("#search_type"));
+    }
+    if (selected_api == "uniprot")
+        $("#search_type").hide(); 
+    else
+        $("#search_type").show()
 }
 
 function requestSearch() {

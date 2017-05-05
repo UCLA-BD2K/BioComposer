@@ -294,6 +294,12 @@ Uniprot_API_Connection.showMoreUniprotInfo = function(prev_div) {
     });
 }
 
+// Override resetSearchHTML - Hide search type for Uniprot DB 
+Uniprot_API_Connection.resetSearchHTML = function() {
+    APIConnection.resetSearchHTML();
+    $("#search_type").hide();
+}
+
 
 // Override page navigation
 Uniprot_API_Connection.initResultsNavigator = function(wrapper) {
