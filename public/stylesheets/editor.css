@@ -934,8 +934,16 @@ div.tab button.active {
     font-size: 85% !important;
     margin-left: 16px !important;
     float: right !important;
+    text-align: center;
+
 }
 
 .noTitleStuff .ui-dialog-titlebar {
     display: none;
+}
+
+.dialogShadow {
+    -webkit-box-shadow: 5px 8px 31px -5px rgba(48,48,48,0.47);
+    -moz-box-shadow:  5px 8px 31px -5px rgba(48,48,48,0.47);
+    box-shadow:  5px 8px 31px -5px rgba(48,48,48,0.47);
 }

@@ -29,7 +29,7 @@ function compareDM(a,b){
 function fileTypeClick(obj) {
     $(".tablinks").removeClass('active');
     $(obj).addClass('active');
-    fwControllerSingleton.loadFiles($(obj).val());
+    fwControllerSingleton.viewSubsetFiles($(obj).val());
 }
 
 var upCarrot = function(id)
@@ -61,7 +61,8 @@ var upCarrot = function(id)
 var fileWindowController = function()
 {
     //Variables
-    this.files = [];
+    this.files = []; // Current set of files (e.g. "articles")
+    this.allFiles = [];
     this.filter = null;
     this.filteredFiles = [];
     this.selectedFile;
@@ -70,7 +71,7 @@ var fileWindowController = function()
     this.viewIsLoadedFromSave = false;
     this.sort = "none";
     this.arrowImg = new upCarrot("arrowimg");
-    
+
     //When window is open
     this.open = function(){
         if (!this.isOpen){
@@ -89,8 +90,8 @@ var fileWindowController = function()
     
     //Check if file exists
     this.fileExists = function(title){
-        for (var i=0;i<this.files.length;i++)
-            if (title == this.files[i].title)
+        for (var i=0;i<this.allFiles.length;i++)
+            if (title == this.allFiles[i].title)
                 return true;
         return false;
     }
@@ -114,7 +115,7 @@ var fileWindowController = function()
     this.handleTemplateRequest = function(title) {
         this.close();
         var dialog = $('<p>Would you like to...</p>').dialog({
-                dialogClass: 'noTitleStuff',
+                dialogClass: 'noTitleStuff dialogShadow',
                 buttons: {
                     "Edit Template":  function(){
                         fwControllerSingleton.openFile(title, false);
@@ -128,7 +129,7 @@ var fileWindowController = function()
                         dialog.dialog('close');
                     }
                 },
-                height: "auto",
+                height: 185,
                 width: 275,
                 resizable: false
             });
@@ -181,13 +182,13 @@ var fileWindowController = function()
                 var docTitle = data.title;
                 var lastModified = "(Last modified " + formatDate(d) + ")";
                 // Indicates that our current view was loaded from a save
-                this.viewIsLoadedFromSave = true;
+                self.viewIsLoadedFromSave = true;
 
                 // If user opens a template to create new Doc
                 if (newDoc) {
                     docTitle = "Untitled";
                     lastModified = "(Unsaved)";
-                    this.viewIsLoadedFromSave = false;
+                    self.viewIsLoadedFromSave = false;
                 }
 
                 //Set title and modified status
@@ -203,10 +204,8 @@ var fileWindowController = function()
     };
     
     //AJAX CALL TO LOAD FILES
-    this.loadFiles = function(type){
-        if (type==null)
-            type ='article' //default;
-        var data = {sendFileNames: true, type: type};
+    this.loadFiles = function(){
+        var data = {sendFileNames: true};
         var self = this;
         $.ajax({
             type: "POST",
@@ -215,19 +214,26 @@ var fileWindowController = function()
             data: data,
             success: function(data){
                 console.log(data);
-                self.files = self.filteredFiles = data;
-                
-                if (self.isOpen)
-                    self.displayFiles();
-                
+                self.allFiles = data;
+                self.viewSubsetFiles('article'); // default viewing is article               
             },
             dataType: "json"
     });
+    };
+
+    this.viewSubsetFiles = function(type) {
+        this.files = [];
+        for (var i = 0; i < this.allFiles.length; i++) {
+            if (this.allFiles[i].type == type)
+                this.files.push(this.allFiles[i]);
+        }
+        this.filteredFiles = this.files;
+        if (this.isOpen)
+            this.displayFiles();
     }
     
     this.displayFiles = function()
     {
-        console.log("display files");
         var self = this;
         
         //Replaces all html leaving only the table header
@@ -248,7 +254,7 @@ var fileWindowController = function()
             row.click({title: title, type:type }, function(event){
                 if (event.data.type == 'template')
                     self.handleTemplateRequest(event.data.title);
-                else
+                else 
                     self.openFile(event.data.title, false)
             });
             row.append($("<div />").addClass("fwDeleteDiv").append($("<img />", {src: "../images/delete.png"}).data("title", title).addClass("fwDelete").click(function(e){

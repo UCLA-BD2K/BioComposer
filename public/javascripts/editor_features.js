@@ -288,52 +288,73 @@ function documentSave()
         console.log("New doc being saved");
 
         if (fwControllerSingleton.fileExists(title)) {
-            console.log("exists");
-            var areYouSure = confirm("A file already exists by this name. Are you sure you want to overwrite it?");
-            //If cancel, change file name
-            if (!areYouSure)
-            {
-                //Keep changing title until it's new
-                var temp = title;
-                while(fwControllerSingleton.fileExists(title))
-                {
-                    console.log(fwControllerSingleton.fileExists(title));
-                    title = generateTitle(title);
-                }
-
-                $("#document_title").val(title);
-                $("#document_title").change();
-            }
+            console.log("File already exists");
+            overwriteDialog(title);
         }
         else {
-            var dialog = $('<p>Save as...</p>').dialog({
-                dialogClass: 'noTitleStuff',
+            saveAsDialog(title);
+        }
+    
+    } 
+    else {
+        // Saving opened document, don't need to specify type
+        saveAs(null, title, false)
+    }  
+}
+
+function overwriteDialog(title) {
+    var dialog = $('<p>A file already exists by this name. \
+                <br>Are you sure you want to overwrite it?</p>').dialog({
+                dialogClass: 'noTitleStuff dialogShadow',
                 buttons: {
                     "Cancel":  function() {
+                        //Keep changing title until it's new
+                        var temp = title;
+                        while(fwControllerSingleton.fileExists(title))
+                        {
+                            console.log(fwControllerSingleton.fileExists(title));
+                            title = generateTitle(title);
+                        }
+
+                        $("#document_title").val(title);
+                        $("#document_title").change();
                         dialog.dialog('close');
                     },
-                    "Template":  function(){
-                        saveAs("template", title);
+                    "Overwrite":  function(){
+                        saveAsDialog(title);
                         dialog.dialog('close');
                     },
-                    "Article": function(){
-                        saveAs("article", title);
-                        dialog.dialog('close');
-                    }
                 },
                 height: "auto",
                 width: 290,
                 resizable: false
             });
-        }
-    
-    } 
-    else {
-        saveAs("", title)
-    }  
 }
 
-function saveAs(type, title) {
+function saveAsDialog(title) {
+    var dialog = $('<p>Save as...</p>').dialog({
+                dialogClass: 'noTitleStuff dialogShadow',
+                buttons: {
+                    "Cancel":  function() {
+                        dialog.dialog('close');
+                    },
+                    "Template":  function(){
+                        saveAs("template", title, true);
+                        dialog.dialog('close');
+                    },
+                    "Article": function(){
+                        saveAs("article", title, true);
+                        dialog.dialog('close');
+                    }
+                },
+                height: "auto",
+                width: 290,
+                resizable: false,
+                draggable: true
+            });
+}
+
+function saveAs(type, title, overwrite) {
     //In order to stringify, we needed to eliminate duplicate objects. 
     //The parent will only be set to the first element. 
     //Upon opening again, we need to set citationSingleton.citations = [this citations]
@@ -350,17 +371,22 @@ function saveAs(type, title) {
         return val;
     });
     
-    var data = {contents : encodedHTML, 
-                title : title,
-                citations : citations,
-                type : type};
+    var data = {
+        contents : encodedHTML, 
+        title : title,
+        citations : citations,
+        type: type,
+        overwrite: overwrite
+    };
+
     $.ajax({
         type: "POST",
         //url: "http://54.186.246.214:3000/save",
         url: "/save",
         data: data,
         success: function(msg){
-            alert(msg);
+            //alert(msg);
+            alertMessage(msg);
             $("#doc_status_text").text("(Last saved: " + formatDate(new Date()) + ")");
         },
         dataType: "text"
@@ -369,6 +395,23 @@ function saveAs(type, title) {
     //Make sure file lists are up to date
     fwControllerSingleton.loadFiles();
     fwControllerSingleton.viewIsLoadedFromSave = true;
+}
+
+function alertMessage(msg) {
+    var dialog = $('<p>' + msg + '</p>').dialog({
+                dialogClass: 'noTitleStuff dialogShadow',
+                position: { my: 'right bottom', at: 'right-10 bottom-10', of: window},
+                show: { effect: 'slide', direction: 'right', duration: 700},
+                hide: {effect: 'fadeOut', duration: 300},
+                open: function () {
+                    setTimeout( function () {
+                     dialog.dialog("close"); 
+                    }, 2000)
+                },
+                height: 100,
+                width: 280
+                
+            });
 }
 
 //--------- END CKEDITOR FUNCTIONS

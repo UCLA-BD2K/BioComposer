@@ -4,7 +4,6 @@ var downloadWindowController = function()
     //Variables
     this.isOpen = false;
     this.div = "";
-    this.viewIsLoadedFromSave = false;
     this.sort = "none";
     this.arrowImg = new upCarrot("arrowimg");
     

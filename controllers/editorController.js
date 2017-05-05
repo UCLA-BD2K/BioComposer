@@ -81,7 +81,6 @@ editorController.prototype._save = function(self, req, res){
     var dateCreated = dateModified;
     var authors = [req.user.id];
     var type = req.body.type;
-    console.log(type);
     
     //Check if file exists
     WikiFile.find({title: title}, function(err, file){
@@ -104,6 +103,10 @@ editorController.prototype._save = function(self, req, res){
                 file[0].authors = authors;
             }
             
+            if (req.body.overwrite == "true") { // Only update type if user overwrites file
+                file[0].type = type;
+                console.log("overwriting type")
+            }
             file[0].contents = contents;
             file[0].date_modified = dateModified;
             file[0].citationObjects = citations;
@@ -142,7 +145,7 @@ editorController.prototype._getFiles = function(self, req, res){
     console.log(req.body.type);
     if (req.body.sendFileNames == "true")
     {
-        WikiFile.find({type: req.body.type}, function(err, files){
+        WikiFile.find({}, function(err, files){
             if (err)
             {
                 console.log(err);
