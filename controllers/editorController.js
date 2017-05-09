@@ -142,6 +142,7 @@ editorController.prototype._deleteFile = function(self, req, res){
 
 editorController.prototype._getFiles = function(self, req, res){
 	var fileNames = [];
+    var user = req.user.id;
     console.log(req.body.type);
     if (req.body.sendFileNames == "true")
     {

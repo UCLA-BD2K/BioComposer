@@ -7,9 +7,25 @@ var User = require('../models/user.js');
 var bcrypt = require('bcryptjs');
 var sha1 = require('sha1');
 
+// xoauth2 credentials
+const xoauth2 = require('xoauth2');
+var xoauth2_config = require('../config/xoauth2_config.js');
+
 //Set up e-mail sender
 var nodemailer = require("nodemailer");
-var smtpTransport = nodemailer.createTransport('smtps://genewikidev1%40gmail.com:genewikirox@smtp.gmail.com');
+//var smtpTransport = nodemailer.createTransport('smtps://genewikidev1%40gmail.com:genewikirox@smtp.gmail.com');
+
+var smtpTransport = nodemailer.createTransport({
+        service:"Gmail",
+        auth:{
+            xoauth2: xoauth2.createXOAuth2Generator({
+                user: xoauth2_config.mailUser,
+                clientId: xoauth2_config.clientId,
+                clientSecret: xoauth2_config.clientSecret,
+                refreshToken: xoauth2_config.refreshToken
+            })
+        }
+});
 
 //Interface
 function userController(){
@@ -110,10 +126,10 @@ userController.prototype._logout = function(self, req, res){
 };
 
 userController.prototype._resetPassword = function(self, req, res){
-	 //Implement check to validate e-mail
+    //Implement check to validate e-mail
     req.checkBody('email', 'Please enter a valid e-mail').isEmail();
     var errors = req.validationErrors();
-    
+
     //Error handling
     if (errors)
     {
@@ -124,14 +140,18 @@ userController.prototype._resetPassword = function(self, req, res){
     
     //E-mail Sent
     else{
-        
         //Create reset_hash, store in database and send e-mail
         var query = {email: req.body.email};
         var hash_val = sha1(Math.floor(Date.now() + Math.random() * 1000));
+        var url =  req.get('Host') +
+            "/change_password?email=" + encodeURIComponent(req.body.email) + 
+            "&hash=" + encodeURIComponent(hash_val.toString());
+        if (req.protocol && req.protocol.length > 0)
+            url = req.protocol + "://" + url;
         var mailOptions={
-        to : req.body.email,
-        subject : "Reset Password",
-        text : "Click the following link to reset your password: http://localhost:3000/change_password?email=" + encodeURIComponent(req.body.email) + "&hash=" + encodeURIComponent(hash_val.toString())
+            to : req.body.email,
+            subject : "Reset Password",
+            text : "Click the following link to reset your password: " + url
         }
         User.update(query, {reset_hash: hash_val}, function(){
             //Actually send mail

@@ -25,6 +25,7 @@
     "passport-http": "*",
     "passport-local": "*",
     "serve-favicon": "~2.3.0",
-    "sha1": "*"
+    "sha1": "*",
+    "xoauth2": "^1.2.0"
   }
 }
