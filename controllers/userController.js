@@ -13,17 +13,15 @@ var xoauth2_config = require('../config/xoauth2_config.js');
 
 //Set up e-mail sender
 var nodemailer = require("nodemailer");
-//var smtpTransport = nodemailer.createTransport('smtps://genewikidev1%40gmail.com:genewikirox@smtp.gmail.com');
 
 var smtpTransport = nodemailer.createTransport({
         service:"Gmail",
-        auth:{
-            xoauth2: xoauth2.createXOAuth2Generator({
-                user: xoauth2_config.mailUser,
-                clientId: xoauth2_config.clientId,
-                clientSecret: xoauth2_config.clientSecret,
-                refreshToken: xoauth2_config.refreshToken
-            })
+        auth: {
+            type: 'OAuth2',
+            user: xoauth2_config.mailUser,
+            clientId: xoauth2_config.clientId,
+            clientSecret: xoauth2_config.clientSecret,
+            refreshToken: xoauth2_config.refreshToken
         }
 });
 
