@@ -668,6 +668,7 @@ h1, h2, h3, p, li
     overflow-x: none;    
     position: relative;
     margin: 20px;
+    white-space: pre;
 
 }
 
