@@ -20,7 +20,14 @@ function navigationController(){
 
 //Implementation
 navigationController.prototype._home = function(self, req, res){
-    res.render('index', { title: 'BioComposer', reg_status: "none" });
+    // If user authenticated, redirect to editor
+    if (req.isAuthenticated()){
+        res.render('editor');
+    }
+    // Home page, no auth required
+    else {
+        res.render('index', { title: 'BioComposer', reg_status: "none" });
+    }
 }
 
 navigationController.prototype._accountSettings = function(self, req, res){
