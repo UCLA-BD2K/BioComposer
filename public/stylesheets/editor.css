@@ -29,7 +29,7 @@
 
 #search
 {
-    height: 62px;
+    text-align: center;
     border: 1px solid rgb(150,150,150);
     
     /*GRADIENT*/
@@ -101,6 +101,11 @@
     background-image: url(../images/down-arrow-2.png);
 }
 
+#search_wrap
+{
+    text-align: left;
+}
+
 #search_wrap, #file_search_wrap
 {
     height: 40px;
@@ -141,6 +146,41 @@
     margin: auto;
 }
 
+#select_api_wrap
+{
+    display: inline-block;
+    margin: 0 auto;
+    text-align: left;
+    width: 180px;
+    padding-left: 30px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+#select_api_wrap *
+{
+    display: inline;
+    font-family: AvenirNext;
+    font-size: 14px;
+}
+
+#API_selection
+{
+    background: transparent;
+    outline: 0;
+    border: 0;
+    height: 34px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+#API_selection:hover
+{
+    font-weight: bold;
+}
+
+
+/*
 #tabs_container
 {
     height: 35px;
@@ -179,11 +219,11 @@
 .tabs-click
 {
     background-color: #5C81D2;
-    /*INNER SHADOW*/
     -webkit-box-shadow: inset 0px 0px 6px 0px rgba(80,80,80,0.6);
 	-moz-box-shadow: inset 0px 0px 6px 0px rgba(80,80,80,0.6);
 	box-shadow: inset 0px 0px 6px 0px rgba(80,80,80,0.6);
 }
+*/
 
 .pubmed-click
 {
@@ -247,24 +287,25 @@
 
 .results_container
 {
-    top: 70px;
     display: block;
     margin: auto;
     position: absolute;
     overflow: hidden;
-}
-
-.results_container > * {
-    color: white;
-}
-
-#pubmed_results, #google_results
-{
-    overflow:hidden;
     width: 100%;
 }
 
-#pubmed_results:hover
+.results_container  * {
+    color: white;
+    text-decoration: none;
+}
+
+#search_results, #google_results
+{
+    overflow: hidden;
+    width: 100%;
+}
+
+#search_results:hover
 {
     overflow-y: scroll;
 }
@@ -275,6 +316,8 @@
     text-align: center;
     font-family: AvenirNext;
     font-weight: normal;
+    text-decoration: none;
+    padding: 10px;
 }
 
 .single_result_a
@@ -282,9 +325,19 @@
     background-color: rgba(90,90,90,0.5);
 }
 
+.single_result_a:hover
+{
+    background-color: rgba(90,90,90,90);
+}
+
 .single_result_b
 {
-    background-color: rgba(255,255,255,0);
+    background-color: rgba(0,0,0,0);
+}
+
+.single_result_b:hover
+{
+    background-color: rgba(0,0,0,0.25);
 }
 
 .single_result
@@ -341,10 +394,12 @@
     font-size: 16px;
 }
 
-.article_title
+.result_header
 {
+    font-size: 20px;
     color: white;
-    text-decoration: none;
+    text-decoration: underline;
+    width: 100%;
 }
 
 .single_result b
@@ -365,17 +420,55 @@
 
 #search_form
 {
-    margin: auto;
+    margin-bottom: -28px;
     display: block;
 }
 
-.loader
+.search_loader
 {
     height: 20px;
     position: relative;
     bottom: 18px;
     left: 330px;
 }
+
+.result_subheader
+{
+    font-size: 20px;
+    font-style: italic;
+    position: relative;
+    border-bottom: 1px solid white;
+    margin: 16px 0;
+}
+
+.result_subheader > p
+{
+    width: 0px;
+    display: inline;    
+}
+
+.result_info > *
+{
+    font-size: 16px;
+    color: white;
+}
+
+.show_more_arrow
+{
+    height: 14px;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+}
+
+.info_loader
+{
+    height: 20px;
+    position: relative;
+    display: block;
+    margin: auto;
+}
+
 
 /* --- Page controller ----- */
 #pageNum
@@ -547,6 +640,11 @@ h1, h2, h3, p, li
     box-shadow: 18px 20px 31px -5px rgba(48,48,48,0.47);
 }
 
+#dlToolbar
+{
+    height: 65px; 
+}
+
 #innerDownloadWindow
 {
     height: 100%;
@@ -612,9 +710,9 @@ h1, h2, h3, p, li
     overflow:hidden;
 }
 
-#fwToolbar
+.windowToolbar
 {
-    height: 65px; 
+    /*    height: 65px; */
     background: #ededed; /* Old browsers */
     background: -moz-linear-gradient(top, #ededed 0%, #d3d3d3 100%); /* FF3.6-15 */
     background: -webkit-linear-gradient(top, #ededed 0%,#d3d3d3 100%); /* Chrome10-25,Safari5.1-6 */
@@ -623,7 +721,7 @@ h1, h2, h3, p, li
     position: relative;
 }
 
-#fwToolbar p
+.windowToolbar p
 {
     font-family: AvenirNext;
     text-align: center;
@@ -662,7 +760,7 @@ h1, h2, h3, p, li
 #fwViewParent
 {
     width: 100%;
-    height: 435px;
+    height: 410px;
     overflow-y: hidden;
 }
 
@@ -680,9 +778,46 @@ h1, h2, h3, p, li
     background-color: rgba(255,255,255,1);
 }
 
+
 #fwView::-webkit-scrollbar
 { 
     width: 0 !important;
+}
+
+/* Style the tab */
+div.tab {
+    overflow: hidden;
+    /*border: 1px solid #ccc;
+    background-color: #333;*/
+}
+
+/* Style the buttons inside the tab */
+div.tab button {
+    border-radius: 8px 8px 0 0;
+    border: none;/* 0.25px solid black;
+    /*-webkit-box-shadow: 18px 20px 31px -5px rgba(48,48,48,0.47);
+    -moz-box-shadow: 18px 20px 31px -5px rgba(48,48,48,0.47);
+    box-shadow: 18px 20px 31px -5px rgba(48,48,48,0.47);*/
+    border-bottom: none;
+    background-color: inherit;
+    float: left;
+    outline: none;
+    cursor: pointer;
+    padding: 8px 18px;
+    margin: 0 5px;
+    transition: 0.3s;
+    font-family: AvenirNext;
+    font-size: 12px;
+}
+
+/* Change background color of buttons on hover */
+div.tab button:hover {
+    background-color: #b8b7b5;
+}
+
+/* Create an active/current tablink class */
+div.tab button.active {
+    background-color: #bfbebc;
 }
 
 #fwTable
@@ -701,6 +836,13 @@ h1, h2, h3, p, li
     padding-bottom: 5px;
     font-size: 14px;
     font-family: AvenirNext;
+    word-wrap: break-word;
+
+}
+
+#fwTable th:first-of-type, #fwTable td:first-of-type
+{
+        width: 100px;
 }
 
 #fwTable th
@@ -784,4 +926,24 @@ h1, h2, h3, p, li
     -ms-transform: rotate(180deg); /* IE 9 */
     -webkit-transform: rotate(180deg); /* Chrome, Safari, Opera */
     transform: rotate(180deg);
+}
+
+
+/* For JQuery UI widget */
+.ui-widget {
+    font-size: 85% !important;
+    margin-left: 16px !important;
+    float: right !important;
+    text-align: center;
+
+}
+
+.noTitleStuff .ui-dialog-titlebar {
+    display: none;
+}
+
+.dialogShadow {
+    -webkit-box-shadow: 5px 8px 31px -5px rgba(48,48,48,0.47);
+    -moz-box-shadow:  5px 8px 31px -5px rgba(48,48,48,0.47);
+    box-shadow:  5px 8px 31px -5px rgba(48,48,48,0.47);
 }

@@ -281,32 +281,85 @@ function generateTitle(t)
 //Bind to save button
 function documentSave()
 {
-    var encodedHTML = encodeURIComponent(editor.getData());
     var title = $("#document_title").val();
 
-    if (!fwControllerSingleton.viewIsLoadedFromSave && fwControllerSingleton.fileExists(title))
+    if (!fwControllerSingleton.viewIsLoadedFromSave)
     {
-        var areYouSure = confirm("A file already exists by this name. Are you sure you want to overwrite it?");
-        //If cancel, change file name
-        if (!areYouSure)
-        {
-            //Keep changing title until it's new
-            var temp = title;
-            while(fwControllerSingleton.fileExists(title))
-            {
-                console.log(fwControllerSingleton.fileExists(title));
-                title = generateTitle(title);
-            }
+        console.log("New doc being saved");
 
-            $("#document_title").val(title);
-            $("#document_title").change();
+        if (fwControllerSingleton.fileExists(title)) {
+            console.log("File already exists");
+            overwriteDialog(title);
         }
-    }
+        else {
+            saveAsDialog(title);
+        }
+    
+    } 
+    else {
+        // Saving opened document, don't need to specify type
+        saveAs(null, title, false)
+    }  
+}
 
+function overwriteDialog(title) {
+    var dialog = $('<p>A file already exists by this name. \
+                <br>Are you sure you want to overwrite it?</p>').dialog({
+                dialogClass: 'noTitleStuff dialogShadow',
+                buttons: {
+                    "Cancel":  function() {
+                        //Keep changing title until it's new
+                        var temp = title;
+                        while(fwControllerSingleton.fileExists(title))
+                        {
+                            console.log(fwControllerSingleton.fileExists(title));
+                            title = generateTitle(title);
+                        }
+
+                        $("#document_title").val(title);
+                        $("#document_title").change();
+                        dialog.dialog('close');
+                    },
+                    "Overwrite":  function(){
+                        saveAsDialog(title);
+                        dialog.dialog('close');
+                    },
+                },
+                height: "auto",
+                width: 290,
+                resizable: false
+            });
+}
+
+function saveAsDialog(title) {
+    var dialog = $('<p>Save as...</p>').dialog({
+                dialogClass: 'noTitleStuff dialogShadow',
+                buttons: {
+                    "Cancel":  function() {
+                        dialog.dialog('close');
+                    },
+                    "Template":  function(){
+                        saveAs("template", title, true);
+                        dialog.dialog('close');
+                    },
+                    "Article": function(){
+                        saveAs("article", title, true);
+                        dialog.dialog('close');
+                    }
+                },
+                height: "auto",
+                width: 290,
+                resizable: false,
+                draggable: true
+            });
+}
+
+function saveAs(type, title, overwrite) {
     //In order to stringify, we needed to eliminate duplicate objects. 
     //The parent will only be set to the first element. 
     //Upon opening again, we need to set citationSingleton.citations = [this citations]
     //As well as set citationSingleton.citationNumber = MAX(citations.citeNum)
+    var encodedHTML = encodeURIComponent(editor.getData());
     seen = [];
     var citations = JSON.stringify(citationSingleton.citations, function(key, val) {
        if (val != null && typeof val == "object") {
@@ -318,14 +371,22 @@ function documentSave()
         return val;
     });
     
-    var data = {"contents" : encodedHTML, "title" : title, "citations" : citations};
+    var data = {
+        contents : encodedHTML, 
+        title : title,
+        citations : citations,
+        type: type,
+        overwrite: overwrite
+    };
+
     $.ajax({
         type: "POST",
         //url: "http://54.186.246.214:3000/save",
         url: "/save",
         data: data,
         success: function(msg){
-            alert(msg);
+            //alert(msg);
+            alertMessage(msg);
             $("#doc_status_text").text("(Last saved: " + formatDate(new Date()) + ")");
         },
         dataType: "text"
@@ -336,6 +397,23 @@ function documentSave()
     fwControllerSingleton.viewIsLoadedFromSave = true;
 }
 
+function alertMessage(msg) {
+    var dialog = $('<p>' + msg + '</p>').dialog({
+                dialogClass: 'noTitleStuff dialogShadow',
+                position: { my: 'right bottom', at: 'right-10 bottom-10', of: window},
+                show: { effect: 'slide', direction: 'right', duration: 700},
+                hide: {effect: 'fadeOut', duration: 300},
+                open: function () {
+                    setTimeout( function () {
+                     dialog.dialog("close"); 
+                    }, 2000)
+                },
+                height: 100,
+                width: 280
+                
+            });
+}
+
 //--------- END CKEDITOR FUNCTIONS
 
 //For title edit
@@ -343,6 +421,12 @@ function titleHandler(obj)
 {
     if (obj.value == "")
         obj.value = "Untitled";
+
+    console.log("Title changed");
+
+    // Title name changed. Could be new document
+    fwControllerSingleton.viewIsLoadedFromSave = false;
+    $("#doc_status_text").text("(Unsaved)");
 }
 
 //Configure dimensions of textArea
@@ -366,8 +450,8 @@ function setDimensionsTextArea()
 
 function adjustResultDimensions()
 {
-    $(".results_container").width($("#content_panel").width());
-    $("#pubmed_results").height($("#content_panel").height() - 160);
+    $("#results_container").width($("#content_panel").width());
+    $("#search_results").height($("#content_panel").height() - 240);
 }
 
 //Functions for extending side panel

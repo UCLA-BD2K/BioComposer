@@ -7,9 +7,15 @@
     <link rel='stylesheet' href='stylesheets/editor.css'/>
   </head>
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>   
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css" />
     <script type="text/javascript" src='javascripts/login_front.js'></script>
     <script src="../javascripts/autogrow.js"></script>
-    <script type="text/javascript" src='javascripts/pubmed.js'></script>
+    <script type="text/javascript" src='javascripts/APIConnection_helper.js'></script>
+    <script type="text/javascript" src='javascripts/APIConnection.js'></script>
+    <script type="text/javascript" src='javascripts/pubmedAPI.js'></script>
+    <script type="text/javascript" src='javascripts/uniprotAPI.js'></script>
+    <script type="text/javascript" src='javascripts/geneAPI.js'></script>
     <script src="../javascripts/ckeditor/ckeditor.js"></script>
     <script src="../javascripts/editor_features.js" type="text/javascript"></script>
     <script src="../javascripts/citationsController.js" type="text/javascript"></script>
@@ -50,12 +56,21 @@
             <div id="extend_div">
             </div>
             <div id="search">
-                <form onsubmit="event.preventDefault(); simpleAndSearch(true);" method='post' id='search_form' name='search'>
+                <form onsubmit="event.preventDefault(); requestSearch();" method='post' id='search_form' name='search'>
                     <div id="search_wrap">
-                        <input type='text' value='Search Publications' id='search_bar' class="input_blur" onfocus="selectInput(this, 'Search Publications')" onblur="deselectInput(this, 'Search Publications')" </input><div id="search_type" onclick="toggleSearchType(this)"><p>Most Recent</p> <div id="down_arrow"></div></div>
+                        <input type='text' value='Search' id='search_bar' class="input_blur" onfocus="selectInput(this, 'Search')" onblur="deselectInput(this, 'Search')" </input><div id="search_type" onclick="toggleSearchType(this)"><p>Most Recent</p> <div id="down_arrow"></div></div>
                     </div>
-                <img id="mag_glass" src="../images/search_glass.png"/>
+                    <img id="mag_glass" src="../images/search_glass.png"/>
+                    
                 </form>
+                <div id="select_api_wrap">
+                        <p>Database: </p>
+                        <select id="API_selection" onChange="updateAPISelection(this);">
+                            <option value="pubmed">PubMed</option>
+                            <option value="uniprot">Uniprot</option>
+                            <option value="gene">NCBI Gene</option>
+                        </select>
+                    </div>
             </div>
             <div id="search_content">
 <!--
@@ -74,7 +89,7 @@
                 </div>
 -->
                 <div class="results_container">
-                    <div id="pubmed_results">
+                    <div id="search_results">
                     </div>
                 </div>
             </div>

@@ -26,6 +26,12 @@ function compareDM(a,b){
         return 0;
 }
 
+function fileTypeClick(obj) {
+    $(".tablinks").removeClass('active');
+    $(obj).addClass('active');
+    fwControllerSingleton.viewSubsetFiles($(obj).val());
+}
+
 var upCarrot = function(id)
 {
     this.id = id;
@@ -55,7 +61,8 @@ var upCarrot = function(id)
 var fileWindowController = function()
 {
     //Variables
-    this.files = [];
+    this.files = []; // Current set of files (e.g. "articles")
+    this.allFiles = [];
     this.filter = null;
     this.filteredFiles = [];
     this.selectedFile;
@@ -64,7 +71,7 @@ var fileWindowController = function()
     this.viewIsLoadedFromSave = false;
     this.sort = "none";
     this.arrowImg = new upCarrot("arrowimg");
-    
+
     //When window is open
     this.open = function(){
         if (!this.isOpen){
@@ -83,8 +90,8 @@ var fileWindowController = function()
     
     //Check if file exists
     this.fileExists = function(title){
-        for (var i=0;i<this.files.length;i++)
-            if (title == this.files[i].title)
+        for (var i=0;i<this.allFiles.length;i++)
+            if (title == this.allFiles[i].title)
                 return true;
         return false;
     }
@@ -104,9 +111,32 @@ var fileWindowController = function()
         
         this.displayFiles();
     }
+
+    this.handleTemplateRequest = function(title) {
+        this.close();
+        var dialog = $('<p>Would you like to...</p>').dialog({
+                dialogClass: 'noTitleStuff dialogShadow',
+                buttons: {
+                    "Edit Template":  function(){
+                        fwControllerSingleton.openFile(title, false);
+                        dialog.dialog('close');
+                    },
+                    "Use Template": function(){
+                        fwControllerSingleton.openFile(title, true);
+                        dialog.dialog('close');
+                    },
+                    "Cancel":  function() {
+                        dialog.dialog('close');
+                    }
+                },
+                height: 185,
+                width: 275,
+                resizable: false
+            });
+    }
     
     //When file is opened
-    this.openFile = function(title){
+    this.openFile = function(title, newDoc){
         //prevents from deleting CKEDitor text
         fileOpened = true;
         console.log(title);
@@ -120,10 +150,7 @@ var fileWindowController = function()
             success: function(data){
                 var d = new Date(data.date_modified);
                 console.log(data);
-                //Set title
-                $("#document_title").val(data.title);
-                $("#doc_status_text").text("(Last modified " + formatDate(d) + ")");
-                $("#document_title").change();
+                
                 
                 //Set editor data
                 callBackLock = true;
@@ -151,9 +178,24 @@ var fileWindowController = function()
                 citationSingleton.citations = newCitations;
                 citationSingleton.citationNum = Object.keys(newCitations).length;
                 }
+
+                var docTitle = data.title;
+                var lastModified = "(Last modified " + formatDate(d) + ")";
+                // Indicates that our current view was loaded from a save
+                self.viewIsLoadedFromSave = true;
+
+                // If user opens a template to create new Doc
+                if (newDoc) {
+                    docTitle = "Untitled";
+                    lastModified = "(Unsaved)";
+                    self.viewIsLoadedFromSave = false;
+                }
+
+                //Set title and modified status
+                $("#document_title").val(docTitle);
+                $("#doc_status_text").text(lastModified);
+                //$("#document_title").change();
                 
-                //Indicates that our current view was loaded from a save
-                this.viewIsLoadedFromSave = true;
                 console.log(citationSingleton);
                 self.close();
             },
@@ -172,19 +214,26 @@ var fileWindowController = function()
             data: data,
             success: function(data){
                 console.log(data);
-                self.files = self.filteredFiles = data;
-                
-                if (self.isOpen)
-                    self.displayFiles();
-                
+                self.allFiles = data;
+                self.viewSubsetFiles('article'); // default viewing is article               
             },
             dataType: "json"
     });
+    };
+
+    this.viewSubsetFiles = function(type) {
+        this.files = [];
+        for (var i = 0; i < this.allFiles.length; i++) {
+            if (this.allFiles[i].type == type)
+                this.files.push(this.allFiles[i]);
+        }
+        this.filteredFiles = this.files;
+        if (this.isOpen)
+            this.displayFiles();
     }
     
     this.displayFiles = function()
     {
-        console.log("display files");
         var self = this;
         
         //Replaces all html leaving only the table header
@@ -199,9 +248,15 @@ var fileWindowController = function()
             var dCreated = new Date(this.filteredFiles[i].date_created);
             var dMod = new Date(this.filteredFiles[i].date_modified);
             var title = this.filteredFiles[i].title;
+            var type = this.filteredFiles[i].type;
             var docs = "<td>" + title + "</td>" + "<td>" + formatDate(dCreated) + "</td>" + "<td>" + formatDate(dMod) + "</td>";
             var row = $("<tr />", {html: docs});
-            row.click({title: title}, function(event){self.openFile(event.data.title)});
+            row.click({title: title, type:type }, function(event){
+                if (event.data.type == 'template')
+                    self.handleTemplateRequest(event.data.title);
+                else 
+                    self.openFile(event.data.title, false)
+            });
             row.append($("<div />").addClass("fwDeleteDiv").append($("<img />", {src: "../images/delete.png"}).data("title", title).addClass("fwDelete").click(function(e){
                 var this_title = $(this).data("title");
                 var deleteRecord = confirm("Are you sure you want to delete '" + this_title + "'?");
@@ -291,13 +346,20 @@ var fileWindowController = function()
         //Create DIV
         this.div = $("<div />").attr("id", "fileWindow");
         var innerWindow = $("<div />").attr("id", "innerFileWindow");
-        var toolBar = $("<div />").attr("id", "fwToolbar").append($("<p />").text("WikiFile Navigator")); 
+        var toolBar = $("<div />").attr("class", "windowToolbar").append($("<p />").text("WikiFile Navigator")); 
         var closeButton = $("<div />").attr("id", "fwExit");
         
-        
+        var fileType = $("<div/>", {
+            html: '<div class="tab">' +
+                '<button class="tablinks active" value="article" onclick="fileTypeClick(this)">Articles</button>' +
+                '<button class="tablinks" value="template" onclick="fileTypeClick(this)">Templates</button>' + 
+                '</div>'
+            });
+
         var tbl = "<table id='fwTable'><tr><th data-type='fn' onclick='fwControllerSingleton.sortBy(this)'>File Name</th><th data-type='dc' onclick='fwControllerSingleton.sortBy(this)'>Date Created</th><th data-type='dm' onclick='fwControllerSingleton.sortBy(this)'>Date Modified</th></tr></table>";
         var fileViewParent = $("<div />").attr("id", "fwViewParent");
         var fileView = $("<div />", {html: tbl}).attr("id", "fwView");
+        
         fileViewParent.append(fileView);
         
         var searchHTML = "<div id='file_search_wrap'><input type='text' value='Search Files' id='fwSearchBar' class='input_blur' onfocus='selectInput(this, \"Search Files\")' onblur='deselectInput(this, \"Search Files\")' onkeyup='fwControllerSingleton.searchFw(this)'></input></div>";
@@ -306,13 +368,16 @@ var fileWindowController = function()
         
         var self = this;
         closeButton.click(function(){self.close()});
-        
+       
+
         toolBar.append(closeButton);
         toolBar.append(searchBar);
-        
+        toolBar.append(fileType);
+
         //Link divs
         innerWindow.append(toolBar);
         innerWindow.append(fileViewParent);
+
         this.div.append(innerWindow);
         
         //Add handler to make draggable
