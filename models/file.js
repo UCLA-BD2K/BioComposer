@@ -19,6 +19,9 @@ var WikiFileSchema = mongoose.Schema ({
     },
     citationObjects: {
         type: mongoose.Schema.Types.Mixed
+    },
+    type: {         // (e.g. article or template)
+        type: String
     }
 })
 

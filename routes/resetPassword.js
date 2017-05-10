@@ -17,6 +17,7 @@ router.get('/password_reset', function(req, res)
 //Process password reset form
 router.post('/reset_pass', function(req, res)
 {
+    console.log("resetPassword.js called");
     //Implement check to validate e-mail
     req.checkBody('email', 'Please enter a valid e-mail').isEmail();
     var errors = req.validationErrors();
