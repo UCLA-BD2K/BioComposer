@@ -79,12 +79,13 @@ editorController.prototype._save = function(self, req, res){
     var citations = req.body.citations;
     var dateModified = Date.now();
     var dateCreated = dateModified;
-    var authors = [req.user.id];
+    var user = req.user.id;
+    var authors = [user];
     var type = req.body.type;
     
-    //Check if file exists
-    WikiFile.find({title: title}, function(err, file){
-        //Update
+    //Check if file with title and created/edited by user exists
+    WikiFile.find({title: title, authors: user}, function(err, file){
+        // File exists, update content
         if (!file.length == 0)
         {
             console.log("Exists");
@@ -99,7 +100,7 @@ editorController.prototype._save = function(self, req, res){
             //Current author not on the list
             if (addAuthor)
             {
-                authors.push(req.user.id);
+                authors.push(user);
                 file[0].authors = authors;
             }
             
@@ -107,6 +108,7 @@ editorController.prototype._save = function(self, req, res){
                 file[0].type = type;
                 console.log("overwriting type")
             }
+
             file[0].contents = contents;
             file[0].date_modified = dateModified;
             file[0].citationObjects = citations;
@@ -136,7 +138,9 @@ editorController.prototype._save = function(self, req, res){
 
 editorController.prototype._deleteFile = function(self, req, res){
 	var title = req.body.title;
-    WikiFile.find({ title:title }).remove().exec();
+    var user = req.user.id;
+    // Delete file with specific title and username
+    WikiFile.find({ title:title, authors: user }).remove().exec();
     res.send("true");
 };
 
@@ -146,7 +150,8 @@ editorController.prototype._getFiles = function(self, req, res){
     console.log(req.body.type);
     if (req.body.sendFileNames == "true")
     {
-        WikiFile.find({}, function(err, files){
+        // return all files created/edited by user
+        WikiFile.find({authors:user}, function(err, files){
             if (err)
             {
                 console.log(err);
@@ -169,7 +174,11 @@ editorController.prototype._getFiles = function(self, req, res){
 };
 
 editorController.prototype._openFile = function(self, req, res){
-	WikiFile.find({title: req.body.title}, function(err, file){
+	var title = req.body.title;
+    var user = req.user.id;
+
+    // Look for file with title and created/edited by user
+    WikiFile.find({title: title, authors: user}, function(err, file){
         if (err)
             throw err;
         
