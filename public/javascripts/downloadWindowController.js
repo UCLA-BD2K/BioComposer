@@ -49,7 +49,7 @@ var downloadWindowController = function()
             "data-clipboard-action":"copy", "data-clipboard-target":"#contentView"}).text("Copy to clipboard");
         
         var contentViewParent = $("<div />").attr("id", "contentViewParent");
-        var contentView = $("<div />").attr("id", "contentView").html(data);
+        var contentView = $("<div />").attr("id", "contentView").text(data);
 
         var self = this;
         closeButton.click(function(){self.close()});
