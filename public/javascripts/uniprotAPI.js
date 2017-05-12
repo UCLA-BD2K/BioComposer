@@ -196,6 +196,17 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
         var header = $('<div/>').click(function(){if (!highLightLock){Uniprot_API_Connection.showMoreUniprotInfo($(this));}})
         .data("id", uniprot.accession).appendTo(container);
 
+        //Add data to container
+        $(container).data('type', 'Uniprot');
+        $(container).data('id', uniprot.accession);
+        $(container).data('url', encodeURIComponent(uniprot.url));
+        $(container).data('title', encodeURIComponent(uniprot.proteinName));
+        /*
+        $(container).data('date', encodeURIComponent(article.date));
+        $(container).data('authors', encodeURIComponent(authors));
+        $(container).data('publisher', encodeURIComponent(article.source));
+    */
+
         $('<a/>', {
             href: uniprot.url,
             target: "_blank",
@@ -212,11 +223,11 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
         $('<p/>', {
             text: uniprot.geneName
         }).addClass('gene_name').appendTo(header);
-        /*
+        
         $('<button/>', {
             text: "Reference"
             }).click(function(e){e.stopPropagation(); generateCitation($(this).parent())}).addClass('button').addClass('refButton').appendTo(container);
-        */
+        
         
       }
   }

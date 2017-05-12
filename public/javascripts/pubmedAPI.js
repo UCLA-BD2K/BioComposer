@@ -195,6 +195,7 @@ PubMed_API_Connection.displayResults = function(articles) {
             }
         
         //Add data to container
+        $(container).data('type', 'Pubmed');
         $(container).data('id', article.id);
         $(container).data('url', encodeURIComponent(article.url));
         $(container).data('title', encodeURIComponent(article.title));

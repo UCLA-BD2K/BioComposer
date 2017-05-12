@@ -226,11 +226,12 @@ Gene_API_Connection.displayResults = function(genes) {
         var header = $('<div/>').click(function(){if (!highLightLock){Gene_API_Connection.showMoreGeneInfo($(this));}})
         .data("id", gene.id).appendTo(container);
 
-        /*
         //Add data to container
-        $(container).data('id', article.id);
-        $(container).data('url', encodeURIComponent(article.url));
-        $(container).data('title', encodeURIComponent(article.title));
+        $(container).data('type', 'Gene');
+        $(container).data('id', gene.symbol);
+        $(container).data('url', encodeURIComponent(gene.url));
+        $(container).data('title', encodeURIComponent(gene.fullName));
+        /*
         $(container).data('date', encodeURIComponent(article.date));
         $(container).data('authors', encodeURIComponent(authors));
         $(container).data('publisher', encodeURIComponent(article.source));
@@ -252,11 +253,11 @@ Gene_API_Connection.displayResults = function(genes) {
         $('<p/>', {
             text: "Also known as: " + gene.aka
         }).appendTo(header);
-        /*
+        
         $('<button/>', {
             text: "Reference"
             }).click(function(e){e.stopPropagation(); generateCitation($(this).parent())}).addClass('button').addClass('refButton').appendTo(container);
-        */
+        
         
     }
 }

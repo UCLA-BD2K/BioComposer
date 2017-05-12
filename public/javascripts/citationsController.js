@@ -52,16 +52,17 @@ var citationClass = function()
         this.citations[id].citeNum = 0;
         
         //Remove element from array
-        //delete this.citations[id];
+        delete this.citations[id];
         
         //Decrement the citation numbers of citations above
-        for (var key in this.citations)
+        for (var key in this.citations) {
             if (this.citations[key].citeNum > citeNumOfRemoved)
             {
                 this.citations[key].decrementCiteNum(); //Decrement citeNums and adjust views
                 if (debugCite)
                     console.log("Citation: " + key + " decremented");
             }
+        }
         
         //Adjust views
         if (debugCite)
@@ -211,7 +212,8 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
     
     this.generateCitation = function(obj){
         var refHTML;
-        this.type = "Pubmed";
+        if ($(obj).data("type"))
+            this.type = $(obj).data("type");
         if (this.count == 0){
             refHTML = this.generateLongRef(obj);
         }
@@ -235,7 +237,9 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
     this.generateShortRef = function()
     {
         var ref = "|ref name=a" + this.id.toString() + " /|";
-        this.shortRef = " <a class='short" + this.id + "' href='" + encodeURIComponent(ref) +"' data-id='" + this.id + "'><sup data-id='" + this.id + "'>[" + this.citeNum + "]</sup></a>";
+        this.shortRef = " <a class='short" + this.id + "' href='" 
+            + encodeURIComponent(ref) +"' data-id='" + this.id + "'><sup data-id='" 
+            + this.id + "'>[" + this.citeNum + "]</sup></a>";
         return this.shortRef;
     }
     
@@ -257,31 +261,48 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
         var day = accessDate.getDate();
         var month = accessDate.getMonth() + 1;
         var year = accessDate.getFullYear();
-        var dateAccessString = year + "-" + (month < 10 ? "0" + month : month) + "-" + (day < 10 ? "0" + day : day);
-
-        //Re-format published date
-        var d = decodeURIComponent($(obj).data("date"));
-        var pubDateString;
-        if (d.length > 8)
-        {
-            d = d.substr(5) + " " + d.substr(0, 4);
-            var pubDate = new Date(d);    
-            day = pubDate.getDate();
-            month = pubDate.getMonth() + 1;
-            year = pubDate.getFullYear();
-            pubDateString = year + "-" + (month < 10 ? "0" + month : month) + "-" + (day < 10 ? "0" + day : day);
-        }
-        else
-        {
-            d = d.substr(5) + " " + d.substr(0, 4);
-            pubDateString = d;
-        }
+        var dateAccessString = year + "-" + (month < 10 ? "0" + month : month) 
+            + "-" + (day < 10 ? "0" + day : day);
 
         //Generate the citation text
         // |ref| and |eref| are not RESERVED. We didn't use <ref> tags because they get eliminated in pandoc conversion
-        ref = "|ref name=a" + this.id.toString() + "|{{cite web |url=" + decodeURIComponent($(obj).data("url")) + " |title=" + removeBrackets(decodeURIComponent($(obj).data("title"))) + " |author=" + decodeURIComponent($(obj).data("authors")) + " |publisher=" + decodeURIComponent($(obj).data("publisher")) + " |date=" + pubDateString + " |accessdate=" + dateAccessString + "}}|eref|";   
+        ref = "|ref name=a" + this.id.toString() + "|{{cite web";
 
-        this.longRef = " <a class='long" + this.id + "' href='" + encodeURIComponent(ref) +"' data-id='" + this.id + "'><sup data-id='" + this.id + "'>[" + this.citeNum + "]</sup></a>";
+        if ($(obj).data("url")) 
+            ref += "|url=" + decodeURIComponent($(obj).data("url"));
+        if ($(obj).data("title"))
+            ref +=" |title=" + removeBrackets(decodeURIComponent($(obj).data("title"))) 
+        if ($(obj).data("authors"))
+            ref += " |author=" + decodeURIComponent($(obj).data("authors")) 
+        if ($(obj).data("publisher"))
+            ref += " |publisher=" + decodeURIComponent($(obj).data("publisher"))
+        if ($(obj).data("date")) {
+            //Re-format published date
+            var d = decodeURIComponent($(obj).data("date"));
+            var pubDateString;
+            if (d.length > 8)
+            {
+                d = d.substr(5) + " " + d.substr(0, 4);
+                var pubDate = new Date(d);    
+                day = pubDate.getDate();
+                month = pubDate.getMonth() + 1;
+                year = pubDate.getFullYear();
+                pubDateString = year + "-" + (month < 10 ? "0" + month : month) 
+                    + "-" + (day < 10 ? "0" + day : day);
+            }
+            else
+            {
+                d = d.substr(5) + " " + d.substr(0, 4);
+                pubDateString = d;
+            }
+            ref += " |date=" + pubDateString 
+        }
+ 
+        ref += " |accessdate=" + dateAccessString + "}}|eref|";
+
+        this.longRef = " <a class='long" + this.id + "' href='" 
+            + encodeURIComponent(ref) +"' data-id='" + this.id + "'><sup data-id='" 
+            + this.id + "'>[" + this.citeNum + "]</sup></a>";
         return this.longRef;
     }
     
