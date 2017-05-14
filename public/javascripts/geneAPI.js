@@ -90,12 +90,14 @@ Gene_API_Connection.parseResults = function(res) {
             id = geneNodes[i].getAttribute("uid");
             url = "https://www.ncbi.nlm.nih.gov/gene/" + id;
         }
+        var organismNode = geneNodes[i].querySelector('ScientificName');
         var info = {
             id: id,
             url: url,
             symbol: symbolNode ? symbolNode.textContent : "N/A",
             fullName: fullNameNode ? fullNameNode.textContent : "N/A",
-            aka: akaNode ? akaNode.textContent : "N/A"
+            aka: akaNode ? akaNode.textContent : "N/A",
+            organism: organismNode ? organismNode.textContent : null
         }
         genes.push(info);
     }
@@ -230,10 +232,10 @@ Gene_API_Connection.displayResults = function(genes) {
         $(container).data('type', 'Gene');
         $(container).data('id', gene.symbol);
         $(container).data('url', encodeURIComponent(gene.url));
-        $(container).data('title', encodeURIComponent(gene.fullName));
+        $(container).data('title', [gene.fullName, gene.organism].join(' - '));
         $(container).data('website', gene.symbol);
-        $(container).data('publisher', 'Gene');
-        
+        $(container).data('publisher', 'NCBI Gene');
+
         /*
         $(container).data('date', encodeURIComponent(article.date));
         $(container).data('authors', encodeURIComponent(authors));

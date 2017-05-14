@@ -49,15 +49,17 @@ Uniprot_API_Connection.parseResults = function(res) {
         var accessionNode = uniprotNodes[i].querySelector('accession');
 
         var proteinNameNode = uniprotNodes[i].querySelector('protein > recommendedName > fullName');
-        //var geneNameNode = res.querySelector('gene > name[type=primary]');
-        var geneNameNode = uniprotNodes[i].querySelector('name');
+        var geneNameNode = uniprotNodes[i].querySelector('gene > name[type=primary]');
+        var organismNode = uniprotNodes[i].querySelector('organism > name[type=scientific]');
 
         var info = {
             url: accessionNode ? 'http://www.uniprot.org/uniprot/' + accessionNode.textContent : null,
             accession: accessionNode ? accessionNode.textContent : null,
             proteinName: proteinNameNode ? proteinNameNode.textContent : null,
-            geneName: geneNameNode ? geneNameNode.textContent : null
+            geneName: geneNameNode ? geneNameNode.textContent : null,
+            organism: organismNode ? organismNode.textContent : null
         };
+
         uniprots.push(info);
 
     }
@@ -200,7 +202,8 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
         $(container).data('type', 'Uniprot');
         $(container).data('id', uniprot.accession);
         $(container).data('url', encodeURIComponent(uniprot.url));
-        $(container).data('title', encodeURIComponent(uniprot.proteinName));
+        $(container).data('title', 
+            [uniprot.proteinName, uniprot.organism].join(' - '));
         $(container).data('website', uniprot.accession);
         $(container).data('publisher', 'Uniprot');
         /*
