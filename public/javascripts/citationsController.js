@@ -276,6 +276,8 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
             ref += " |author=" + decodeURIComponent($(obj).data("authors")) 
         if ($(obj).data("publisher"))
             ref += " |publisher=" + decodeURIComponent($(obj).data("publisher"))
+        if ($(obj).data("website"))
+            ref += " |website=" + decodeURIComponent($(obj).data("website"))
         if ($(obj).data("date")) {
             //Re-format published date
             var d = decodeURIComponent($(obj).data("date"));
@@ -381,8 +383,9 @@ function cleanUp()
     //Process references
     //create temp div to use DOM manipulation
     var data = editor.getData();
-    var isBrokenReference1 = /^\[[0-9]+$/;
-    var isBrokenReference2 = /^[0-9]+\]$/;
+    var isBrokenReference1 = /^\[[0-9]+$/; // user deleted ]
+    var isBrokenReference2 = /^[0-9]+\]$/; // user deleted [
+    var isBrokenReference3 = /^\[\]$/; // user deleted cite #
     var dom_div = $('<div />', {html:data});
     var originalData = $(dom_div).html();
     var possible_anchors = dom_div.find("a");
@@ -397,7 +400,9 @@ function cleanUp()
             var txt = $(sup[0]).html();
             
             //check against reg-ex and see if reference is not of form [[0-9]+]
-            if (isBrokenReference1.test(txt) || isBrokenReference2.test(txt)){
+            if (isBrokenReference1.test(txt) 
+                || isBrokenReference2.test(txt)
+                || isBrokenReference3.test(txt)) {
                 $(anchor).replaceWith("<a id='placeHolder2'></a>");
             }
         }
@@ -406,8 +411,9 @@ function cleanUp()
             var txt = $(anchor).html();
             
             //check against reg-ex and see if reference is not of form [[0-9]+]
-            if (isBrokenReference1.test(txt) || isBrokenReference2.test(txt))
-            {
+            if (isBrokenReference1.test(txt) 
+                || isBrokenReference2.test(txt)
+                || isBrokenReference3.test(txt)) {
                 //eliminate <sup> tags
                 //console.log($(anchor).parent());
                 if ($(anchor).parent().is("sup"))

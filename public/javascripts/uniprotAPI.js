@@ -201,6 +201,8 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
         $(container).data('id', uniprot.accession);
         $(container).data('url', encodeURIComponent(uniprot.url));
         $(container).data('title', encodeURIComponent(uniprot.proteinName));
+        $(container).data('website', uniprot.accession);
+        $(container).data('publisher', 'Uniprot');
         /*
         $(container).data('date', encodeURIComponent(article.date));
         $(container).data('authors', encodeURIComponent(authors));

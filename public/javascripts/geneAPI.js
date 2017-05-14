@@ -231,6 +231,9 @@ Gene_API_Connection.displayResults = function(genes) {
         $(container).data('id', gene.symbol);
         $(container).data('url', encodeURIComponent(gene.url));
         $(container).data('title', encodeURIComponent(gene.fullName));
+        $(container).data('website', gene.symbol);
+        $(container).data('publisher', 'Gene');
+        
         /*
         $(container).data('date', encodeURIComponent(article.date));
         $(container).data('authors', encodeURIComponent(authors));

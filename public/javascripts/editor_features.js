@@ -81,7 +81,7 @@ function initEditor()
         if (adjacent != -1)
             citationSingleton.checkCitations[adjacent] = 1;
 
-        console.log("Adjacent: " + adjacent);
+        //console.log("Adjacent: " + adjacent);
     } );
     
     editor.on('contentDom', function() {
