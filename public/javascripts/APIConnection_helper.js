@@ -77,8 +77,10 @@ function updateAPISelection(selected) {
     }
 
     // Hide sort type option for uniprot and bookmarks
-    if (selected_api == "uniprot" || selected_api == "bookmark")
+    if (selected_api == "uniprot" || selected_api == "bookmark") {
         $("#search_type").hide(); 
+        console.log("hide")
+    }
     else
         $("#search_type").show()
 

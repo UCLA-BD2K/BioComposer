@@ -149,4 +149,10 @@ bookmarkController.movePage = function(x) {
     this.startSearch(false); 
 }
 
+// Override resetSearchHTML to keep 'search type' option hidden
+bookmarkController.resetSearchHTML = function() {
+	APIConnection.resetSearchHTML();
+	$("#search_type").hide();
+ }
+
 
