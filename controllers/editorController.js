@@ -294,26 +294,26 @@ editorController.prototype._getBookmarks = function(self, req, res){
     var bookmarks = [];
     var user = req.user.id;
     var sort_type = req.body.sort_type;
-    var limit = parseInt(req.body.limit);
-    var offset = parseInt(req.body.offset);
 
 
-    Bookmark.find({user:user}, function(err, data) {
-            if (err) {
-                console.log(err);
-                throw err;
-            }
-            for (var i=0; i<data.length; i++) {
-                var bookmarkInfo = {
-                    bookmark_id: data[i].bookmark_id,
-                    html_content: data[i].html_content,
-                    api: data[i].api,
-                    ref_data: data[i].ref_data
-                };
-                bookmarks.push(bookmarkInfo);
-            }
-            res.send(bookmarks);
-        });
+    Bookmark.find({user:user})
+            .sort(sort_type)
+            .exec(function(err, data) {
+                if (err) {
+                    console.log(err);
+                    throw err;
+                }
+                for (var i=0; i<data.length; i++) {
+                    var bookmarkInfo = {
+                        bookmark_id: data[i].bookmark_id,
+                        html_content: data[i].html_content,
+                        api: data[i].api,
+                        ref_data: data[i].ref_data
+                    };
+                    bookmarks.push(bookmarkInfo);
+                }
+                res.send(bookmarks);
+            });
 };
 
 

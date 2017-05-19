@@ -37,8 +37,6 @@ bookmarkController.getBookmarks = function(search_term) {
 	console.log("getBookmarks called")
 	var data = {
 		sort_type: "-date_saved",
-		limit: itemsPerPage,
-		offset: (pageNum-1)*itemsPerPage
 	};
 	return $.ajax({
 				type: "POST",
@@ -80,7 +78,6 @@ bookmarkController.displayBookmarks = function() {
         else
             alternate="single_result_b";
 
-        
         //Basically see if user is clicking for longer that 1500ms which would indicate that it is not a click, but a highlight
         var timeoutId; 
         highLightLock = false;
@@ -95,6 +92,10 @@ bookmarkController.displayBookmarks = function() {
             }
         }).appendTo(results);
 
+        // Prepend numbering to title
+        let text = $(container.find("a")[0]).text();
+        $(container.find("a")[0]).text((index+1) + ". " + text);
+                        
         api_connections[bookmark.api].setContainerData(container, bookmark.ref_data);
         
         //MECHANISM HERE TO PREVENT HIGH LIGHT PROBLEM
@@ -106,13 +107,14 @@ bookmarkController.displayBookmarks = function() {
             ref_data: bookmark.ref_data
         }
 
-    
         generateBookmarkStar(data, $(container).children('.result_header'));
 
       }
+      // Attach click listener for reference button
       $('.refButton').click(function(e){
                 clickReference(e, this);
             });
+      // Set all bookmark stars to checked, by default
       $(".star").prop('checked', true);
  
 }
