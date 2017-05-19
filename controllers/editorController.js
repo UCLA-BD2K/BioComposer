@@ -284,7 +284,7 @@ editorController.prototype._addBookmark = function(self, req, res){
 editorController.prototype._removeBookmark = function(self, req, res){
     var bookmark_id = req.body.bookmark_id;
     var user = req.user.id;
-    
+
     // Delete bookmark with specific id and username
     Bookmark.find({ bookmark_id:bookmark_id, user: user }).remove().exec();
     res.send("Bookmark removed");
@@ -297,11 +297,8 @@ editorController.prototype._getBookmarks = function(self, req, res){
     var limit = parseInt(req.body.limit);
     var offset = parseInt(req.body.offset);
 
-    Bookmark.find({user:user})
-        .sort(sort_type)
-        .skip(offset)
-        .limit(limit)
-        .exec(function(err, data) {
+
+    Bookmark.find({user:user}, function(err, data) {
             if (err) {
                 console.log(err);
                 throw err;

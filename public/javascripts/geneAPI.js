@@ -363,7 +363,7 @@ Gene_API_Connection.seeMore = function(obj) {
 Gene_API_Connection.setContainerData = function(container, gene) {
     //Add data to container
     $(container).data('type', 'Gene');
-    $(container).data('id', gene.symbol);
+    $(container).data('id', gene.id);
     $(container).data('url', encodeURIComponent(gene.url));
     $(container).data('title', [gene.fullName, gene.organism].join(' - '));
     $(container).data('website', gene.symbol);

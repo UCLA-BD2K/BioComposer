@@ -1,6 +1,8 @@
 var bookmarkController = Object.create(APIConnection);
 api_connections["bookmark"] = bookmarkController;
 
+bookmarkController.bookmarks = [];
+
 bookmarkController.searchSequence = function (value) {
 	console.log("searchSequence called")
     this.getBookmarks(value)
@@ -45,7 +47,9 @@ bookmarkController.getBookmarks = function(search_term) {
 				success: function(data){
 					console.log(data);
 		            bookmarkController.resetSearchHTML();
-		            ajaxLock = 0
+		            ajaxLock = 0;
+		            bookmarkController.bookmarks = data;
+		            search_count = data.length;
 		        },
 		        error: function() { 
 		            console.log("failed");
@@ -55,7 +59,7 @@ bookmarkController.getBookmarks = function(search_term) {
 			});	
 }
 
-bookmarkController.displayBookmarks = function(bookmarks) {
+bookmarkController.displayBookmarks = function() {
 	//Results container
     var wrapper = $('.results_container')[0];
     var results = $('#search_results').html("");
@@ -63,17 +67,13 @@ bookmarkController.displayBookmarks = function(bookmarks) {
     //Create page control buttons
     bookmarkController.initResultsNavigator(wrapper);
 
-    if (bookmarks.length < itemsPerPage) {
-        // If not results panel not filled, disable pageNext
-        $('#pageNext').unbind('click');
-        // If first page, disable pagePrev
-        if (pageNum == 1)
-            $('#pagePrev').unbind('click');
-    }
 
     //Create each DIV for each uniprot 
-    for (var i = 0; i < bookmarks.length; i++) {
-        let bookmark = bookmarks[i];
+    for (var i = 0; i < itemsPerPage; i++) {
+    	let index = i+itemsPerPage*(pageNum-1);
+    	if (index >= bookmarkController.bookmarks.length)
+    		break;
+        let bookmark = bookmarkController.bookmarks[index];
         let alternate;
         if (i%2 == 0)
             alternate="single_result_a";
@@ -109,50 +109,6 @@ bookmarkController.displayBookmarks = function(bookmarks) {
     
         generateBookmarkStar(data, $(container).children('.result_header'));
 
-        /*
-        var header = $('<div/>').click(function(){if (!highLightLock){Uniprot_API_Connection.seeMore($(this));}})
-        .data("id", uniprot.accession).appendTo(container);
-
-        //Add data to container
-        $(container).data('type', 'Uniprot');
-        $(container).data('id', uniprot.accession);
-        $(container).data('url', encodeURIComponent(uniprot.url));
-        $(container).data('title', 
-            [uniprot.proteinName, uniprot.organism].join(' - '));
-        $(container).data('website', uniprot.accession);
-        $(container).data('publisher', 'Uniprot');
-        /*
-        $(container).data('date', encodeURIComponent(article.date));
-        $(container).data('authors', encodeURIComponent(authors));
-        $(container).data('publisher', encodeURIComponent(article.source));
-    */
-/*
-        $('<a/>', {
-            href: uniprot.url,
-            target: "_blank",
-            class: 'result_header'
-        }).appendTo(header);
-        
-        //Add escaped html
-        $($('.result_header')[i]).html((i+1+retstart) + ". " + unescapeHtml(uniprot.accession));
-        
-        $('<p/>', {
-            text: uniprot.proteinName
-        }).appendTo(header);
-        
-        $('<p/>', {
-            text: uniprot.geneName
-        }).appendTo(header);
-        
-        $('<button/>', {
-            text: "Reference",
-            class: 'button refButton',
-            click: function(e){
-                e.stopPropagation();
-                generateCitation($(this).parent())
-            }
-            }).appendTo(container);
-        */
       }
       $('.refButton').click(function(e){
                 clickReference(e, this);
@@ -161,32 +117,34 @@ bookmarkController.displayBookmarks = function(bookmarks) {
  
 }
 
+
 // Override page navigation
 bookmarkController.initResultsNavigator = function(wrapper) {
         //Create page control buttons
         $('<p/>', {
             text: "NEXT"
-        }).attr("id", "pageNext").click(function(){Uniprot_API_Connection.movePage(1);}).prependTo(wrapper);
+        }).attr("id", "pageNext").click(function(){bookmarkController.movePage(1);}).prependTo(wrapper);
         
         $('<p/>', {
             text: "PREVIOUS"
-        }).attr("id", "pagePrev").click(function(){Uniprot_API_Connection.movePage(-1);}).prependTo(wrapper);
+        }).attr("id", "pagePrev").click(function(){bookmarkController.movePage(-1);}).prependTo(wrapper);
         
          $('<p/>', {
-            text: "Page " + pageNum 
+            text: "Page " + pageNum + " of " + numberWithCommas(Math.ceil(search_count/itemsPerPage))
         }).attr("id", "pageNum").prependTo(wrapper);
         
         $('<h1/>',{
-            text: "Bookmarked References " + "..."
+            text: search_count + " Bookmarked References" 
           }).addClass('query_header').prependTo(wrapper);
 }
 
-// Use "this" movePage and not the helper function for Uniprot API
+// Use "this" movePage and not the helper function
 bookmarkController.movePage = function(x) {
-    if (pageNum == 1 && x < 0)
+    //Do nothing if out of bounds
+    if ((x==-1 && pageNum==1) || (x==1 && pageNum == Math.ceil(search_count/itemsPerPage)))
         return;
     pageNum += x;
-    retstart += x*itemsPerPage; 
     this.startSearch(false); 
 }
+
 

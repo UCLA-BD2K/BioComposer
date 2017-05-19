@@ -183,9 +183,11 @@ function generateBookmarkStar(data, appendingTo) {
                         // Only save result_header portion
                         if (reference.has('.info_container').length)
                             reference.children(".info_container")[0].remove();
+                        // add bookmark star when bookmark is loaded
                         reference.find(".star_container")[0].remove();
+                        // remove numbering from title
                         let text = $(reference.find("a")[0]).text();
-                        $(reference.find("a")[0]).text = text.substring(text.charAt('.') + 2);
+                        $(reference.find("a")[0]).text(text.substring(text.indexOf('.') + 2));
                         data.html_content = reference.html(), 
                         bookmarkController.addBookmark(data);
                     }
