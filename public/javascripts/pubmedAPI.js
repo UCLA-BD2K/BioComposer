@@ -16,39 +16,25 @@ PubMed_API_Connection.searchSequence = function (value) {
 
 PubMed_API_Connection.seeMore = function (obj) {
     //console.log($(obj).has('.abstract').length);
-    if ($(obj).has('.abstract').length)
-    {
-        $((obj).children(".abstract")[0]).hide("slow", function(){
-            $((obj).children(".abstract")[0]).remove();
-        });
-        
+    if ($(obj).has('.info_container').length > 0) {
+        $((obj).children(".info_container")[0]).toggle("slow");            
         return;
-    }
+    }  
+    console.log($(obj))
+    var article_id = $(obj).data("id");
     
-    var obj_id = $(obj).data("id");
+    if (ajaxLock != 0)
+        return;
+    console.log(article_id)
+    //Loader gif
+    $("<img/>", {
+        src: "../images/loader.gif"
+    }).addClass("info_loader").appendTo($(obj)); 
     
-    if ($(obj).data("abstract"))
-    {
-        if (debugCite)
-            console.log("Called from data");
-        var text = decodeURIComponent($(obj).data("abstract"));
-        $($(obj).children(".authors")[0]).after(function(){return "<p class='abstract'>" + text + "</p>"});
-        $($(obj).children(".abstract")[0]).show("slow");
-    }
-    else{
-        if (ajaxLock == 0){
-        this.fetchAbstract(obj_id).then(this.display_abstract).then(function(text){
-        if (debugCite)
-            console.log("Called from web");
-            $($(obj).children(".authors")[0]).after(function(){return "<p class='abstract'>" + text + "</p>"});
-            $($(obj).children(".abstract")[0]).show("slow");
+    ajaxLock = 1;
 
-            //Basically cache abstract so we don't have to HTTP request it every time and encode to maintain html tags
-            $(obj).data("abstract", encodeURIComponent(text));
-            ajaxLock = 0;
-        });
-        }
-    }
+    this.fetchAbstract(article_id)
+        .then(function(data){PubMed_API_Connection.display_abstract(data,obj)});
 }
 
 PubMed_API_Connection.display_abstract = function (response, obj) {
@@ -65,8 +51,13 @@ PubMed_API_Connection.display_abstract = function (response, obj) {
 
     if (text == "")
         text = "[Abstract not available from source]";
+             
+    var infoContainer = $('<div/>', {
+        html: "<p>" + text + "</p>",
+        class: 'info_container'
+    }).appendTo($(obj)).hide();
     
-    return text;
+    infoContainer.show("slow");    
 }
 
 PubMed_API_Connection.fetchAbstract = function (id) {
@@ -74,10 +65,20 @@ PubMed_API_Connection.fetchAbstract = function (id) {
     return $.ajax({
 	    url: 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi',
 		data: {
-		db: 'pubmed',
+            db: 'pubmed',
 		    id: id,
             retmode: "xml"
-		    }
+		},
+        success: function() {
+            console.log("abstract sucessfully retrieved")
+            ajaxLock = 0;
+            $(".info_loader")[0].remove();
+        },
+        error: function() {
+            console.log("error retrieving abstract")
+            ajaxLock = 0;
+            $(".info_loader")[0].remove();
+        }
 	});
 }
 
@@ -100,7 +101,6 @@ PubMed_API_Connection.search = function(term) {
         },
         error: function() { 
             console.log("failed");
-            $(".search_loader")[0].remove()
             PubMed_API_Connection.resetSearchHTML();
             ajaxLock = 0;
         }
@@ -178,12 +178,18 @@ PubMed_API_Connection.displayResults = function(articles) {
         //Basically see if user is clicking for longer that 1500ms which would indicate that it is not a click, but a highlight
         var timeoutId; 
         highLightLock = false;
-	    var container = $('<div/>').addClass(alternate).addClass("single_result").click(function(){if (!highLightLock){PubMed_API_Connection.seeMore($(this))}}).data("id", article.id).appendTo(results);
+	    var container = $('<div/>', {
+            class:  alternate + ' single_result',
+            id: article.id,
+            click: function() {
+                clickSeeMore(this);
+            }
+        }).appendTo(results);
         
         //MECHANISM HERE TO PREVENT HIGH LIGHT PROBLEM
         container.mousedown(function(){highLightLock = false; timeoutId = setTimeout(function(){highLightLock = true}, 1000)}).mouseup(function(){clearTimeout(timeoutId)});
         
-        authors = "";
+        var authors = "";
         for (var x=0; x<article.authors.length && x<5; x++)
             {
                 authors += article.authors[x];
@@ -194,37 +200,65 @@ PubMed_API_Connection.displayResults = function(articles) {
                     authors += " et al."
             }
         
-        //Add data to container
-        $(container).data('type', 'Pubmed');
-        $(container).data('id', article.id);
-        $(container).data('url', encodeURIComponent(article.url));
-        $(container).data('title', encodeURIComponent(article.title));
-        $(container).data('date', encodeURIComponent(article.date));
-        $(container).data('authors', encodeURIComponent(authors));
-        $(container).data('publisher', encodeURIComponent(article.source));
-        
-	    $('<a/>', {
-		    href: article.url,
-            target: "_blank"
-			}).addClass('result_header').appendTo(container);
-        
+        article.authors = authors;
+        PubMed_API_Connection.setContainerData(container, article);
         //Add escaped html
-        $($('.result_header')[i]).html((i+1+retstart) + ". " + unescapeHtml(article.title));
+        var header = $('<div/>', {
+            class: 'result_header'
+            }).appendTo(container);
+
+  
+        var data = {
+            bookmark_id: article.id,
+            api: "pubmed",
+            ref_data: article
+        }
+        
+        var titleContainer = $('<div/>', {
+            class: 'title_container'
+        }).appendTo(header);
+        
+        $('<a/>', {
+                href: article.url,
+                target: "_blank",
+                text: (i+1+retstart) + ". " + removeHTMLTags(article.title),
+                
+        }).appendTo(titleContainer);
+        
+        generateBookmarkStar(data, header);
+
+	    $('<p/>', {
+		    text: authors,
+            class: 'authors'
+			}).appendTo(container);
         
 	    $('<p/>', {
-		    text: authors
-			}).addClass('authors').appendTo(container);
-        
-	    $('<p/>', {
-		    text: "Circ Res. " + article.date + ' · ' + article.source
-			}).addClass('dateSource').appendTo(container);
+		    text: "Circ Res. " + article.date + ' · ' + article.source,
+            class: 'dateSource'
+			}).appendTo(container);
         
         $('<button/>', {
-		    text: "Reference"
-			}).click(function(e){e.stopPropagation(); generateCitation($(this).parent())}).addClass('button').addClass('refButton').appendTo(container);
+		    text: "Reference",
+            class: 'button refButton',
+            click: function(e){
+                clickReference(e, this);
+            }
+			}).appendTo(container);
         
         
-        
+       
 	});
+
+}
+
+PubMed_API_Connection.setContainerData = function(container, article) {
+    //Add data to container
+    $(container).data('type', 'Pubmed');
+    $(container).data('id', article.id);
+    $(container).data('url', encodeURIComponent(article.url));
+    $(container).data('title', encodeURIComponent(article.title));
+    $(container).data('date', encodeURIComponent(article.date));
+    $(container).data('authors', encodeURIComponent(article.authors));
+    $(container).data('publisher', encodeURIComponent(article.source));
 }
 

@@ -310,7 +310,7 @@
     overflow-y: scroll;
 }
 
-.results_header
+.query_header
 {
     font-size: 18px;
     text-align: center;
@@ -394,11 +394,15 @@
     font-size: 16px;
 }
 
-.result_header
-{
+.title_container {
+    flex-grow: 100;
     font-size: 20px;
     color: white;
     text-decoration: underline;
+}
+.result_header
+{
+    display: flex;
     width: 100%;
 }
 
@@ -564,6 +568,7 @@ h1, h2, h3, p, li
 
 .refButton
 {
+    margin: 10px 0;
     position: relative;
     display: block;
     top: 8px;
@@ -947,4 +952,24 @@ div.tab button.active {
     -webkit-box-shadow: 5px 8px 31px -5px rgba(48,48,48,0.47);
     -moz-box-shadow:  5px 8px 31px -5px rgba(48,48,48,0.47);
     box-shadow:  5px 8px 31px -5px rgba(48,48,48,0.47);
+}
+
+
+/* Bookmarking References */
+.star_container {
+    float: right;
+    width: 50px;
+    text-align: right;
+}
+.star {
+    visibility:hidden;
+    font-size:30px;
+    cursor:pointer;
+}
+.star:before {
+   content: "\2606";
+   visibility: visible;
+}
+.star:checked:before {
+   content: "\2605";
 }

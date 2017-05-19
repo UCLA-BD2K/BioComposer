@@ -6,6 +6,7 @@ var fs = require('fs'); //for filesystem
 var exec = require('child_process').exec; //for executing commands
 var router = express.Router();
 var WikiFile = require('../models/file.js');
+var Bookmark = require('../models/bookmark.js');
 
 //Interface
 function editorController(){
@@ -41,6 +42,12 @@ function editorController(){
     
     //Converts downloaded wiki article to HTML
     this.wiki2HTML = function(req, res) {return self._wiki2HTML(self, req, res); };
+
+    this.addBookmark = function(req, res) {return self._addBookmark(self, req, res); };
+    
+    this.removeBookmark = function(req, res) {return self._removeBookmark(self, req, res); };
+    
+    this.getBookmarks = function(req,res) {return self._getBookmarks(self, req, res); };
 }
 
 //Implementation
@@ -235,6 +242,83 @@ editorController.prototype._wiki2HTML = function(self, req, res){
         
     }); 
 };
+
+editorController.prototype._addBookmark = function(self, req, res){
+    console.log("Add Bookmark called");
+    console.log(JSON.stringify(req.body));
+    var bookmark_id = req.body.bookmark_id;
+    var html_content = req.body.html_content;
+    var date_saved = Date.now();
+    var user = req.user.id;
+    var api = req.body.api;
+    var ref_data = req.body.ref_data;
+    
+    //Check if file with title and created/edited by user exists
+    Bookmark.find({bookmark_id: bookmark_id, user: user, api: api}, function(err, bookmark){
+        // Reference already bookmarked
+        if (!bookmark.length == 0)
+        {
+            console.log("Bookmark exists");
+            res.send("Reference already bookmarked!");
+        }
+        
+        //Create document
+        else
+        {
+            console.log("New article");
+            var newBookmark = new Bookmark({
+                bookmark_id: bookmark_id,
+                date_saved: date_saved,
+                user: user,
+                html_content: html_content,
+                api: api,
+                ref_data: ref_data
+            });
+            
+            newBookmark.save();
+            res.send("Bookmark successfully created!");
+        }            
+    }); 
+};
+
+editorController.prototype._removeBookmark = function(self, req, res){
+    var bookmark_id = req.body.bookmark_id;
+    var user = req.user.id;
+    
+    // Delete bookmark with specific id and username
+    Bookmark.find({ bookmark_id:bookmark_id, user: user }).remove().exec();
+    res.send("Bookmark removed");
+};
+
+editorController.prototype._getBookmarks = function(self, req, res){
+    var bookmarks = [];
+    var user = req.user.id;
+    var sort_type = req.body.sort_type;
+    var limit = parseInt(req.body.limit);
+    var offset = parseInt(req.body.offset);
+
+    Bookmark.find({user:user})
+        .sort(sort_type)
+        .skip(offset)
+        .limit(limit)
+        .exec(function(err, data) {
+            if (err) {
+                console.log(err);
+                throw err;
+            }
+            for (var i=0; i<data.length; i++) {
+                var bookmarkInfo = {
+                    bookmark_id: data[i].bookmark_id,
+                    html_content: data[i].html_content,
+                    api: data[i].api,
+                    ref_data: data[i].ref_data
+                };
+                bookmarks.push(bookmarkInfo);
+            }
+            res.send(bookmarks);
+        });
+};
+
 
 
 //Export

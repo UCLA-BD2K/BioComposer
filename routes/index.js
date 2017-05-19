@@ -110,4 +110,14 @@ router.post('/open', ensureAuthenticated, editorController.openFile);
 //Downloads and converts wikipedia MediaWiki markup to HTML
 router.post('/wikiToHTML', ensureAuthenticated, editorController.wiki2HTML);
 
+//Add reference bookmark
+router.post('/add_bookmark', ensureAuthenticated, editorController.addBookmark);
+
+//Delete reference bookmark
+router.post('/remove_bookmark', ensureAuthenticated, editorController.removeBookmark);
+
+//Get reference bookmarks
+router.post('/get_bookmarks', ensureAuthenticated, editorController.getBookmarks);
+
+
 module.exports = router;

@@ -201,8 +201,8 @@ function sendHTMLtoServer()
 function downloadWikiMarkUp(data)
 {
     console.log(data);
-    data = data.replace(/\|ref name\=a([A-Za-z0-9]+)\|/g, "<ref name=\'a$1\'>");
-    data = data.replace(/\|ref name\=a([A-Za-z0-9]+) \/\|/g, "<ref name=\'a$1\' />");
+    data = data.replace(/\|ref name\=a(.+?(?=\|))\|/g, "<ref name=\'a$1\'>");
+    data = data.replace(/\|ref name\=a(.+?(?=\|)) \|/g, "<ref name=\'a$1\' />");
     data = data.replace(/\|eref\|/g, "</ref>");
     //Fix bug with quotes in the href
     data = data.replace(/%27/g, "'");

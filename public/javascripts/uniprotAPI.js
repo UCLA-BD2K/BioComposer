@@ -188,61 +188,65 @@ Uniprot_API_Connection.displayResults = function(uniprots) {
         highLightLock = false;
         var container = $('<div/>', {
             class: "single_result " + alternate,
-            id: i
+            id: uniprot.accession,
+            click: function(){
+                clickSeeMore(this);
+            }
         }).appendTo(results);
 
         
         //MECHANISM HERE TO PREVENT HIGH LIGHT PROBLEM
         container.mousedown(function(){highLightLock = false; timeoutId = setTimeout(function(){highLightLock = true}, 1000)}).mouseup(function(){clearTimeout(timeoutId)});
         
-        var header = $('<div/>').click(function(){if (!highLightLock){Uniprot_API_Connection.showMoreUniprotInfo($(this));}})
-        .data("id", uniprot.accession).appendTo(container);
+        var header = $('<div/>', {
+            class: 'result_header'
+        }).appendTo(container);
 
-        //Add data to container
-        $(container).data('type', 'Uniprot');
-        $(container).data('id', uniprot.accession);
-        $(container).data('url', encodeURIComponent(uniprot.url));
-        $(container).data('title', 
-            [uniprot.proteinName, uniprot.organism].join(' - '));
-        $(container).data('website', uniprot.accession);
-        $(container).data('publisher', 'Uniprot');
-        /*
-        $(container).data('date', encodeURIComponent(article.date));
-        $(container).data('authors', encodeURIComponent(authors));
-        $(container).data('publisher', encodeURIComponent(article.source));
-    */
+        var data = {
+            bookmark_id: uniprot.accession,
+            api: "uniprot",
+            ref_data: uniprot
+        }
+        
+
+        Uniprot_API_Connection.setContainerData(container,uniprot);
+        
+        var titleContainer = $('<div/>', {
+            class: 'title_container'
+        }).appendTo(header);
 
         $('<a/>', {
             href: uniprot.url,
             target: "_blank",
-            class: 'result_header'
-        }).appendTo(header);
-        
-        //Add escaped html
-        $($('.result_header')[i]).html((i+1+retstart) + ". " + unescapeHtml(uniprot.accession));
+            text: (i+1+retstart) + ". " + removeHTMLTags(uniprot.accession),
+        }).appendTo(titleContainer);
+
+        generateBookmarkStar(data, header);
         
         $('<p/>', {
             text: uniprot.proteinName
-        }).addClass('protein_name').appendTo(header);
+        }).appendTo(container);
         
         $('<p/>', {
             text: uniprot.geneName
-        }).addClass('gene_name').appendTo(header);
+        }).appendTo(container);
         
         $('<button/>', {
-            text: "Reference"
-            }).click(function(e){e.stopPropagation(); generateCitation($(this).parent())}).addClass('button').addClass('refButton').appendTo(container);
-        
+            text: "Reference",
+            class: 'button refButton',
+            click: function(e){
+                clickReference(e, this);
+            }
+            }).appendTo(container);
         
       }
   }
 
-Uniprot_API_Connection.showMoreUniprotInfo = function(prev_div) {
-    var uniprot = $(prev_div).data("id");
-    console.log($(prev_div).siblings('.info_container').length);
-    if ($(prev_div).siblings('.info_container').length > 0)
+Uniprot_API_Connection.seeMore = function(obj) {
+    var uniprot = $(obj).data("id");
+    if ($(obj).has('.info_container').length > 0)
     {
-        $((prev_div).siblings(".info_container")[0]).toggle("slow");            
+        $((obj).children(".info_container")[0]).toggle("slow");            
         return;
     }       
 
@@ -252,7 +256,7 @@ Uniprot_API_Connection.showMoreUniprotInfo = function(prev_div) {
      //Loader gif
     $("<img/>", {
         src: "../images/loader.gif"
-    }).addClass("info_loader").appendTo($(prev_div).parent()); 
+    }).addClass("info_loader").appendTo($(obj)); 
 
     ajaxLock = 1;
 
@@ -261,7 +265,12 @@ Uniprot_API_Connection.showMoreUniprotInfo = function(prev_div) {
         success: function(data) {
             ajaxLock = 0;
             var uni = Uniprot_API_Connection.parseUniprotInfo(data);
-            var infoContainer = $('<div/>').addClass('info_container').appendTo($(prev_div).parent()).hide();
+            var infoContainer = $('<div/>', {
+                class: 'info_container',
+                click: function(e) {
+                    e.stopPropagation();
+                }
+            }).appendTo($(obj)).hide();
 
             createResultSubheader("functions", uniprot, "Functions: ", infoContainer);
             createInfoText("functions", uniprot, uni.functions, infoContainer);
@@ -334,7 +343,7 @@ Uniprot_API_Connection.initResultsNavigator = function(wrapper) {
         
         $('<h1/>',{
             text: "Results for " + '"' + currentSearch + '"...'
-          }).addClass('results_header').prependTo(wrapper);
+          }).addClass('query_header').prependTo(wrapper);
 }
 
 // Use "this" movePage and not the helper function for Uniprot API
@@ -344,5 +353,16 @@ Uniprot_API_Connection.movePage = function(x) {
     pageNum += x;
     retstart += x*itemsPerPage; 
     this.startSearch(false); 
+}
+
+Uniprot_API_Connection.setContainerData = function(container, uniprot) {
+    //Add data to container
+    $(container).data('type', 'Uniprot');
+    $(container).data('id', uniprot.accession);
+    $(container).data('url', encodeURIComponent(uniprot.url));
+    $(container).data('title', 
+        [uniprot.proteinName, uniprot.organism].join(' - '));
+    $(container).data('website', uniprot.accession);
+    $(container).data('publisher', 'Uniprot');  
 }
 

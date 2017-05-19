@@ -236,7 +236,7 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
     
     this.generateShortRef = function()
     {
-        var ref = "|ref name=a" + this.id.toString() + " /|";
+        var ref = "|ref name=a" + this.id.toString() + "||eref|";
         this.shortRef = " <a class='short" + this.id + "' href='" 
             + encodeURIComponent(ref) +"' data-id='" + this.id + "'><sup data-id='" 
             + this.id + "'>[" + this.citeNum + "]</sup></a>";

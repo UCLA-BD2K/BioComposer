@@ -9,23 +9,26 @@ var APIConnection = {
         
         //Reset HTML elements
         $(".search_loader")[0].remove();
-        $(".results_header").remove();
+        $(".query_header").remove();
         $("#pageNext").remove();
         $("#pageNum").remove();
         $("#pagePrev").remove();
         $('#search_results').html("");
     },
     
-    startSearch: function(newSearch) {
+    startSearch: function(newSearch, searchTermNeeded) {
         if (ajaxLock != 0)
             return;
+
+        if (!searchTermNeeded)
+            searchTermNeeded = true;
 
         ajaxLock = 1;
 
         if ($(".search_loader").length == 0){
         var obj = document.getElementById('search_bar');
         var text = obj.value; 
-        if (obj.value == "")
+        if (searchTermNeeded && obj.value == "")
             return;
         
         var ret = "";
@@ -71,7 +74,7 @@ var APIConnection = {
     noResults: function(obj) {
         $('<p/>', {
             text: "Sorry, there were no matching results...",
-            class: "results_header"
+            class: "query_header"
         }).appendTo($(obj));
     },
 
@@ -91,7 +94,7 @@ var APIConnection = {
         
         $('<h1/>',{
             text: numberWithCommas(search_count) + " Results for " + '"' + currentSearch + '"...'
-          }).addClass('results_header').prependTo(wrapper);
+          }).addClass('query_header').prependTo(wrapper);
     }
 };
 

@@ -219,60 +219,68 @@ Gene_API_Connection.displayResults = function(genes) {
         //Basically see if user is clicking for longer that 1500ms which would indicate that it is not a click, but a highlight
         var timeoutId; 
         highLightLock = false;
-        var container = $('<div/>').addClass(alternate).addClass("single_result").appendTo(results);
+        var container = $('<div/>', {
+            class: alternate +' single_result',
+            id: gene.id,
+            click: function() {
+                clickSeeMore(this);
+            }
+        }).appendTo(results);
 
         
         //MECHANISM HERE TO PREVENT HIGH LIGHT PROBLEM
         container.mousedown(function(){highLightLock = false; timeoutId = setTimeout(function(){highLightLock = true}, 1000)}).mouseup(function(){clearTimeout(timeoutId)});
         
-        var header = $('<div/>').click(function(){if (!highLightLock){Gene_API_Connection.showMoreGeneInfo($(this));}})
-        .data("id", gene.id).appendTo(container);
+        var header = $('<div/>', {
+            class: 'result_header'
+        }).appendTo(container);
 
-        //Add data to container
-        $(container).data('type', 'Gene');
-        $(container).data('id', gene.symbol);
-        $(container).data('url', encodeURIComponent(gene.url));
-        $(container).data('title', [gene.fullName, gene.organism].join(' - '));
-        $(container).data('website', gene.symbol);
-        $(container).data('publisher', 'NCBI Gene');
+        Gene_API_Connection.setContainerData(container, gene);
 
-        /*
-        $(container).data('date', encodeURIComponent(article.date));
-        $(container).data('authors', encodeURIComponent(authors));
-        $(container).data('publisher', encodeURIComponent(article.source));
-        */
+        var data = {
+            bookmark_id: gene.id,
+            api: "gene",
+            ref_data: gene
+        }
+
+        var titleContainer = $('<div/>', {
+            class: 'title_container'
+        }).appendTo(header);
 
         $('<a/>', {
-            href: gene.url,
-            target: "_blank",
-            class: 'result_header'
-        }).appendTo(header);
-        
-        //Add escaped html
-        $($('.result_header')[i]).html((i+1+retstart) + ". " + unescapeHtml(gene.symbol));
-        
+                href: gene.url,
+                target: "_blank",
+                text: (i+1+retstart) + ". " + removeHTMLTags(gene.symbol),
+        }).appendTo(titleContainer);
+    
+        generateBookmarkStar(data, header);
+
+       
         $('<p/>', {
             text: gene.fullName
-        }).appendTo(header);
+        }).appendTo(container);
         
         $('<p/>', {
             text: "Also known as: " + gene.aka
-        }).appendTo(header);
+        }).appendTo(container);
         
         $('<button/>', {
-            text: "Reference"
-            }).click(function(e){e.stopPropagation(); generateCitation($(this).parent())}).addClass('button').addClass('refButton').appendTo(container);
-        
+            text: "Reference",
+            class: 'button refButton',
+            click: function(e){
+                clickReference(e, this);
+            }
+            }).appendTo(container);
         
     }
 }
 
-Gene_API_Connection.showMoreGeneInfo = function(prev_div) {
-    var gene = $(prev_div).data("id");
-    console.log($(prev_div).siblings('.info_container').length);
-    if ($(prev_div).siblings('.info_container').length > 0)
+Gene_API_Connection.seeMore = function(obj) {
+    var gene = $(obj).data("id");
+   
+    if ($(obj).has('.info_container').length > 0)
     {
-        $((prev_div).siblings(".info_container")[0]).toggle("slow");            
+        $((obj).children(".info_container")[0]).toggle("slow");            
         return;
     }       
 
@@ -282,7 +290,7 @@ Gene_API_Connection.showMoreGeneInfo = function(prev_div) {
      //Loader gif
     $("<img/>", {
         src: "../images/loader.gif"
-    }).addClass("info_loader").appendTo($(prev_div).parent()); 
+    }).addClass("info_loader").appendTo($(obj)); 
 
     ajaxLock = 1;
 
@@ -298,7 +306,12 @@ Gene_API_Connection.showMoreGeneInfo = function(prev_div) {
             ajaxLock = 0;
 
             var info = Gene_API_Connection.parseGeneInfo(data);
-            var infoContainer = $('<div/>').addClass('info_container').appendTo($(prev_div).parent()).hide();
+            var infoContainer = $('<div/>', {
+                class: 'info_container',
+                click: function(e) {
+                    e.stopPropagation();
+                }
+            }).appendTo($(obj)).hide();
 
             createResultSubheader("summary", gene, "Summary: ", infoContainer);
             createInfoText("summary", gene, info.summary, infoContainer);
@@ -345,48 +358,15 @@ Gene_API_Connection.showMoreGeneInfo = function(prev_div) {
         },
         timeout: 5000
     });
-/*
-    $.get({
-        url: "http://www.uniprot.org/uniprot/"+uniprot+".xml",
-        success: function(data) {
-            ajaxLock = 0;
-            var uni = Uniprot_API_Connection.parseUniprotInfo(data);
-            var infoContainer = $('<div/>').addClass('info_container').appendTo($(prev_div).parent()).hide();
+}
 
-            createResultSubheader("functions", uniprot, "Functions: ", infoContainer);
-            createInfoText("functions", uniprot, uni.functions, infoContainer);
-            
-            createResultSubheader("go_molecular", uniprot, "GO - Molecular: ", infoContainer);
-            createInfoListGO("go_molecular", uniprot, uni.GO_moleculars, infoContainer);
-
-            createResultSubheader("go_biological", uniprot, "GO - Biological: ", infoContainer);
-            createInfoListGO("go_biological", uniprot, uni.GO_biologicals, infoContainer);
-
-            createResultSubheader("go_cellular", uniprot, "GO - Cellular: ", infoContainer);
-            createInfoListGO("go_cellular", uniprot, uni.GO_cellulars, infoContainer);
-
-            createResultSubheader("diseases", uniprot, "Diseases: ", infoContainer);
-            createInfoDiseases("diseases", uniprot, uni.diseases, infoContainer);
-            
-            createResultSubheader("tissue", uniprot, "Tissue Specificity: ", infoContainer);
-            createInfoText("tissue", uniprot, uni.tissueSpecificity, infoContainer);
-
-            createResultSubheader("subunit_structure", uniprot, "Subunit Structure: ", infoContainer);
-            createInfoText("subunit_structure", uniprot, uni.subunitStructure, infoContainer);
-
-            createResultSubheader("seq_similarity", uniprot, "Sequence Similarities: ", infoContainer);
-            createInfoText("seq_similarity", uniprot, uni.seqSimilarity, infoContainer);   
-            
-            $(".info_loader")[0].remove();
-            infoContainer.show("slow");               
-            console.log("showing info");      
-        },
-        error: function() { 
-            ajaxLock = 0;
-            $(".info_loader")[0].remove(); 
-        },
-        timeout: 5000
-    });
-    */
+Gene_API_Connection.setContainerData = function(container, gene) {
+    //Add data to container
+    $(container).data('type', 'Gene');
+    $(container).data('id', gene.symbol);
+    $(container).data('url', encodeURIComponent(gene.url));
+    $(container).data('title', [gene.fullName, gene.organism].join(' - '));
+    $(container).data('website', gene.symbol);
+    $(container).data('publisher', 'NCBI Gene');
 }
 

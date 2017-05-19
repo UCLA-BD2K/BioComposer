@@ -39,6 +39,10 @@ function unescapeHtml(safe) {
         .replace(/&quot;/g, '"')
         .replace(/&#039;/g, "'");
 }
+
+function removeHTMLTags(html) {
+    return html.replace(/(<([^>]+)>)/ig,"");
+}
 //------------------------
 
 function toggleSearchType(obj) {
@@ -58,7 +62,8 @@ function toggleSearchType(obj) {
 }
 
 function updateAPISelection(selected) {
-    selected_api = selected.options[selected.selectedIndex].value;
+    // Don't update global variable
+    var selected_api = selected.options[selected.selectedIndex].value;
     console.log(selected_api);
     
     // Set default value of sort type
@@ -70,14 +75,21 @@ function updateAPISelection(selected) {
         if (selected_api == "pubmed")
             toggleSearchType($("#search_type"));
     }
-    if (selected_api == "uniprot")
+
+    // Hide sort type option for uniprot and bookmarks
+    if (selected_api == "uniprot" || selected_api == "bookmark")
         $("#search_type").hide(); 
     else
         $("#search_type").show()
+
+    // If bookmarks, init search immediately
+    if (selected_api == "bookmark")
+        api_connections[selected_api].startSearch(true, false);
 }
 
 function requestSearch() {
     //var api = Object.create(Uniprot_API_Connection)
+    selected_api =  $('#API_selection').val();
     console.log(selected_api);
     api_connections[selected_api].startSearch(true);
 }
@@ -156,4 +168,45 @@ function createInfoDiseases(section, id, diseases, parent_container) {
     }
     $("#container_" + id + "_" + section).hide();
  
+}
+
+function generateBookmarkStar(data, appendingTo) {
+    $('<div/>', {
+            html: $('<input/>', { 
+                class: "star",
+                type: "checkbox",
+                click: function(e) {
+                    e.stopPropagation();
+                    console.log(data);
+                    if (this.checked) {
+                        let reference = $(this).parents().eq(2).clone();
+                        // Only save result_header portion
+                        if (reference.has('.info_container').length)
+                            reference.children(".info_container")[0].remove();
+                        reference.find(".star_container")[0].remove();
+                        let text = $(reference.find("a")[0]).text();
+                        $(reference.find("a")[0]).text = text.substring(text.charAt('.') + 2);
+                        data.html_content = reference.html(), 
+                        bookmarkController.addBookmark(data);
+                    }
+                    else {
+                        bookmarkController.removeBookmark(data);
+                    }
+                }
+                }),
+            class: "star_container"
+        }).appendTo($(appendingTo));
+}
+
+/* HTML elements 'click' function helpers */
+function clickSeeMore(obj, api) {
+    if (api)
+        api_connections[api].seeMore($(obj))
+    else if (!highLightLock)
+        api_connections[selected_api].seeMore($(obj));
+}
+
+function clickReference(e, obj) {
+    e.stopPropagation();
+    generateCitation($(obj).parent())
 }
