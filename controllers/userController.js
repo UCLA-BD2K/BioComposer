@@ -57,10 +57,12 @@ userController.prototype._register = function(self, req, res){
     var password = req.body.password;
     var password_confirm = req.body.password_confirm;
 
-    // Store username in Upper Case format, and compare any user queries
-    // in Upper Case to allow case-insensitive comparison
+    // Store username and email in Upper Case format, and compare any queries
+    // in Upper Case format to allow case-insensitive comparison
     if (username)
         username = username.toUpperCase();
+    if (email)
+        email = email.toUpperCase();
     
     //Validation
     req.checkBody('username', 'First name is required').notEmpty();
