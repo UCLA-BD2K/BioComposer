@@ -146,7 +146,7 @@ userController.prototype._resetPassword = function(self, req, res){
     //E-mail Sent
     else{
         //Create reset_hash, store in database and send e-mail
-        var query = {email: req.body.email};
+        var query = {email: req.body.email.toUpperCase()};
         var hash_val = sha1(Math.floor(Date.now() + Math.random() * 1000));
         var url =  req.get('Host') +
             "/change_password?email=" + encodeURIComponent(req.body.email) + 
@@ -178,7 +178,7 @@ userController.prototype._resetPassword = function(self, req, res){
 
 userController.prototype._changePassword = function(self, req, res){
 	//generate Mongo query from link    
-    var query = {email: req.query.email, reset_hash: req.query.hash};
+    var query = {email: req.query.email.toUpperCase(), reset_hash: req.query.hash};
     var hash_val = sha1(Math.floor(Date.now() + Math.random() * 1000));
     User.update(query, {reset_hash: hash_val}, function(err, writeObj){
         if (err) throw err; 
@@ -196,7 +196,7 @@ userController.prototype._changePassword = function(self, req, res){
 };
 
 userController.prototype._submitChangePassword = function(self, req, res){
-    var query = {email: req.body.email, reset_hash: req.body.hash};
+    var query = {email: req.body.email.toUpperCase(), reset_hash: req.body.hash};
     var hash_val = sha1(Math.floor(Date.now() + Math.random() * 1000));
     
     //Make sure password is typed twice
