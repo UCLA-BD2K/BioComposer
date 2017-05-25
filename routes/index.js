@@ -25,6 +25,8 @@ function ensureAuthenticated(req, res, next){
 //Authenticating user
 passport.use(new localStrategy(
     function(username, password, done){
+        // Convert username input to Upper Case to allow case-insensitive query
+        username = username.toUpperCase();
         User.getUserByUsername(username, function(err, user){
             if (err) throw err;
             if (!user)
@@ -73,7 +75,7 @@ router.get('/main', ensureAuthenticated, navigationController.editor);
 //USER CONTROLLER PATHS
 //Log-in
 router.post('/auth', passport.authenticate('local', {failureRedirect: '/', failureFlash: true}), function(req, res){
-    res.redirect('/main'); 
+    res.redirect('/main');
 });
 
 //Log-out

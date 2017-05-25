@@ -24,6 +24,7 @@ function movePage(x)
         return;
     pageNum += x;
     retstart += x*itemsPerPage; 
+
     api_connections[selected_api].startSearch(false); 
 }
 
@@ -63,30 +64,32 @@ function toggleSearchType(obj) {
 
 function updateAPISelection(selected) {
     // Don't update global variable
-    var selected_api = selected.options[selected.selectedIndex].value;
-    console.log(selected_api);
+    var selected = selected.options[selected.selectedIndex].value;
     
     // Set default value of sort type
     if ($($("#search_type").find("p")[0]).text() == "Most Recent") {
-        if (selected_api == "gene")
+        if (selected == "gene")
             toggleSearchType($("#search_type"));
     }
     else {
-        if (selected_api == "pubmed")
+        if (selected == "pubmed")
             toggleSearchType($("#search_type"));
     }
 
     // Hide sort type option for uniprot and bookmarks
-    if (selected_api == "uniprot" || selected_api == "bookmark") {
+    if (selected == "uniprot" || selected == "bookmark") {
         $("#search_type").hide(); 
         console.log("hide")
     }
     else
         $("#search_type").show()
 
-    // If bookmarks, init search immediately
-    if (selected_api == "bookmark")
+    // If bookmarks, update global variable and init search immediately
+    if (selected == "bookmark")
+    {
+        selected_api =  selected
         api_connections[selected_api].startSearch(true, false);
+    }
 }
 
 function requestSearch() {

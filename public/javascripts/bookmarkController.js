@@ -125,11 +125,11 @@ bookmarkController.initResultsNavigator = function(wrapper) {
         //Create page control buttons
         $('<p/>', {
             text: "NEXT"
-        }).attr("id", "pageNext").click(function(){bookmarkController.movePage(1);}).prependTo(wrapper);
+        }).attr("id", "pageNext").click(function(){movePage(1);}).prependTo(wrapper);
         
         $('<p/>', {
             text: "PREVIOUS"
-        }).attr("id", "pagePrev").click(function(){bookmarkController.movePage(-1);}).prependTo(wrapper);
+        }).attr("id", "pagePrev").click(function(){movePage(-1);}).prependTo(wrapper);
         
          $('<p/>', {
             text: "Page " + pageNum + " of " + numberWithCommas(Math.ceil(search_count/itemsPerPage))
@@ -138,15 +138,6 @@ bookmarkController.initResultsNavigator = function(wrapper) {
         $('<h1/>',{
             text: search_count + " Bookmarked References" 
           }).addClass('query_header').prependTo(wrapper);
-}
-
-// Use "this" movePage and not the helper function
-bookmarkController.movePage = function(x) {
-    //Do nothing if out of bounds
-    if ((x==-1 && pageNum==1) || (x==1 && pageNum == Math.ceil(search_count/itemsPerPage)))
-        return;
-    pageNum += x;
-    this.startSearch(false); 
 }
 
 // Override resetSearchHTML to keep 'search type' option hidden
