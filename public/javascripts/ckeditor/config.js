@@ -28,7 +28,7 @@ CKEDITOR.editorConfig = function( config ) {
 
 	// Remove some buttons provided by the standard plugins, which are
 	// not needed in the Standard(s) toolbar.
-	config.removeButtons = 'Styles';
+	config.removeButtons = 'Styles,Font,FontSize,Image,Indent';
     
    // config.removePlugins = 'blockquote';
 
