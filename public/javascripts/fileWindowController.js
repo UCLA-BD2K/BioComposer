@@ -233,6 +233,62 @@ var fileWindowController = function()
         if (this.isOpen)
             this.displayFiles();
     }
+
+    this.confirmDelete = function(title) {
+        var def = $.Deferred();
+        var self = this;
+        var dialog = $("<p>Are you sure you want to delete " + title + "?</p>").dialog({
+                dialogClass: 'noTitleStuff dialogShadow',
+                buttons: {
+                    "No":  function(){
+                        dialog.dialog('close');
+                        def.reject();
+                    },
+                    "Yes": function(){
+                        var data = {title: title};
+                        $.ajax({
+                            type: "POST",
+                            //url: "http://54.186.246.214:3000/delete",
+                            url: "/delete",
+                            data: data,
+                            success: function(data){
+                                //Delete from file array
+                                for (var i=0;i<self.files.length;i++)
+                                {
+                                    if (self.files[i].title == title)
+                                        self.files.splice(i, 1);
+                                }
+                                
+                                //Delete from filtered array
+                                for (var k=0;k<self.filteredFiles.length;k++)
+                                {
+                                    if (self.filteredFiles[k].title == title)
+                                        self.filteredFiles.splice(k, 1);
+                                }
+
+                                //Delete from all files array
+                                for (var k=0;k<self.allFiles.length;k++)
+                                {
+                                    if (self.allFiles[k].title == title)
+                                        self.allFiles.splice(k, 1);
+                                }
+
+                                self.displayFiles();
+
+                                def.resolve();
+                            },
+                            error: function() { def.reject();},
+                            dataType: "json"
+                        });
+                        dialog.dialog('close');
+                    }
+                },
+                height: 185,
+                width: 275,
+                resizable: false
+            });
+        return def;
+    }
     
     this.displayFiles = function()
     {
@@ -261,35 +317,7 @@ var fileWindowController = function()
             });
             row.append($("<div />").addClass("fwDeleteDiv").append($("<img />", {src: "../images/delete.png"}).data("title", title).addClass("fwDelete").click(function(e){
                 var this_title = $(this).data("title");
-                var deleteRecord = confirm("Are you sure you want to delete '" + this_title + "'?");
-                if (deleteRecord){
-                    var data = {title: this_title};
-                    $.ajax({
-                        type: "POST",
-                        //url: "http://54.186.246.214:3000/delete",
-                        url: "/delete",
-                        data: data,
-                        success: function(data){
-                            
-                            //Delete from file array
-                            for (var i=0;i<self.files.length;i++)
-                            {
-                                if (self.files[i].title == this_title)
-                                    self.files.splice(i, 1);
-                            }
-                            
-                            //Delete from filtered array
-                            for (var k=0;k<self.filteredFiles.length;k++)
-                            {
-                                if (self.filteredFiles[k].title == this_title)
-                                    self.filteredFiles.splice(k, 1);
-                            }
-
-                            self.displayFiles();
-                        },
-                        dataType: "json"
-                    });
-                }
+                self.confirmDelete(this_title);
                 e.stopPropagation();
             }).hide()));
             row.mouseover(function(){$(this).find(".fwDelete").show()});

@@ -941,7 +941,7 @@ div.tab button.active {
     margin-left: 16px !important;
     float: right !important;
     text-align: center;
-
+    z-index: 1000 !important;
 }
 
 .noTitleStuff .ui-dialog-titlebar {
