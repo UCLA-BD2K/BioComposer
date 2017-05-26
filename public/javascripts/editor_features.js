@@ -1,6 +1,7 @@
 //Make the editor a global variable so that is accessible throughout all functions
 var editor;
 var fileOpened;
+var unsavedChanges;
 
 function formatDate(d)
 {
@@ -34,26 +35,30 @@ function escapeHtml(unsafe) {
  }
 
  function clearEditor() {
+    return new Promise(function(resolve, reject) {
+        //Init text
+        editor.setData("Start typing here..."); 
 
-    //Init text
-    editor.setData("Start typing here..."); 
+        //Init title and modified status
+        $("#document_title").val("Untitled");
+        $("#doc_status_text").text("(Unsaved)");
 
-    //Init title and modified status
-    $("#document_title").val("Untitled");
-    $("#doc_status_text").text("(Unsaved)");
+        //Update that current doc is NOT loaded
+        fileOpened = false;
+        unsavedChanges = false;
+        fwControllerSingleton.viewIsLoadedFromSave = false;
 
-    //Update that current doc is NOT loaded
-    fileOpened = false;
-    fwControllerSingleton.viewIsLoadedFromSave = false;
-
-    //Delete text on select
-    editor.on('focus', function(e) {
-        if (!fileOpened)
-            editor.setData("");
-        
-        //remove event listener after first call
-        e.removeListener();
-    });
+                console.log(fwControllerSingleton.viewIsLoadedFromSave)
+        //Delete text on select
+        editor.on('focus', function(e) {
+            if (!fileOpened)
+                editor.setData("");
+            
+            //remove event listener after first call
+            e.removeListener();
+        });
+        resolve();
+    })
  }
 
 //initialize custom
@@ -66,6 +71,8 @@ function initEditor()
     editor = CKEDITOR.inline( 'edit_area' );
     editor.config.extraPlugins = 'button,panelbutton,font';
 
+    fileOpened = false;
+    unsavedChanges = false;
     
     //set autogrow for title
     $("#document_title").autogrow({ vertical : false, horizontal : true });
@@ -86,6 +93,7 @@ function initEditor()
 
             citationSingleton.checkCitations = {};
         }
+        unsavedChanges = true;
     });
 
     editor.on( 'key', function() {
@@ -295,7 +303,6 @@ function generateTitle(t)
 function documentSave()
 {
     var title = $("#document_title").val();
-
     if (!fwControllerSingleton.viewIsLoadedFromSave)
     {
         if (fwControllerSingleton.fileExists(title)) {
@@ -434,6 +441,7 @@ function saveAs(type, title, overwrite) {
                 //Make sure file lists are up to date
                 fwControllerSingleton.loadFiles();
                 fwControllerSingleton.viewIsLoadedFromSave = true;
+                console.log(fwControllerSingleton.viewIsLoadedFromSave)
             });
         
 }
@@ -467,6 +475,7 @@ function titleHandler(obj)
 
     // Title name changed. Could be new document
     fwControllerSingleton.viewIsLoadedFromSave = false;
+                console.log(fwControllerSingleton.viewIsLoadedFromSave)
     $("#doc_status_text").text("(Unsaved)");
 }
 
@@ -549,7 +558,10 @@ $(document).ready(function(){
 
 // Bind to new_doc button
 function openNewDoc() {
-    return askToSaveDialog().always(clearEditor);
+    if (unsavedChanges)
+        return askToSaveDialog().always(clearEditor);
+    else
+        return clearEditor();
 }
 
 // ---- Animations -----

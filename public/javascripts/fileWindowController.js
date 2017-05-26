@@ -113,96 +113,101 @@ var fileWindowController = function()
     }
 
     this.handleTemplateRequest = function(title) {
-        this.close();
+        var def = $.Deferred();
+        var self = this;
         var dialog = $('<p>Would you like to...</p>').dialog({
                 dialogClass: 'noTitleStuff dialogShadow',
                 buttons: {
                     "Edit Template":  function(){
-                        fwControllerSingleton.openFile(title, false);
                         dialog.dialog('close');
+                        def.resolve(title, false);
                     },
                     "Use Template": function(){
-                        fwControllerSingleton.openFile(title, true);
                         dialog.dialog('close');
+                        def.resolve(title, true);
                     },
                     "Cancel":  function() {
                         dialog.dialog('close');
+                        def.reject();
                     }
                 },
                 height: 185,
                 width: 275,
                 resizable: false
             });
+        return def.then(fwControllerSingleton.openFile);
     }
     
     //When file is opened
     this.openFile = function(title, newDoc){
-        //prevents from deleting CKEDitor text
-        fileOpened = true;
         console.log(title);
         var self = this;
         var data = {title: title};
-        $.ajax({
-            type: "POST",
-            //url: "http://54.186.246.214:3000/open",
-            url: "/open",
-            data: data,
-            success: function(data){
-                var d = new Date(data.date_modified);
-                console.log(data);
-                
-                
-                //Set editor data
-                callBackLock = true;
-                editor.setData(decodeURIComponent(data.contents));
-                callBackLock = false;
-                
-                //Set citations data
-                citationSingleton.citationNum = 0;
-                var citations = JSON.parse(data.citationObjects);
-                if (!(citations === undefined)){
-                var newCitations = {};
-                for (var key in citations)
-                {
-                    //Set parent
-                    citations[key].parent = citationSingleton;
+        return $.ajax({
+                type: "POST",
+                //url: "http://54.186.246.214:3000/open",
+                url: "/open",
+                data: data,
+                success: function(data){
+                    var d = new Date(data.date_modified);
+                    console.log(data);
                     
-                    //Create new citation object
-                    console.log(citations[key].id);
-                    var newCitation = new citationObj(citations[key].id, citationSingleton, citations[key].citeNum, citations[key].count, citations[key].shortRef, citations[key].longRef, citations[key].paste_lock);
                     
-                    //Add to array of citations
-                    newCitations[key] = newCitation;
-                }
-                
-                citationSingleton.citations = newCitations;
-                citationSingleton.citationNum = Object.keys(newCitations).length;
-                }
+                    //Set editor data
+                    callBackLock = true;
+                    editor.setData(decodeURIComponent(data.contents));
+                    callBackLock = false;
+                    
+                    //Set citations data
+                    citationSingleton.citationNum = 0;
+                    var citations = JSON.parse(data.citationObjects);
+                    if (!(citations === undefined)){
+                    var newCitations = {};
+                    for (var key in citations)
+                    {
+                        //Set parent
+                        citations[key].parent = citationSingleton;
+                        
+                        //Create new citation object
+                        console.log(citations[key].id);
+                        var newCitation = new citationObj(citations[key].id, citationSingleton, citations[key].citeNum, citations[key].count, citations[key].shortRef, citations[key].longRef, citations[key].paste_lock);
+                        
+                        //Add to array of citations
+                        newCitations[key] = newCitation;
+                    }
+                    
+                    citationSingleton.citations = newCitations;
+                    citationSingleton.citationNum = Object.keys(newCitations).length;
+                    }
 
-                var docTitle = data.title;
-                var lastModified = "(Last modified " + formatDate(d) + ")";
-                // Indicates that our current view was loaded from a save
-                self.viewIsLoadedFromSave = true;
+                    var docTitle = data.title;
+                    var lastModified = "(Last modified " + formatDate(d) + ")";
+                    // Indicates that our current view was loaded from a save
+                    fileOpened = true;
+                    self.viewIsLoadedFromSave = true;
+                console.log(fwControllerSingleton.viewIsLoadedFromSave)
+                    unsavedChanges = false;
 
-                // If user opens a template to create new Doc
-                if (newDoc) {
-                    docTitle = "Untitled";
-                    lastModified = "(Unsaved)";
+                    // If user opens a template to create new Doc
+                    if (newDoc) {
+                        docTitle = "Untitled";
+                        lastModified = "(Unsaved)";
 
-                    //Update that current doc is NOT loaded
-                    self.viewIsLoadedFromSave = false;
-                }
+                        //Update that current doc is NOT loaded
+                        self.viewIsLoadedFromSave = false;
+                console.log(fwControllerSingleton.viewIsLoadedFromSave)
+                        console.log("not loaded from save");
+                    }
 
-                //Set title and modified status
-                $("#document_title").val(docTitle);
-                $("#doc_status_text").text(lastModified);
-                //$("#document_title").change();
-                
-                console.log(citationSingleton);
-                self.close();
-            },
-            dataType: "json"
-        });
+                    //Set title and modified status
+                    $("#document_title").val(docTitle);
+                    $("#doc_status_text").text(lastModified);
+                    //$("#document_title").change();
+                    
+                    console.log(citationSingleton);
+                },
+                dataType: "json"
+            });
     };
     
     //AJAX CALL TO LOAD FILES
@@ -310,10 +315,16 @@ var fileWindowController = function()
             var docs = "<td>" + title + "</td>" + "<td>" + formatDate(dCreated) + "</td>" + "<td>" + formatDate(dMod) + "</td>";
             var row = $("<tr />", {html: docs});
             row.click({title: title, type:type }, function(event){
+                var handler;
                 if (event.data.type == 'template')
-                    self.handleTemplateRequest(event.data.title);
+                    handler = function(){self.handleTemplateRequest(event.data.title)};
                 else 
-                    self.openFile(event.data.title, false)
+                    handler = function(){self.openFile(event.data.title, false)};
+                if (unsavedChanges)
+                    askToSaveDialog().always(handler);
+                else
+                    handler();
+                self.close();
             });
             row.append($("<div />").addClass("fwDeleteDiv").append($("<img />", {src: "../images/delete.png"}).data("title", title).addClass("fwDelete").click(function(e){
                 var this_title = $(this).data("title");
