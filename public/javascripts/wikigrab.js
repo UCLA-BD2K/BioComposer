@@ -252,77 +252,84 @@ function imagePreservation(article){
 
 function searchWiki()
 {
-    var search = encodeURIComponent($("#wikiSearch").val());
-    $.ajax( {
-        url: "https://en.wikipedia.org/w/api.php?action=query&titles=" + search + "&prop=revisions&rvprop=content&format=json",
-        jsonp: "callback", 
-        dataType: 'jsonp', 
-        xhrFields: { withCredentials: true },
-        success: function(data) { 
-            if (data.query.pages[Object.keys(data.query.pages)[0]].revisions === undefined){
-                $("#wikiSearch").val("Invalid Wikipedia Title");
-                $("#wikiSearch").data("error", true);
-            }
-            else{
-                var contents = data.query.pages[Object.keys(data.query.pages)[0]].revisions[0]["*"];
-                
-                //DEBUG VIEW
-                // console.log("SearchWiki returns stuff below");
-                // console.log(contents);
-                // This part works
-                //Reset document citations
-                citationSingleton.clear();
-                
-                //Set title
-                $("#document_title").val(decodeURIComponent(search)).change();
-                
-                //Get code before article
-                beginningCode = getArticleBeginningCode(contents);
-                
-                //Preserve the images in article (convert to form ##IMG[NUM]##)
-                contents = imagePreservation(contents);
-
-                // console.log("contents after image preservation");
-                // console.log(contents);
-                // contents are fine here
-
-                console.log("footer sections are");
-                console.log(footerSections);
-                //Partition and set to global footer variable
-                sections = getSectionsByName(contents, footerSections);
-
-                console.log("sections are");
-                console.log(sections);
-
-                //Set content to body of Wiki MarkDown (which is the last element of the array) and then remove from footer array
-                contents = sections[sections.length-1].content;
-
-                console.log("contents after choosing them from sections");
-                console.log(contents);
-
-                sections.splice(sections.length-1, 1);
-
-                //Extract references from the Wiki mark up
-                var reflist = extractReferences(contents);
-                console.log(reflist);
-
-                //Convert references to BioCurator form
-                var newcontents = convertAndReplaceReferences(reflist, contents);
-                console.log("convert and Replace references returns");
-                console.log(newcontents);
-                //Send to server to convert to HTML
-                processByServer(newcontents);
-
-                //Add correct citations to citationSingleton
-                convertReferences(newcontents.citations);
-                
-                //Print citations
-                //console.log(newcontents.citations);
-                //console.log(citationSingleton);
-            }
-        }
-    });
+    if (unsavedChanges)
+        return askToSaveDialog().always(wikiRequest);
+    else
+        return wikiRequest();
 }
+
+var wikiRequest = function() {
+    var search = encodeURIComponent($("#wikiSearch").val());
+    return $.ajax({
+            url: "https://en.wikipedia.org/w/api.php?action=query&titles=" + search + "&prop=revisions&rvprop=content&format=json",
+            jsonp: "callback", 
+            dataType: 'jsonp', 
+            xhrFields: { withCredentials: true },
+            success: function(data) { 
+                if (data.query.pages[Object.keys(data.query.pages)[0]].revisions === undefined){
+                    $("#wikiSearch").val("Invalid Wikipedia Title");
+                    $("#wikiSearch").data("error", true);
+                }
+                else{
+                    var contents = data.query.pages[Object.keys(data.query.pages)[0]].revisions[0]["*"];
+                    
+                    //DEBUG VIEW
+                    // console.log("SearchWiki returns stuff below");
+                    // console.log(contents);
+                    // This part works
+                    //Reset document citations
+                    citationSingleton.clear();
+                    
+                    //Set title
+                    $("#document_title").val(decodeURIComponent(search)).change();
+                    
+                    //Get code before article
+                    beginningCode = getArticleBeginningCode(contents);
+                    
+                    //Preserve the images in article (convert to form ##IMG[NUM]##)
+                    contents = imagePreservation(contents);
+
+                    // console.log("contents after image preservation");
+                    // console.log(contents);
+                    // contents are fine here
+
+                    console.log("footer sections are");
+                    console.log(footerSections);
+                    //Partition and set to global footer variable
+                    sections = getSectionsByName(contents, footerSections);
+
+                    console.log("sections are");
+                    console.log(sections);
+
+                    //Set content to body of Wiki MarkDown (which is the last element of the array) and then remove from footer array
+                    contents = sections[sections.length-1].content;
+
+                    console.log("contents after choosing them from sections");
+                    console.log(contents);
+
+                    sections.splice(sections.length-1, 1);
+
+                    //Extract references from the Wiki mark up
+                    var reflist = extractReferences(contents);
+                    console.log(reflist);
+
+                    //Convert references to BioCurator form
+                    var newcontents = convertAndReplaceReferences(reflist, contents);
+                    console.log("convert and Replace references returns");
+                    console.log(newcontents);
+                    //Send to server to convert to HTML
+                    processByServer(newcontents);
+
+                    //Add correct citations to citationSingleton
+                    convertReferences(newcontents.citations);
+                    
+                    //Print citations
+                    //console.log(newcontents.citations);
+                    //console.log(citationSingleton);
+                }
+            }
+        });
+} 
 
 function checkError(){
     if ($("#wikiSearch").data("error")){
