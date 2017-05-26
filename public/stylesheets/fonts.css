@@ -15,8 +15,15 @@
 
 @font-face {
 	font-family: AvenirNext;
-	src:url(../fonts/AvenirNext-Italic.ttf);
+	src:url(../fonts/AvenirNext-BoldItalic.ttf);
 	font-weight:bold;
+	font-style:italic;
+}
+
+@font-face {
+	font-family: AvenirNext;
+	src:url(../fonts/AvenirNext-Italic.ttf);
+	font-weight:normal;
 	font-style:italic;
 }
 
