@@ -33,6 +33,29 @@ function escapeHtml(unsafe) {
          .replace(/'/g, "&#039;");
  }
 
+ function clearEditor() {
+
+    //Init text
+    editor.setData("Start typing here..."); 
+
+    //Init title and modified status
+    $("#document_title").val("Untitled");
+    $("#doc_status_text").text("(Unsaved)");
+
+    //Update that current doc is NOT loaded
+    fileOpened = false;
+    fwControllerSingleton.viewIsLoadedFromSave = false;
+
+    //Delete text on select
+    editor.on('focus', function(e) {
+        if (!fileOpened)
+            editor.setData("");
+        
+        //remove event listener after first call
+        e.removeListener();
+    });
+ }
+
 //initialize custom
 function initEditor()
 {   
@@ -54,17 +77,7 @@ function initEditor()
         $("#document_title").css({"background-color": "rgba(255,255,255,0)"});
     });
     
-    //Init text
-    editor.setData("Start typing here..."); 
-
-    //Delete text on select
-    editor.on('focus', function(e) {
-        if (!fileOpened)
-            editor.setData("");
-        
-        //remove event listener after first call
-        e.removeListener();
-    });
+    clearEditor();
     
     editor.on('change', function(e) {
         if (!callBackLock){
@@ -285,24 +298,44 @@ function documentSave()
 
     if (!fwControllerSingleton.viewIsLoadedFromSave)
     {
-        console.log("New doc being saved");
-
         if (fwControllerSingleton.fileExists(title)) {
             console.log("File already exists");
-            overwriteDialog(title);
+            return overwriteDialog(title);
         }
         else {
-            saveAsDialog(title);
+            return saveAsDialog(title);
         }
     
     } 
     else {
         // Saving opened document, don't need to specify type
-        saveAs(null, title, false)
+        return saveAs(null, title, false);
     }  
 }
 
+function askToSaveDialog() {
+    var def = $.Deferred();
+    var dialog = $('<p>Would you like to save your progress?</p>').dialog({
+                dialogClass: 'noTitleStuff dialogShadow',
+                buttons: {
+                    "No":  function() {
+                        dialog.dialog('close');
+                        def.reject();
+                    },
+                    "Yes":  function(){
+                        dialog.dialog('close');
+                        def.resolve();
+                    },
+                },
+                height: "auto",
+                width: 290,
+                resizable: false
+            });
+    return def.then(documentSave);
+}
+
 function overwriteDialog(title) {
+    var def = $.Deferred();
     var dialog = $('<p>A file already exists by this name. \
                 <br>Are you sure you want to overwrite it?</p>').dialog({
                 dialogClass: 'noTitleStuff dialogShadow',
@@ -319,32 +352,36 @@ function overwriteDialog(title) {
                         $("#document_title").val(title);
                         $("#document_title").change();
                         dialog.dialog('close');
+                        def.reject(title);
                     },
                     "Overwrite":  function(){
-                        saveAsDialog(title);
                         dialog.dialog('close');
+                        def.resolve(title);
                     },
                 },
                 height: "auto",
                 width: 290,
                 resizable: false
             });
+    return def.then(saveAsDialog);
 }
 
 function saveAsDialog(title) {
+    var def = $.Deferred();
     var dialog = $('<p>Save as...</p>').dialog({
                 dialogClass: 'noTitleStuff dialogShadow',
                 buttons: {
                     "Cancel":  function() {
                         dialog.dialog('close');
+                        def.reject();
                     },
                     "Template":  function(){
-                        saveAs("template", title, true);
                         dialog.dialog('close');
+                        def.resolve("template", title, true);
                     },
                     "Article": function(){
-                        saveAs("article", title, true);
                         dialog.dialog('close');
+                        def.resolve("article", title, true);
                     }
                 },
                 height: "auto",
@@ -352,6 +389,7 @@ function saveAsDialog(title) {
                 resizable: false,
                 draggable: true
             });
+    return def.then(saveAs);
 }
 
 function saveAs(type, title, overwrite) {
@@ -359,42 +397,45 @@ function saveAs(type, title, overwrite) {
     //The parent will only be set to the first element. 
     //Upon opening again, we need to set citationSingleton.citations = [this citations]
     //As well as set citationSingleton.citationNumber = MAX(citations.citeNum)
-    var encodedHTML = encodeURIComponent(editor.getData());
-    seen = [];
-    var citations = JSON.stringify(citationSingleton.citations, function(key, val) {
-       if (val != null && typeof val == "object") {
-            if (seen.indexOf(val) >= 0) {
-                return;
-            }
-            seen.push(val);
-        }
-        return val;
-    });
-    
-    var data = {
-        contents : encodedHTML, 
-        title : title,
-        citations : citations,
-        type: type,
-        overwrite: overwrite
-    };
 
-    $.ajax({
-        type: "POST",
-        //url: "http://54.186.246.214:3000/save",
-        url: "/save",
-        data: data,
-        success: function(msg){
-            //alert(msg);
-            alertMessage(msg);
-            $("#doc_status_text").text("(Last saved: " + formatDate(new Date()) + ")");
-        },
-        dataType: "text"
-    });
-    
-    //Make sure file lists are up to date
-    fwControllerSingleton.loadFiles();
-    fwControllerSingleton.viewIsLoadedFromSave = true;
+        var encodedHTML = encodeURIComponent(editor.getData());
+        seen = [];
+        var citations = JSON.stringify(citationSingleton.citations, function(key, val) {
+           if (val != null && typeof val == "object") {
+                if (seen.indexOf(val) >= 0) {
+                    return;
+                }
+                seen.push(val);
+            }
+            return val;
+        });
+        
+        var data = {
+            contents : encodedHTML, 
+            title : title,
+            citations : citations,
+            type: type,
+            overwrite: overwrite
+        };
+
+        return $.ajax({
+                type: "POST",
+                //url: "http://54.186.246.214:3000/save",
+                url: "/save",
+                data: data,
+                success: function(msg){
+                    //alert(msg);
+                    alertMessage(msg);
+                    $("#doc_status_text").text("(Last saved: " + formatDate(new Date()) + ")");
+
+                },
+                dataType: "text"
+            }).then(function() {
+                //Make sure file lists are up to date
+                fwControllerSingleton.loadFiles();
+                fwControllerSingleton.viewIsLoadedFromSave = true;
+            });
+        
 }
 
 function alertMessage(msg) {
@@ -464,18 +505,20 @@ $(window).resize(function(){
     adjustResultDimensions();
 })
 $(document).ready(function(){
-    //Init ckeditor
-    initEditor();
-    
     //Init folder nav window
     fwControllerSingleton = new fileWindowController();
     fwControllerSingleton.loadFiles();
+
+    //Init ckeditor
+    initEditor();  
+    
     
     //Bind send HTML/download function to download icon
     $("#download").click(function(){sendHTMLtoServer().then(downloadWikiMarkUp)});
     $("#save").click(function(){documentSave()})
     $("#open").click(function(){openWikiFile()});
     $("#wiki").click(function(){openWikiSearch()});
+    $("#new_doc").click(function(){openNewDoc()});
     
     
     //On Change title window size
@@ -504,6 +547,10 @@ $(document).ready(function(){
     });
 });
 
+// Bind to new_doc button
+function openNewDoc() {
+    return askToSaveDialog().always(clearEditor);
+}
 
 // ---- Animations -----
 function tabClick(obj){

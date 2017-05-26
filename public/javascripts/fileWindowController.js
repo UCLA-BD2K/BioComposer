@@ -188,6 +188,8 @@ var fileWindowController = function()
                 if (newDoc) {
                     docTitle = "Untitled";
                     lastModified = "(Unsaved)";
+
+                    //Update that current doc is NOT loaded
                     self.viewIsLoadedFromSave = false;
                 }
 
