@@ -48,7 +48,6 @@ function escapeHtml(unsafe) {
         unsavedChanges = false;
         fwControllerSingleton.viewIsLoadedFromSave = false;
 
-                console.log(fwControllerSingleton.viewIsLoadedFromSave)
         //Delete text on select
         editor.on('focus', function(e) {
             if (!fileOpened)
@@ -97,12 +96,10 @@ function initEditor()
     });
 
     editor.on( 'key', function() {
-        console.log("FIRED");
         var adjacent = findAdjacentCitations();
         if (adjacent != -1)
             citationSingleton.checkCitations[adjacent] = 1;
 
-        //console.log("Adjacent: " + adjacent);
     } );
     
     editor.on('contentDom', function() {
@@ -128,8 +125,7 @@ function processPaste(html)
 {
     var div = $('<div />', {html:html});
     var anchors =  $(div).find("a");
-    //console.log($(div).html());
-    
+
     $.each(anchors, function (i, anchor) {
         var className = anchor.className;
         var pattern = /^(long|short)([0-9]+)$/; 
@@ -156,7 +152,6 @@ function processPaste(html)
     if (debugCite)
         citationSingleton.displayCitations();
     
-    //console.log($(div).html());
     return $(div).html();
 }
 
@@ -352,7 +347,6 @@ function overwriteDialog(title) {
                         var temp = title;
                         while(fwControllerSingleton.fileExists(title))
                         {
-                            console.log(fwControllerSingleton.fileExists(title));
                             title = generateTitle(title);
                         }
 
@@ -434,6 +428,7 @@ function saveAs(type, title, overwrite) {
                     //alert(msg);
                     alertMessage(msg);
                     $("#doc_status_text").text("(Last saved: " + formatDate(new Date()) + ")");
+                    unsavedChanges = false;
 
                 },
                 dataType: "text"
@@ -441,7 +436,6 @@ function saveAs(type, title, overwrite) {
                 //Make sure file lists are up to date
                 fwControllerSingleton.loadFiles();
                 fwControllerSingleton.viewIsLoadedFromSave = true;
-                console.log(fwControllerSingleton.viewIsLoadedFromSave)
             });
         
 }
@@ -475,7 +469,6 @@ function titleHandler(obj)
 
     // Title name changed. Could be new document
     fwControllerSingleton.viewIsLoadedFromSave = false;
-                console.log(fwControllerSingleton.viewIsLoadedFromSave)
     $("#doc_status_text").text("(Unsaved)");
 }
 
@@ -493,7 +486,6 @@ function setDimensionsTextArea()
     //set position of document title to center
     var offset = Math.ceil(($("#editor_window").width() - $("#content_panel").width())/2 + $("#content_panel").width()) - $("#doc_title_div").width()/2 - 50; 
     $("#doc_title_div").css({"left" : offset.toString() + "px"}); 
-    //console.log("offset " + offset);
 }
 
 //----------------------
@@ -538,7 +530,6 @@ $(document).ready(function(){
         e.preventDefault();
         $(document).css('cursor', 'ew-resize');
         width = $("#content_panel").width();
-        //console.log(width);
         mouse_pos_x = e.pageX;   
 
         $(document).mousemove(function (e) {

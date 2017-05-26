@@ -135,7 +135,7 @@ var fileWindowController = function()
                 width: 275,
                 resizable: false
             });
-        return def.then(fwControllerSingleton.openFile);
+        return def.then(function(title, newDoc) {self.openFile(title, newDoc)});
     }
     
     //When file is opened
@@ -150,8 +150,6 @@ var fileWindowController = function()
                 data: data,
                 success: function(data){
                     var d = new Date(data.date_modified);
-                    console.log(data);
-                    
                     
                     //Set editor data
                     callBackLock = true;
@@ -169,7 +167,6 @@ var fileWindowController = function()
                         citations[key].parent = citationSingleton;
                         
                         //Create new citation object
-                        console.log(citations[key].id);
                         var newCitation = new citationObj(citations[key].id, citationSingleton, citations[key].citeNum, citations[key].count, citations[key].shortRef, citations[key].longRef, citations[key].paste_lock);
                         
                         //Add to array of citations
@@ -185,18 +182,15 @@ var fileWindowController = function()
                     // Indicates that our current view was loaded from a save
                     fileOpened = true;
                     self.viewIsLoadedFromSave = true;
-                console.log(fwControllerSingleton.viewIsLoadedFromSave)
                     unsavedChanges = false;
 
                     // If user opens a template to create new Doc
                     if (newDoc) {
                         docTitle = "Untitled";
                         lastModified = "(Unsaved)";
-
+                        unsavedChanges = true;
                         //Update that current doc is NOT loaded
                         self.viewIsLoadedFromSave = false;
-                console.log(fwControllerSingleton.viewIsLoadedFromSave)
-                        console.log("not loaded from save");
                     }
 
                     //Set title and modified status
@@ -204,7 +198,6 @@ var fileWindowController = function()
                     $("#doc_status_text").text(lastModified);
                     //$("#document_title").change();
                     
-                    console.log(citationSingleton);
                 },
                 dataType: "json"
             });
@@ -220,7 +213,6 @@ var fileWindowController = function()
             url: "/getFiles",
             data: data,
             success: function(data){
-                console.log(data);
                 self.allFiles = data;
                 self.viewSubsetFiles('article'); // default viewing is article               
             },
@@ -242,7 +234,7 @@ var fileWindowController = function()
     this.confirmDelete = function(title) {
         var def = $.Deferred();
         var self = this;
-        var dialog = $("<p>Are you sure you want to delete " + title + "?</p>").dialog({
+        var dialog = $('<p>Are you sure you want to delete "' + title + '"?</p>').dialog({
                 dialogClass: 'noTitleStuff dialogShadow',
                 buttons: {
                     "No":  function(){
@@ -253,7 +245,6 @@ var fileWindowController = function()
                         var data = {title: title};
                         $.ajax({
                             type: "POST",
-                            //url: "http://54.186.246.214:3000/delete",
                             url: "/delete",
                             data: data,
                             success: function(data){
@@ -288,7 +279,7 @@ var fileWindowController = function()
                         dialog.dialog('close');
                     }
                 },
-                height: 185,
+                height: 140,
                 width: 275,
                 resizable: false
             });
