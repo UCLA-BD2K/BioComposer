@@ -299,7 +299,8 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
             }
             ref += " |date=" + pubDateString 
         }
- 
+        
+        ref += " |language=en";
         ref += " |accessdate=" + dateAccessString + "}}|eref|";
 
         this.longRef = " <a class='long" + this.id + "' href='" 

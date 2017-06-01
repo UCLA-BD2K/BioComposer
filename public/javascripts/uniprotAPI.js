@@ -48,7 +48,7 @@ Uniprot_API_Connection.parseResults = function(res) {
     for (var i = 0; i < uniprotNodes.length; i++) {
         var accessionNode = uniprotNodes[i].querySelector('accession');
 
-        var proteinNameNode = uniprotNodes[i].querySelector('protein > recommendedName > fullName');
+        var proteinNameNode = uniprotNodes[i].querySelector('fullName');
         var geneNameNode = uniprotNodes[i].querySelector('gene > name[type=primary]');
         var organismNode = uniprotNodes[i].querySelector('organism > name[type=scientific]');
 
@@ -360,9 +360,9 @@ Uniprot_API_Connection.setContainerData = function(container, uniprot) {
     $(container).data('type', 'Uniprot');
     $(container).data('id', uniprot.accession);
     $(container).data('url', encodeURIComponent(uniprot.url));
+    // Only join Strings that are not null
     $(container).data('title', 
-        [uniprot.proteinName, uniprot.organism].join(' - '));
-    $(container).data('website', uniprot.accession);
-    $(container).data('publisher', 'Uniprot');  
+        $.grep([uniprot.proteinName, uniprot.organism], Boolean).join(' - '));
+    $(container).data('website', "Uniprot");
 }
 

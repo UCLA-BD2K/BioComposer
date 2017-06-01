@@ -260,5 +260,6 @@ PubMed_API_Connection.setContainerData = function(container, article) {
     $(container).data('date', encodeURIComponent(article.date));
     $(container).data('authors', encodeURIComponent(article.authors));
     $(container).data('publisher', encodeURIComponent(article.source));
+    $(container).data('website', 'Pubmed');
 }
 

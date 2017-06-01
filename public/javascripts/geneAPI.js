@@ -366,7 +366,7 @@ Gene_API_Connection.setContainerData = function(container, gene) {
     $(container).data('id', gene.id);
     $(container).data('url', encodeURIComponent(gene.url));
     $(container).data('title', [gene.fullName, gene.organism].join(' - '));
-    $(container).data('website', gene.symbol);
-    $(container).data('publisher', 'NCBI Gene');
+    $(container).data('website', "NCBI");
+    
 }
 
