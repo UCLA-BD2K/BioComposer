@@ -227,6 +227,9 @@ function downloadWikiMarkUp(data)
     data = data.replace(/%27/g, "'");
     //Fix bug with colons
     data = data.replace(/\\:/g, ":");
+
+    data = data.replace(/\{\|/g, "{|  class=\"wikitable\"");
+
     
     
     //Add end of wiki markup back

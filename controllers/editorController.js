@@ -206,7 +206,7 @@ editorController.prototype._checkLock = function(self, req, res){
     console.log("check lock");
 };
 
-var fixMisMatchQuotesWikiMarkup = function(str) {
+function fixMisMatchQuotesWikiMarkup (str) {
     var index = -1;
     var openQuote=-1;
     var closeQuote=-1;
