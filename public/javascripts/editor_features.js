@@ -38,6 +38,7 @@ function escapeHtml(unsafe) {
     return new Promise(function(resolve, reject) {
         //Init text
         editor.setData("Start typing here..."); 
+        citationSingleton.clear();
 
         //Init title and modified status
         $("#document_title").val("Untitled");
@@ -227,7 +228,7 @@ function downloadWikiMarkUp(data)
     data = data.replace(/%27/g, "'");
     //Fix bug with colons
     data = data.replace(/\\:/g, ":");
-
+    // Specify class for tables
     data = data.replace(/\{\|/g, "{|  class=\"wikitable\"");
 
     
