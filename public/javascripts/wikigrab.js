@@ -1,6 +1,6 @@
 var footerSections = ["References", "Further reading", "See also", "External links", "Recommended reading"];
 //Objects we create to store section data and lossy Wiki code
-var sections;
+var sections=[];
 var beginningCode = "";
 var images; //Array to store images
 
@@ -23,22 +23,22 @@ function getSectionsByName(article, names){
     var content = "";
     var endOfText = false;
     var firstFooterHeaderPosition = -1;
-    console.log(names);
+    //console.log(names);
     while (!endOfText){
         start = article.indexOf("==", end);
         end = article.indexOf("==", start + 2) + 2;
         if (end == -1 || start == -1){
-            console.log("over");
+            //console.log("over");
             break;
         }
-        console.log("start: " + start + ", end: " + end);
-        console.log(article.substring(start, end).toLowerCase());
+        //console.log("start: " + start + ", end: " + end);
+        //console.log(article.substring(start, end).toLowerCase());
         
         for (index in names){
-            console.log(names[index]);
+            //console.log(names[index]);
             if (article.substring(start, end).toLowerCase().includes(names[index].toLowerCase()))
                 {
-                    console.log("MATCH");
+                    //console.log("MATCH");
                     //Capture the start so we can find where the main content ends
                     if (firstFooterHeaderPosition == -1)
                         firstFooterHeaderPosition = start;
@@ -63,7 +63,7 @@ function getSectionsByName(article, names){
     
     //Add main content partition
     articleArray.push({name: 'main', content: article.substr(0, firstFooterHeaderPosition)});
-    console.log(articleArray);
+    //console.log(articleArray);
     return articleArray;
 }
 
@@ -99,7 +99,7 @@ function extractReferences(text){
 
         //If == -1, no match
          if (cursorStart == -1 || cursorEnd == -1 || cursorStart > cursorEnd){
-            console.log("End");
+            //console.log("End");
             break;
         }
 
@@ -158,8 +158,8 @@ function convertAndReplaceReferences(reflist, text){
             reflist[x].name = name;
 
             //DEBUGGING PRINT STATEMENTS
-            console.log("LONG NAME: " + name);
-            console.log(reflist[x], x, reflist.length);
+            //console.log("LONG NAME: " + name);
+            //console.log(reflist[x], x, reflist.length);
             
             //Extract {{citation}}
             var reference = extractCitationBody(reflist[x].contents);
@@ -168,7 +168,7 @@ function convertAndReplaceReferences(reflist, text){
             reftext = "|ref name=a" + id + "|" + reference + "|eref|";
             
             //NEEDS TO BE FIXED SO THAT THERE IS ONLY ONE NAME
-            console.log(reftext);
+            //console.log(reftext);
             shortreftext =  "|ref name=a" + id + " /|";  
 
             //Create primitive reference object
@@ -192,14 +192,14 @@ function convertAndReplaceReferences(reflist, text){
         else{
             matches = reflist[x].contents.match(/\<ref(\s+)name(\s*)=(\s*)?\"?(.+?)\"?(\s*)?\/\>/);
             if (matches == null ){
-                console.log("Error: Short reference has no name attribute.");
+                //console.log("Error: Short reference has no name attribute.");
                 return -1;
             }
             else{
                 //Set name
                 name = matches[4];
-                console.log("SHORT NAME: " + name);
-                console.log(reflist[x], x, reflist.length);
+                //console.log("SHORT NAME: " + name);
+                //console.log(reflist[x], x, reflist.length);
                 reflist[x].name = name;
             }
         }   
@@ -208,6 +208,7 @@ function convertAndReplaceReferences(reflist, text){
     //Replace citations with conversion friendly citations
     for (var y=0; y<reflist.length;y++){
         if (reflist[y].isShort){
+            //console.log(reflist[y].name)
             text = text.replace(reflist[y].contents, newrefs[reflist[y].name]["short"]);
             
             //Adjust count number
@@ -215,7 +216,7 @@ function convertAndReplaceReferences(reflist, text){
         }
         else{
             text = text.replace(reflist[y].contents, newrefs[reflist[y].name]["long"]);
-            //console.log("REPLACED WITH: " + newrefs[reflist[y].name]["long"]);
+            ////console.log("REPLACED WITH: " + newrefs[reflist[y].name]["long"]);
         }
     }
 
@@ -224,12 +225,12 @@ function convertAndReplaceReferences(reflist, text){
 
 //Function that updates the citation object singleton
 function convertReferences(citations){
-    // console.log("convert");
-    // console.log(citations);
+    // //console.log("convert");
+    // //console.log(citations);
     //this is working fine
     for (var x=0; x<Object.keys(citations).length; x++){
         var key = Object.keys(citations)[x];
-        // console.log("Key " + key);
+        // //console.log("Key " + key);
         if (!citationSingleton.citations[citations[key].id]){
             var citation = new citationObj(citations[key].id, citationSingleton);
             citation.generateCitationFromWikiCitation(citations[key]);
@@ -261,21 +262,23 @@ function searchWiki()
 var wikiRequest = function() {
     var search = encodeURIComponent($("#wikiSearch").val());
     return $.ajax({
-            url: "https://en.wikipedia.org/w/api.php?action=query&titles=" + search + "&prop=revisions&rvprop=content&format=json",
+            url: "https://en.wikipedia.org/w/api.php?action=query&titles=" + search + "&prop=revisions&rvprop=content&redirects&format=json",
             jsonp: "callback", 
             dataType: 'jsonp', 
             xhrFields: { withCredentials: true },
-            success: function(data) { 
+            success: function(data) {
+            console.log(data); 
                 if (data.query.pages[Object.keys(data.query.pages)[0]].revisions === undefined){
                     $("#wikiSearch").val("Invalid Wikipedia Title");
                     $("#wikiSearch").data("error", true);
                 }
                 else{
                     var contents = data.query.pages[Object.keys(data.query.pages)[0]].revisions[0]["*"];
-                    
+                    //console.log("CONTENTS");
+                    //console.log(contents);
                     //DEBUG VIEW
-                    // console.log("SearchWiki returns stuff below");
-                    // console.log(contents);
+                    // //console.log("SearchWiki returns stuff below");
+                    // //console.log(contents);
                     // This part works
                     //Reset document citations
                     citationSingleton.clear();
@@ -289,34 +292,34 @@ var wikiRequest = function() {
                     //Preserve the images in article (convert to form ##IMG[NUM]##)
                     contents = imagePreservation(contents);
 
-                    // console.log("contents after image preservation");
-                    // console.log(contents);
+                    // //console.log("contents after image preservation");
+                    // //console.log(contents);
                     // contents are fine here
 
-                    console.log("footer sections are");
-                    console.log(footerSections);
+                    //console.log("footer sections are");
+                    //console.log(footerSections);
                     //Partition and set to global footer variable
                     sections = getSectionsByName(contents, footerSections);
 
-                    console.log("sections are");
-                    console.log(sections);
+                    //console.log("sections are");
+                    //console.log(sections);
 
                     //Set content to body of Wiki MarkDown (which is the last element of the array) and then remove from footer array
-                    contents = sections[sections.length-1].content;
+                    var editor_content = sections[sections.length-1].content;
 
-                    console.log("contents after choosing them from sections");
-                    console.log(contents);
+                    //console.log("editor_content after choosing them from sections");
+                    //console.log(editor_content);
 
                     sections.splice(sections.length-1, 1);
 
                     //Extract references from the Wiki mark up
                     var reflist = extractReferences(contents);
-                    console.log(reflist);
+                    //console.log(reflist);
 
                     //Convert references to BioCurator form
-                    var newcontents = convertAndReplaceReferences(reflist, contents);
-                    console.log("convert and Replace references returns");
-                    console.log(newcontents);
+                    var newcontents = convertAndReplaceReferences(reflist, editor_content);
+                    //console.log("convert and Replace references returns");
+                    //console.log(newcontents);
                     //Send to server to convert to HTML
                     processByServer(newcontents);
 
@@ -346,27 +349,27 @@ function checkError(){
  */
 
 function processByServer(obj){
-    console.log("object received by the processByserver is");
-    console.log(obj);
+    //console.log("object received by the processByserver is");
+    //console.log(obj);
 
     var object = {text: encodeURIComponent(obj.content)}; //, citations:obj.citations}
-    console.log("object sent to ajax localhost - process by server");
-    console.log(object);
+    //console.log("object sent to ajax localhost - process by server");
+    //console.log(object);
     $.ajax({
         url: "/wikiToHTML",
         type: "post",
         data: {object: object}, 
         fail: function(err){
-            console.log(err);
+            //console.log(err);
         },
         success: function(data){
             fileOpened = true;
-            console.log("process by server data is logged");
-            console.log(data); // this is undefined
+            //console.log("process by server data is logged");
+            //console.log(data); // this is undefined
             
             var tmpDiv = $('<div />', {html:data});
-            console.log("tmp div is = ");
-            console.log(tmpDiv);
+            //console.log("tmp div is = ");
+            //console.log(tmpDiv);
             var anchors = $(tmpDiv).find("a");
             
             //Fix things that cause weird reference bugs

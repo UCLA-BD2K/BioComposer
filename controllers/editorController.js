@@ -234,7 +234,7 @@ function fixMisMatchQuotesWikiMarkup (str) {
 editorController.prototype._wiki2HTML = function(self, req, res){
     console.log("ENTER HERE");
     var text = decodeURIComponent(req.body.object.text);
-    text=cleanup(text);
+    text=fixMisMatchQuotesWikiMarkup(text);
     //Grab citations
     //var citations = req.body.object.citations;
     var tmpFile = req.user.id;

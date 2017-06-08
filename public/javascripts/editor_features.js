@@ -36,9 +36,11 @@ function escapeHtml(unsafe) {
 
  function clearEditor() {
     return new Promise(function(resolve, reject) {
-        //Init text
+        // Clear saved data and init text
         editor.setData("Start typing here..."); 
         citationSingleton.clear();
+        beginningCode = "";
+        sections=[];
 
         //Init title and modified status
         $("#document_title").val("Untitled");
