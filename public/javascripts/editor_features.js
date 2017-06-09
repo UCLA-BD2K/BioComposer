@@ -220,10 +220,12 @@ function sendHTMLtoServer()
 function downloadWikiMarkUp(data)
 {
     console.log(data);
+    // convert long references without name attr
+    data = data.replace(/\|ref[\s]*\|/g, "<ref>");
     // convert long references
-    data = data.replace(/\|ref name\=a([^\s]+?(?=\|))\|/g, "<ref name=\'a$1\'>");
+    data = data.replace(/\|ref name\=([^\/]+?(?=\|))\|/g, "<ref name=\'$1\'>");
     // convert short reference
-    data = data.replace(/\|ref name\=a(.+?(?= \/\|)) \/\|/g, "<ref name=\'a$1\' />");
+    data = data.replace(/\|ref name\=(.+?(?=\/\|))\/\|/g, "<ref name=\'$1\'/>");
     // convert closing ref tags for long references
     data = data.replace(/\|eref\|/g, "</ref>");
     //Fix bug with quotes in the href

@@ -111,14 +111,17 @@ function extractReferences(text){
     return reflist;   
 }
 
-//Extracts the body of the citation beginning with "{{" and ending with "}}"
+//Extracts the body of the citation between ref tags
 function extractCitationBody(citeString){
-    var start = citeString.indexOf("{{");
-    var end = citeString.indexOf("}}");
-    return citeString.substring(start, end+2);
+    var start = citeString.indexOf(">")+1;
+    var end = citeString.indexOf("<", start);
+    return citeString.substring(start, end);
 }
 
 function convertAndReplaceReferences(reflist, text){
+    // check not null
+    if (!reflist || !text)
+        return;
     var newrefs = {};
     var noName = 0;
     var uniqueRefNum = 1;
@@ -129,56 +132,44 @@ function convertAndReplaceReferences(reflist, text){
         var posEnd = 0;
         var reftext = "";
         var shortreftext = "";
-
+        console.log(reflist[x].contents);
         //If long reference, try to grab the ID
         if (!reflist[x].isShort){
             var newRef = {};
             var id;
             var matches;
             var name;
-
-            posStart = reflist[x].contents.indexOf("pmid = ");
-            if (posStart != -1){
-                //Get to the actual numbers
-                posStart += 7; 
-                posEnd = reflist[x].contents.indexOf(" ", posStart);
-                id = reflist[x].contents.substring(posStart, posEnd);
-            }
-            else
-                id = noName++;
-
-            //EXTRACT NAME 
-            matches = reflist[x].contents.match(/\<ref(\s+)name(\s*)=(\s*)?\"?(.+?)\"?(\s*)?\>/);
-            if (matches == null)
-                name = "a" + id;
-            else
-                name = matches[4];
-
-            //Add name to citation
+ 
+            matches = reflist[x].contents.match(/\<ref name[\s]*\=[\'\"\s]*([^\/]+?)[\'\"\s]*\>/);
+            id = matches ? matches[1] : null;
+            name = id ? id : noName++;
             reflist[x].name = name;
 
-            //DEBUGGING PRINT STATEMENTS
-            //console.log("LONG NAME: " + name);
-            //console.log(reflist[x], x, reflist.length);
-            
-            //Extract {{citation}}
             var reference = extractCitationBody(reflist[x].contents);
 
-            //Now we change the name to 'a' + ID to match BioCurator
-            reftext = "|ref name=a" + id + "|" + reference + "|eref|";
-            
-            //NEEDS TO BE FIXED SO THAT THERE IS ONLY ONE NAME
-            //console.log(reftext);
-            shortreftext =  "|ref name=a" + id + " /|";  
+            reftext = "|ref ";
+            shortreftext =  "|ref ";
+            if (id) {
+                reftext += "name="+ id;
+                shortreftext += "name=" + id 
+            }
+            reftext += "|" + reference + "|eref|";
+            shortreftext +=  " /|";
+
 
             //Create primitive reference object
             newRef["id"] = id;
+            newRef["name"] = name;
             newRef["fullRef"] = reflist[x].contents;
-            newRef["long"] = "<a class='long" + id + "' href=\"" + encodeURIComponent(reftext) + "\" data-id='" + id + "'>|sup data-id='" + id + "'|[" + uniqueRefNum + "]|/sup|</a>";
-            newRef["short"] = "<a class='short" + id + "' href=\"" + encodeURIComponent(shortreftext) + "\" data-id='" + id + "'>|sup data-id='" + id + "'|[" + uniqueRefNum + "]|/sup|</a>";
+            newRef["long"] = "<a class='long" + name + "' href=\"" + 
+                encodeURIComponent(reftext) + "\" data-id='" + name + 
+                "'>|sup data-id='" + name + "'|[" + uniqueRefNum + "]|/sup|</a>";
+            newRef["short"] = "<a class='short" + name + "' href=\"" +
+                encodeURIComponent(shortreftext) + "\" data-id='" + name + 
+                "'>|sup data-id='" + name + "'|[" + uniqueRefNum + "]|/sup|</a>";
             newRef["complete"] = true;
             newRef["count"] = 1;
-            newRef["supTag"] = "<sup data-id='" + id + "'>[" + uniqueRefNum + "]</sup></a>";
+            newRef["supTag"] = "<sup data-id='" + name + "'>[" + uniqueRefNum + "]</sup></a>";
             newRef["supTagReplace"] = "<sup>[" + uniqueRefNum + "]</sup></a>";
 
             //Index by name (citations with name attributes are index by name, otherwise name is set to ID)
@@ -190,25 +181,20 @@ function convertAndReplaceReferences(reflist, text){
         }
         //If short reference, lookup ID
         else{
-            matches = reflist[x].contents.match(/\<ref(\s+)name(\s*)=(\s*)?\"?(.+?)\"?(\s*)?\/\>/);
-            if (matches == null ){
-                //console.log("Error: Short reference has no name attribute.");
-                return -1;
-            }
-            else{
-                //Set name
-                name = matches[4];
-                //console.log("SHORT NAME: " + name);
-                //console.log(reflist[x], x, reflist.length);
-                reflist[x].name = name;
-            }
+            matches = reflist[x].contents.match(/\<ref name[\s]*\=[\'\"\s]*(.+?)[\'\"\s]*\/\>/);
+            id = matches ? matches[1] : null;
+            name = id ? id : noName++;
+            reflist[x].name = name;
         }   
     }
+    console.log(newrefs);
 
     //Replace citations with conversion friendly citations
     for (var y=0; y<reflist.length;y++){
         if (reflist[y].isShort){
             //console.log(reflist[y].name)
+            if (!newrefs[reflist[y].name])
+                console.log(reflist[y])
             text = text.replace(reflist[y].contents, newrefs[reflist[y].name]["short"]);
             
             //Adjust count number

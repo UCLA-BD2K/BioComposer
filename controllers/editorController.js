@@ -257,8 +257,9 @@ editorController.prototype._wiki2HTML = function(self, req, res){
                     console.log(data);
                     data = String(data);
                     
+                    
                     //Replace |sup| with <sup> tags
-                    var reg = /\|sup data-id='([0-9]+)'\|\[([0-9]+)\]\|\/sup\|/g;
+                    var reg = /\|sup data-id='(.+?)'\|\[(.+?)\]\|\/sup\|/g;
                     data = data.replace(reg, "<sup data-id='$1'>[$2]</sup>");
                     
                     res.send(data);
