@@ -67,6 +67,25 @@ function getSectionsByName(article, names){
     return articleArray;
 }
 
+function processPBBTemplate(text) {
+    var regexTemplate = /\{\{[\s]*?PBB_Summary[\s\S]*\}\}/;
+    var regexSummary = /\|\s*?summary_text\s*?\=\s*([\S\s]*)\}\}/g;
+    console.log(text);
+    var matches = regexSummary.exec(text);
+    var summary = "";
+    console.log(matches);
+    console.log(text.match(regexTemplate))
+    if (matches && matches.length > 1) {
+        summary = matches[1];
+    }
+    match = regexTemplate.exec(text);
+    if (match) {
+        summary = "<div class=\"PBB_template\" href=\"" + encodeURIComponent(match[0]) + "\">" + summary + "</div>";
+    }
+    console.log(summary);
+    return text.replace(regexTemplate, summary);
+}
+
 function extractReferences(text){
     //Variables to keep track of references
     var startTag = "<ref";
@@ -128,7 +147,6 @@ function convertAndReplaceReferences(reflist, text){
     for (var x=0; x<reflist.length;x++){
         var reftext = "";
         var shortreftext = "";
-        console.log(reflist[x].contents);
         //If long reference, try to grab the ID
         if (!reflist[x].isShort){
             var newRef = {};
@@ -187,14 +205,11 @@ function convertAndReplaceReferences(reflist, text){
             reflist[x].name = name;
         }   
     }
-    console.log(newrefs);
 
     //Replace citations with conversion friendly citations
     for (var y=0; y<reflist.length;y++){
         if (reflist[y].isShort){
             //console.log(reflist[y].name)
-            if (!newrefs[reflist[y].name])
-                console.log(reflist[y])
             text = text.replace(reflist[y].contents, newrefs[reflist[y].name]["short"]);
             
             //Adjust count number
@@ -255,7 +270,7 @@ var wikiRequest = function() {
             dataType: 'jsonp', 
             xhrFields: { withCredentials: true },
             success: function(data) {
-            console.log(data); 
+                console.log(data)
                 if (data.query.pages[Object.keys(data.query.pages)[0]].revisions === undefined){
                     $("#wikiSearch").val("Invalid Wikipedia Title");
                     $("#wikiSearch").data("error", true);
@@ -280,6 +295,8 @@ var wikiRequest = function() {
                     //Preserve the images in article (convert to form ##IMG[NUM]##)
                     contents = imagePreservation(contents);
 
+
+                    
                     // //console.log("contents after image preservation");
                     // //console.log(contents);
                     // contents are fine here
@@ -294,6 +311,8 @@ var wikiRequest = function() {
 
                     //Set content to body of Wiki MarkDown (which is the last element of the array) and then remove from footer array
                     var editor_content = sections[sections.length-1].content;
+                    editor_content = processPBBTemplate(editor_content);
+                    console.log("editor_content:" + editor_content)
 
                     //console.log("editor_content after choosing them from sections");
                     //console.log(editor_content);

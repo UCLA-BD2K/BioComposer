@@ -203,6 +203,12 @@ function sendHTMLtoServer()
         }     
     });
 
+    // replace original markup for PBB template
+    var pbbTemplate = dom_div.find(".PBB_template");
+    $.each(pbbTemplate, function(i, item) {
+        $(item).replaceWith(decodeURIComponent($(item).attr('href')))
+    })
+
     var processedData = $(dom_div).html();
     console.log("HTML: " + processedData);
     encodedData = encodeURIComponent(processedData); 
