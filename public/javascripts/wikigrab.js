@@ -126,29 +126,26 @@ function convertAndReplaceReferences(reflist, text){
     var noName = 0;
     var uniqueRefNum = 1;
     for (var x=0; x<reflist.length;x++){
-
-        //Variables for lookup
-        var posStart = 0;
-        var posEnd = 0;
         var reftext = "";
         var shortreftext = "";
         console.log(reflist[x].contents);
         //If long reference, try to grab the ID
         if (!reflist[x].isShort){
             var newRef = {};
-            var id;
-            var matches;
-            var name;
- 
-            matches = reflist[x].contents.match(/\<ref name[\s]*\=[\'\"\s]*([^\/]+?)[\'\"\s]*\>/);
-            id = matches ? matches[1] : null;
-            name = id ? id : noName++;
+            
+            // find name attr in ref tag
+            var matches = reflist[x].contents.match(/\<ref name[\s]*\=[\'\"\s]*([^\/]+?)[\'\"\s]*\>/);
+            var id = matches ? matches[1] : null;
+            // if no name attr given, assign number
+            var name = id ? id : noName++;
             reflist[x].name = name;
 
             var reference = extractCitationBody(reflist[x].contents);
 
+            // build long ref and short ref strings
             reftext = "|ref ";
             shortreftext =  "|ref ";
+            // specify name attr if originally given
             if (id) {
                 reftext += "name="+ id;
                 shortreftext += "name=" + id 
@@ -181,9 +178,12 @@ function convertAndReplaceReferences(reflist, text){
         }
         //If short reference, lookup ID
         else{
-            matches = reflist[x].contents.match(/\<ref name[\s]*\=[\'\"\s]*(.+?)[\'\"\s]*\/\>/);
-            id = matches ? matches[1] : null;
-            name = id ? id : noName++;
+            // find name attr in ref tag
+            var matches = reflist[x].contents.match(/\<ref name[\s]*\=[\'\"\s]*(.+?)[\'\"\s]*\/\>/);
+            var id = matches ? matches[1] : null;
+            // if no name attr given, assign number 
+            // (should not occur, since short tags require name specification, but just in case)
+            var name = id ? id : noName++;
             reflist[x].name = name;
         }   
     }
