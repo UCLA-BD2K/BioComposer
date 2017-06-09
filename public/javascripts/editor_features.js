@@ -228,15 +228,22 @@ function downloadWikiMarkUp(data)
     data = data.replace(/\|ref name\=(.+?(?=\/\|))\/\|/g, "<ref name=\'$1\'/>");
     // convert closing ref tags for long references
     data = data.replace(/\|eref\|/g, "</ref>");
-    //Fix bug with quotes in the href
+    // Fix bug with quotes in the href
     data = data.replace(/%27/g, "'");
-    //Fix bug with colons
+    // Fix bug with colons
     data = data.replace(/\\:/g, ":");
     // Specify class for tables
     data = data.replace(/\{\|/g, "{|  class=\"wikitable\"");
+    // specify table headers
+    var header_matches = data.match(/\{[\s]*\|[\S\s]*?\|[\s]*\-/g);
+    for (var i = 0; i < header_matches.length; i++) {
+        // workaround since javascript doesn't support regex lookbehind
+        var str = header_matches[i].replace(/\|/g, "!");
+        str = str.replace(/\{\!/g, "{|");
+        str = str.replace(/\!\-/g, "|-");
+        data = data.replace(header_matches[i], str);
+    }
 
-    
-    
     //Add end of wiki markup back
     var footnotes = ""; 
     for (ele in sections){
