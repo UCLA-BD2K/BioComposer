@@ -236,7 +236,7 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
     
     this.generateShortRef = function()
     {
-        var ref = "|ref name=" + this.id.toString() + "/|";
+        var ref = "|ref name=a" + this.id.toString() + "/|";
         this.shortRef = " <a class='short" + this.id + "' href='" 
             + encodeURIComponent(ref) +"' data-id='" + this.id + "'><sup data-id='" 
             + this.id + "'>[" + this.citeNum + "]</sup></a>";
@@ -266,7 +266,7 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
 
         //Generate the citation text
         // |ref| and |eref| are not RESERVED. We didn't use <ref> tags because they get eliminated in pandoc conversion
-        ref = "|ref name=" + this.id.toString() + "|{{cite web";
+        ref = "|ref name=a" + this.id.toString() + "|{{cite web";
 
         if ($(obj).data("url")) 
             ref += "|url=" + decodeURIComponent($(obj).data("url"));
