@@ -41,6 +41,7 @@ function escapeHtml(unsafe) {
         citationSingleton.clear();
         beginningCode = "";
         sections=[];
+        images=[];
 
         //Init title and modified status
         $("#document_title").val("Untitled");
@@ -236,13 +237,16 @@ function downloadWikiMarkUp(data)
     data = data.replace(/\{\|/g, "{|  class=\"wikitable\"");
     // specify table headers
     var header_matches = data.match(/\{[\s]*\|[\S\s]*?\|[\s]*\-/g);
-    for (var i = 0; i < header_matches.length; i++) {
-        // workaround since javascript doesn't support regex lookbehind
-        var str = header_matches[i].replace(/\|/g, "!");
-        str = str.replace(/\{\!/g, "{|");
-        str = str.replace(/\!\-/g, "|-");
-        data = data.replace(header_matches[i], str);
+    if (header_matches) {
+        for (var i = 0; i < header_matches.length; i++) {
+            // workaround since javascript doesn't support regex lookbehind
+            var str = header_matches[i].replace(/\|/g, "!");
+            str = str.replace(/\{\!/g, "{|");
+            str = str.replace(/\!\-/g, "|-");
+            data = data.replace(header_matches[i], str);
+        }
     }
+    console.log(data);
 
     //Add end of wiki markup back
     var footnotes = ""; 
@@ -256,13 +260,15 @@ function downloadWikiMarkUp(data)
     //Add info box
     data = beginningCode + data;
     
-    //Replace image data
+    //Replace hidden image data with original markup
     if (images != null){
-    for (var x=0;x<images.length;x++){
-        data = data.replace("||IMG" + x + "||", images[x]);
-    }}
+        for (var x=0;x<images.length;x++){
+            var regex = new RegExp("\\<div[\\s\\S]+?\\|\\|IMG0\\|\\|[\\s\\S]+?div\\>", "g");
+            data = data.replace(regex, images[x]);
+        }
+    }
     
-    dwControllerSingleton = new downloadWindowController();
+    
     dwControllerSingleton.open(data);
     /*
     //render data in a new window
@@ -527,6 +533,8 @@ $(document).ready(function(){
     //Init folder nav window
     fwControllerSingleton = new fileWindowController();
     fwControllerSingleton.loadFiles();
+
+    dwControllerSingleton = new downloadWindowController();
 
     //Init ckeditor
     initEditor();  

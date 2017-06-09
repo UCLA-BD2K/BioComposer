@@ -226,14 +226,16 @@ function convertReferences(citations){
     }
 }
 
-//In order to preserver images, we will replace all [[FILE:...]] objects with ##IMG1##, ##IMG2##, etc. as placeholders
+// Preserve images, by replacing all [[FILE:...]] objects with ||IMG1||, ||IMG2||, etc.
+// wrapped in a hidden div so users cannot edit
 function imagePreservation(article){
     var imageRegex = /\[\[\s*File:.*\]\]/g;
     images = article.match(imageRegex);
     if (images != null){
-    for (var x=0;x<images.length;x++){
-        article = article.replace(images[x], "||IMG" + x + "||");
-    }}
+        for (var x=0;x<images.length;x++){
+            article = article.replace(images[x], "<div hidden>||IMG" + x + "||</div>");
+        }
+    }
     return article;
 }
 
