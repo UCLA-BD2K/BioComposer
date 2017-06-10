@@ -269,7 +269,7 @@ function downloadWikiMarkUp(data)
     //Replace hidden image data with original markup
     if (images != null){
         for (var x=0;x<images.length;x++){
-            var regex = new RegExp("\\<div[\\s\\S]+?\\|\\|IMG0\\|\\|[\\s\\S]+?div\\>", "g");
+            var regex = new RegExp("\\<div[\\s\\S]+?\\|\\|IMG" + x + "\\|\\|[\\s\\S]+?div\\>", "g");
             data = data.replace(regex, images[x]);
         }
     }
