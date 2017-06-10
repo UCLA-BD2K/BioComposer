@@ -149,6 +149,12 @@ var fileWindowController = function()
                 url: "/open",
                 data: data,
                 success: function(data){
+                    // reset global variables
+                    citationSingleton.clear();
+                    beginningCode = "";
+                    sections=[];
+                    images=[];
+
                     var d = new Date(data.date_modified);
                     
                     //Set editor data
