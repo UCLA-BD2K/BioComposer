@@ -236,7 +236,7 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
     
     this.generateShortRef = function()
     {
-        var ref = "|ref name=a" + this.id.toString() + "||eref|";
+        var ref = "|ref name=a" + this.id.toString() + "/|";
         this.shortRef = " <a class='short" + this.id + "' href='" 
             + encodeURIComponent(ref) +"' data-id='" + this.id + "'><sup data-id='" 
             + this.id + "'>[" + this.citeNum + "]</sup></a>";
@@ -299,7 +299,8 @@ var citationObj = function(id, parent, citeNum, count, shortRef, longRef, paste_
             }
             ref += " |date=" + pubDateString 
         }
- 
+        
+        ref += " |language=en";
         ref += " |accessdate=" + dateAccessString + "}}|eref|";
 
         this.longRef = " <a class='long" + this.id + "' href='" 

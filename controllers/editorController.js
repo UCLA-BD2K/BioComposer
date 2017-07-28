@@ -206,10 +206,35 @@ editorController.prototype._checkLock = function(self, req, res){
     console.log("check lock");
 };
 
+function fixMisMatchQuotesWikiMarkup (str) {
+    var index = -1;
+    var openQuote=-1;
+    var closeQuote=-1;
+
+    while (index<str.length) {
+        index = str.indexOf("=\"", index+1);
+        if (index!=-1) {
+            var breakChar = str.indexOf("\n", index+2);
+            var lineChar = str.indexOf("|", index+2);
+            var nextIndex = breakChar < lineChar ? breakChar : lineChar; 
+            closeQuote = str.indexOf("\"", index+2)
+            if (closeQuote > nextIndex) {
+                var quoteContent = str.substring(index, nextIndex);
+                str = str.substring(0, index)+str.substring(index).replace(quoteContent, quoteContent+"\" ")
+                console.log("Mismatched quote");
+            }
+            index = closeQuote;
+        }
+        else
+            break;
+    }
+    return str;
+}
+
 editorController.prototype._wiki2HTML = function(self, req, res){
     console.log("ENTER HERE");
     var text = decodeURIComponent(req.body.object.text);
-    
+    text=fixMisMatchQuotesWikiMarkup(text);
     //Grab citations
     //var citations = req.body.object.citations;
     var tmpFile = req.user.id;
@@ -222,22 +247,28 @@ editorController.prototype._wiki2HTML = function(self, req, res){
         console.log("no err");
 
         //File saved successfully
-        var cmd = "pandoc /tmp/" + tmpFile + ".md" + " -f MediaWIki -t HTML -s -o /tmp/" + tmpFile + ".html";
+        var cmd = "pandoc /tmp/" + tmpFile + ".md" + " -f MediaWiki -t HTML -s -o /tmp/" + tmpFile + ".html";
         exec(cmd, function(error, stdout, stderr) {
-            fs.readFile("/tmp/" + tmpFile + ".html", function(err, data) {
-                console.log(data);
-                data = String(data);
-                
-                //Replace |sup| with <sup> tags
-                var reg = /\|sup data-id='([0-9]+)'\|\[([0-9]+)\]\|\/sup\|/g;
-                data = data.replace(reg, "<sup data-id='$1'>[$2]</sup>");
-                
-                res.send(data);
-                
-                //Clean up
-                exec("rm /tmp/" + tmpFile + ".html");
-                exec("rm /tmp/" + tmpFile + ".md");
-            })
+            if (error) {
+                console.log(error);
+            }
+            else {
+                fs.readFile("/tmp/" + tmpFile + ".html", function(err, data) {
+                    console.log(data);
+                    data = String(data);
+                    
+                    
+                    //Replace |sup| with <sup> tags
+                    var reg = /\|sup data-id='(.+?)'\|\[(.+?)\]\|\/sup\|/g;
+                    data = data.replace(reg, "<sup data-id='$1'>[$2]</sup>");
+                    
+                    res.send(data);
+                    
+                    //Clean up
+                    exec("rm /tmp/" + tmpFile + ".html");
+                    exec("rm /tmp/" + tmpFile + ".md");
+                })
+            }
         });
         
     }); 

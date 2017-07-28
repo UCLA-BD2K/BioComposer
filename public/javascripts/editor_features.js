@@ -36,8 +36,12 @@ function escapeHtml(unsafe) {
 
  function clearEditor() {
     return new Promise(function(resolve, reject) {
-        //Init text
+        // Clear saved data and init text
         editor.setData("Start typing here..."); 
+        citationSingleton.clear();
+        beginningCode = "";
+        sections=[];
+        images=[];
 
         //Init title and modified status
         $("#document_title").val("Untitled");
@@ -199,6 +203,12 @@ function sendHTMLtoServer()
         }     
     });
 
+    // replace original markup for PBB template
+    var pbbTemplate = dom_div.find(".PBB_template");
+    $.each(pbbTemplate, function(i, item) {
+        $(item).replaceWith(decodeURIComponent($(item).attr('href')))
+    })
+
     var processedData = $(dom_div).html();
     console.log("HTML: " + processedData);
     encodedData = encodeURIComponent(processedData); 
@@ -217,15 +227,33 @@ function sendHTMLtoServer()
 function downloadWikiMarkUp(data)
 {
     console.log(data);
-    data = data.replace(/\|ref name\=a(.+?(?=\|))\|/g, "<ref name=\'a$1\'>");
-    data = data.replace(/\|ref name\=a(.+?(?=\|)) \|/g, "<ref name=\'a$1\' />");
+    // convert long references without name attr
+    data = data.replace(/\|ref[\s]*\|/g, "<ref>");
+    // convert long references
+    data = data.replace(/\|ref name\=([^\/]+?(?=\|))\|/g, "<ref name=\'$1\'>");
+    // convert short reference
+    data = data.replace(/\|ref name\=(.+?(?=\/\|))\/\|/g, "<ref name=\'$1\'/>");
+    // convert closing ref tags for long references
     data = data.replace(/\|eref\|/g, "</ref>");
-    //Fix bug with quotes in the href
+    // Fix bug with quotes in the href
     data = data.replace(/%27/g, "'");
-    //Fix bug with colons
+    // Fix bug with colons
     data = data.replace(/\\:/g, ":");
-    
-    
+    // Specify class for tables
+    data = data.replace(/\{\|/g, "{|  class=\"wikitable\"");
+    // specify table headers
+    var header_matches = data.match(/\{[\s]*\|[\S\s]*?\|[\s]*\-/g);
+    if (header_matches) {
+        for (var i = 0; i < header_matches.length; i++) {
+            // workaround since javascript doesn't support regex lookbehind
+            var str = header_matches[i].replace(/\|/g, "!");
+            str = str.replace(/\{\!/g, "{|");
+            str = str.replace(/\!\-/g, "|-");
+            data = data.replace(header_matches[i], str);
+        }
+    }
+    console.log(data);
+
     //Add end of wiki markup back
     var footnotes = ""; 
     for (ele in sections){
@@ -238,13 +266,15 @@ function downloadWikiMarkUp(data)
     //Add info box
     data = beginningCode + data;
     
-    //Replace image data
+    //Replace hidden image data with original markup
     if (images != null){
-    for (var x=0;x<images.length;x++){
-        data = data.replace("||IMG" + x + "||", images[x]);
-    }}
+        for (var x=0;x<images.length;x++){
+            var regex = new RegExp("\\<div[\\s\\S]+?\\|\\|IMG" + x + "\\|\\|[\\s\\S]+?div\\>", "g");
+            data = data.replace(regex, images[x]);
+        }
+    }
     
-    dwControllerSingleton = new downloadWindowController();
+    
     dwControllerSingleton.open(data);
     /*
     //render data in a new window
@@ -509,6 +539,8 @@ $(document).ready(function(){
     //Init folder nav window
     fwControllerSingleton = new fileWindowController();
     fwControllerSingleton.loadFiles();
+
+    dwControllerSingleton = new downloadWindowController();
 
     //Init ckeditor
     initEditor();  
